@@ -1,7 +1,7 @@
 /*------Frame-Box------*/
 #iFrameBox {
 	display:none;
-	background: transparent url(http://aopod.googlecode.com/svn/trunk/img/black50.png) repeat scroll top left;
+	background: transparent url(http://git.aopod.com/blog_extern/black50.png) repeat scroll top left;
 	text-align:center;
 	position:fixed;
 	top:0;
