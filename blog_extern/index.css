@@ -1,0 +1,28 @@
+/*------Frame-Box------*/
+#iFrameBox {
+	display:none;
+	background: transparent url(http://aopod.googlecode.com/svn/trunk/img/black50.png) repeat scroll top left;
+	text-align:center;
+	position:fixed;
+	top:0;
+	left:0;
+	width:100%;
+	height:100%;
+	z-index:999;
+}
+
+#iFrameBox2 {
+	margin:auto;
+	background:white;
+	width:90%;
+	-moz-box-shadow: 3px 3px 10px rgba(0, 0, 0, 0.6);
+	-webkit-box-shadow: 3px 3px 10px rgba(0, 0, 0, 0.6);
+	box-shadow: 3px 3px 10px rgba(0, 0, 0, 0.6);
+	box-shadow: 3px 3px 10px rgba(0, 0, 0, 0.6);
+	margin-top:20px;
+	padding:10px;
+	-moz-border-radius: 10px 10px 10px 10px;
+	-webkit-border-radius: 10px 10px 10px 10px;
+	-goog-ms-border-radius: 10px 10px 10px 10px;
+	border-radius: 10px 10px 10px 10px;
+}

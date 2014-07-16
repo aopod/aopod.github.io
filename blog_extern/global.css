@@ -1,0 +1,315 @@
+body {
+	/* background: url("http://ww2.sinaimg.cn/large/81461c5djw1e1rtrzp1gvj.jpg") repeat-x fixed center top #ABD4E6; */
+	background-color:#ABD4E6;
+	background-size:100%;
+	background-position:top center;
+	background-attachment:fixed;
+	background-repeat:repeat-x;
+	background-image: url("http://t.aopod.com/b");
+	font: 14px/1.5 "Century Gothic","Microsoft Yahei",Tahoma,Helvetica,Arial,"SimSun",sans-serif;
+	letter-spacing: 1.6px;
+	padding-top: 60px;
+	text-shadow: 0 0 1px #EEEEEE;
+	-webkit-transition: background 300ms ease-in-out 200ms; 
+    -moz-transition: background 300ms ease-in-out 200ms;
+    -o-transition: background 300ms ease-in-out 200ms;
+    transition: background 300ms ease-in-out 200ms;
+}
+
+.container {
+	width:90%;
+	max-width:1333px;
+}
+
+#header .container {
+	width:90%;
+	max-width:1333px;
+}
+
+#header {
+}
+
+#header .brand {
+	letter-spacing: 1.6px;
+	font-weight:bold;
+	padding-top:2px;
+	padding-bottom:0;
+}
+
+#header .label {
+	margin-top:6px;
+	margin-bottom:5px;
+	margin-right:5px;
+	height:20px;
+	background: url("http://aopod.googlecode.com/svn/trunk/test/img/black50.png") repeat scroll left top transparent;
+}
+#header .label>a {
+	padding-top:1px;
+}
+
+#SearchBox {
+	max-width:300px;
+	min-width:160px;
+	text-align:right;
+}
+
+.gsc-input {
+	max-width:200px;
+	width:20%;
+	min-width:100px;
+}
+
+.date-header {
+	font-size:1.2em;
+}
+
+#content {
+	background: url("http://aopod.googlecode.com/svn/trunk/test/img/white80.png") repeat scroll left top transparent;
+	-webkit-border-radius: 4px;
+	   -moz-border-radius: 4px;
+			border-radius: 4px;
+	padding:16px;
+}
+
+
+
+.item-snippet {
+	word-wrap: break-word;
+	overflow: hidden;
+}
+
+.post-title {
+	font-size:20px;
+	font-weight:bold;
+}
+
+.post-body {
+	margin-left:1em;
+	margin-right:1em;
+	margin-bottom:10px;
+}
+
+.post-body p {
+	text-indent: 2em;
+	margin:0.3em 0;
+}
+
+.jump-link {
+    background: none repeat scroll 0 0 #D9EEF8;
+    border-radius: 5px 5px 5px 5px;
+    float: right;
+    letter-spacing: 0.4em;
+    line-height: 40px;
+    margin-right: 60px;
+    position: relative;
+    text-align: center;
+    width: 80px;
+}
+
+.jump-link:hover {
+	margin-right:40px;
+	width:100px;
+	-moz-transition: .2s ease-in-out;-o-transition: .2s ease-in-out;-webkit-transition: .2s ease-in-out;
+}
+
+.post-footer {
+	margin-top:6px;
+}
+
+.post-outer {
+	background: url("http://aopod.googlecode.com/svn/trunk/test/img/white80.png") repeat scroll left top transparent;
+	-webkit-border-radius: 4px;
+	   -moz-border-radius: 4px;
+			border-radius: 4px;
+	padding-top:10px;
+	padding-left:16px;
+	padding-right:16px;
+	padding-bottom:16px;
+	margin-bottom:16px;
+}
+
+.post-labels a {
+	margin-right:6px;
+}
+
+/*------Next/Prev-------*/
+.blog-pager-newer-link,.blog-pager-older-link {
+	height:48px;
+	width:48px;
+	position:fixed;
+	top:39%;
+	text-indent: -9999px;
+}
+.blog-pager-newer-link {
+	left:20px;
+	background:transparent url(http://aopod.googlecode.com/svn/trunk/img/prev.png);
+}
+.blog-pager-older-link {
+	right:20px;
+	background:transparent url(http://aopod.googlecode.com/svn/trunk/img/next.png);
+}
+/*------Next/Prev-------*/
+
+/*-------Sidebar--------*/
+.sidebar-nav {
+	padding: 6px 0;
+}
+
+#SideBar {
+	width:30%;
+	margin-left:10px;
+}
+
+#SideBar div {
+	word-break:break-all;
+}
+
+#SideBar .well {
+	background:url("http://aopod.googlecode.com/svn/trunk/test/img/white80.png") repeat scroll left top transparent;
+}
+
+#SideBar h2 {
+	font-size:1.1em;
+	font-weight:bold;
+	line-height:20px;
+	padding-top:2px;
+	padding-bottom:2px;
+}
+
+#Label1 {
+	padding-left:10px;
+}
+
+#BlogArchive1_ArchiveList {
+	padding-left:1em;
+}
+
+#BlogArchive1_ArchiveList ul {
+	list-style: none outside none;
+}
+
+#BlogArchive1_ArchiveList li {
+	min-width:130px;
+}
+
+
+/*-----Sidebar End------*/
+
+#footer {
+	margin-top:16px;
+	padding-top:6px;
+	background: url("http://aopod.googlecode.com/svn/trunk/test/img/black80.png") repeat scroll left top transparent;
+}
+
+#footer h2 {
+	font-size:1.4em;
+	font-weight:bold;
+	color:#AAAAAA;
+}
+
+#footer ul {
+	list-style:none outside none;
+	margin-left:1em;
+}
+
+#footer li:first-child {
+	border-top:medium none;
+}
+
+#footer li {
+	padding:0;
+	border-top:1px dashed rgba(128, 128, 128, 0.5);
+}
+
+#footer li>a {
+	color:#99CCEE;
+}
+
+#footer li>a:link {
+	/*color:#336699;*/
+	color:#99CCEE;
+}
+
+#footer li>a:hover {
+	color:#DEDEDE;
+}
+
+#CustomSearch1 {
+	margin-top:6px;
+}
+
+#myFooter {
+	text-align:center;
+	color:#FFF;
+}
+
+#myFooter a {
+	font-weight:bold;
+	color:#F5F5F5;
+}
+
+input.gsc-input {
+	margin:0;
+}
+
+.comment-form {
+	width:100%;
+}
+
+#comment-editor {
+	display:block;
+}
+
+.Article_Picture {
+	text-align:center;
+	width:96%;
+	margin:auto;
+}
+
+.Article_Picture img {
+	border-radius:6px 6px 6px 6px;
+}
+
+.Blog_Picture {
+	text-align:center;
+	width:96%;
+	margin:auto;
+}
+
+.Blog_Picture img {
+	border-radius:6px 6px 6px 6px;
+}
+
+.lyric {
+	margin:auto;
+	width:80%;
+	max-width:500px;
+	min-width:300px;
+	text-align:center;
+}
+.lyric > .title {
+	font-weight:bold;
+	font-size:1.4em;
+}
+
+.lyric > .music {
+	font-size:1.2em;
+	font-style:italic;
+}
+
+.lyric > .words {
+	font-size:1.2em;
+	font-style:italic;
+}
+
+.lyric > .singer {
+	font-size:1.2em;
+	font-style:italic;
+}
+
+.QRCode {
+	height:150px;
+	width:150px;
+	padding-top:6px;
+	margin:auto;
+}
