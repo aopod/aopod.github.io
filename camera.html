@@ -49,7 +49,6 @@
         }
         
         #toggleBtn:before {
-            /*content:'test';*/
             content: "\f137";
             display: block;
             width: 1.6em;
@@ -77,6 +76,7 @@
                     <li class="newWindow">打开新窗口</li>
                     <li class="showNav">显示导航栏</li>
                     <li class="hideNav">隐藏导航栏</li>
+                    <li class="showAlert">alert</li>
                     <li class="dismiss">退出</li>
                     <li></li>
                 </ul>
@@ -85,112 +85,7 @@
                 <p>这边是内容</p>
                 <img src="" id="pict" width="80%">
             </div>
-        </div>
-        <!--这是个测试
-         <p><a href="javascript:void(0);" onclick="window.close();">window.close</a></p> -->
-        <!--<p><a href="javascript:void(0);" onclick="window.open('http://www.cctv.com');">window.open</a></p>
-        <p><a href="javascript:void(0);" onclick="window.open('index.html');">window.open('index.html')</a></p>
-        <p><a href="javascript:void(0);" onclick="uft.navBar('show');">utf.navBar('show')</a></p>
-        <p><a href="javascript:void(0);" onclick="uft.navBar('hide');">utf.navBar('hide')</a></p>
-        <p><a href="javascript:void(0);" onclick="uft.alert('这是一个alert窗口');">utf.alert('这是一个alert窗口')</a></p>
-        <p><a href="javascript:void(0);" onclick="test.alert('show');">test.alert('show')</a></p>
-        <p><a href="javascript:void(0);" onclick="test.alert.onSuccess();">test.alert.onSuccess()</a></p>
-        <p><a href="javascript:void(0);" onclick="test.alert.clear();">test.alert.clear()</a></p>
-        <p><a href="javascript:void(0);" onclick="uft.callback.clear();">uft.callback.clear()</a></p>
-        <p><a href="javascript:void(0);" onclick="uft.callback.run();">uft.callback.run()</a></p>
-        
-        
-            <p id="baseContent"></p>
-         -->
-            
-            <script type="text/javascript">
-                (function() {
-                 if (typeof uftinjected == typeof true) {
-                 return;
-                 }
-                 uftinjected = true;
-                 
-                 window.close = function() {
-                 window.location = 'utfinapp://close';
-                 };
-                 
-                 window.open = function(url) {
-                 window.location = 'utfinapp://open?url=' + btoa(url);
-                 };
-                 
-                 uft = {};
-                 uft.appName = '{{appName}}';
-                 
-                 uft.callback = function() {};
-                 uft.callback.clear = function() {
-                 uft.callback.run = function() {
-                 alert('无回调');
-                 };
-                 };
-                 uft.callback.set = function(callback) {
-                 uft.callback = callback;
-                 };
-                 uft.callback.clear();
-                 
-                 
-                 uft.navBar = function(action) {
-                 window.location = 'utfinapp://navBar?action=' + action;
-                 };
-                 
-                 uft.alert = function(content) {
-                 window.location = 'utfinapp://alert?content=' + content;
-                 };
-                 
-                 uft.camera = function(onSuccess, onFailure) {
-                 uft.callback.run = uft.camera.callback;
-                 window.location = 'utfinapp://camera';
-                 uft.camera.onSuccess = onSuccess;
-                 uft.camera.onFailure = onFailure;
-                 };
-                 
-                 uft.camera.clear = function() {
-                 uft.camera.onSuccess = null;
-                 uft.camera.onFailure = null;
-                 };
-                 
-                 uft.camera.callback = function(data) {
-                 uft.callback.clear();
-                 // alert('callback');
-                 var onSuccess = uft.camera.onSuccess;
-                 var onFailure = uft.camera.onFailure;
-                 uft.camera.clear();
-                 if (data['success'] == true) {
-                 // alert(data['data']);
-                 if (typeof onSuccess == 'function') {
-                 onSuccess(data);
-                 }
-                 } else {
-                 if (typeof onFailure == 'function') {
-                 onFailure(data);
-                 } else {
-                 uft.alert('被取消或发生错误');
-                 }
-                 }
-                 };
-                 
-                 })();
-                 
-                 test = {};
-                 test.alert = function(content) {
-                     alert(content);
-                 };
-            
-            test.alert.onSuccess = function() {
-                alert('onSuccess');
-            };
-            
-            test.alert.clear = function() {
-                test.prototype.alert = function() {
-                    alert('Not supported');
-                };
-            };
-            
-                </script>
+        </div>            
             
             <script type="text/javascript">
                 
@@ -232,9 +127,12 @@
                                               });
                 
                 $('#menuBtns .newWindow').click(function() {
-//                                                alert('new window');
                                                 window.open('http://www.cctv.com');
                                                 });
+
+                $('#menuBtns .showAlert').click(function() {
+                    alert('这是一个alert窗口');
+                });
             </script>
     </body>
 </html>
