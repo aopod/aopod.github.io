@@ -1,0 +1,35 @@
+<head>
+	<meta charset="{{ site.aopod_charset }}">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<!-- viewport -->
+	<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+	<!-- 启用webkit -->
+	<meta name="renderer" content="webkit">
+	<!-- 避免IE使用兼容模式 -->
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<!-- for iOS devices -->
+	<!-- 禁止数字识自动别为电话号码 -->
+	<meta name="format-detection" content="telephone=no" />
+
+	<!-- Up to 70 Characters of Keyword-relevant text here -->
+	<title>{% if page.title %}{{ page.title | escape }}{% else %}{{ site.title | escape }}{% endif %}</title>
+	<!-- 作者 -->
+	<meta name="author" content="{{ site.owner }},{{ site.email }}">
+	<!-- 页面描述内容， 155 characters of message matching text with a call to action goes here -->
+	<meta name="description" content="{% if page.excerpt %}{{ page.excerpt | strip_html | strip_newlines | truncate: 160 }}{% else %}{{ site.description }}{% endif %}">
+	<!-- 搜索引擎索引方式 -->
+	<meta name="robots" content="index,follow">
+	
+	<link rel="canonical" href="{{ page.url | replace:'index.html','' | prepend: site.baseurl | prepend: site.url }}">
+	<link rel="alternate" type="application/rss+xml" title="{{ site.title }}" href="{{ "/feed.xml" | prepend: site.baseurl | prepend: site.url }}">
+
+	<link rel="stylesheet" href="{{ "/css/main.css" | prepend: site.asset_path }}">
+	<link rel="stylesheet" href="{{ "/css/highlight.css" | prepend: site.asset_path }}">
+	<link rel="stylesheet" href="{{ "/css/article.css" | prepend: site.asset_path }}">
+	{% for css in page.imported_css %}
+	<link rel="stylesheet" href="{{ site.asset_path }}/css/{{ css }}">
+	{% endfor %}
+	{% if page.ao_has_math %}
+	<script src="http://kramdown.gettalong.org/MathJax/MathJax.js" type="text/javascript"></script>
+	{% endif %}
+</head>

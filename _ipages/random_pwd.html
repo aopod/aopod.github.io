@@ -1,0 +1,68 @@
+---
+layout: icontainer
+title: 随机密码生成
+permalink: /tools/password_generator
+---
+
+<style type="text/css">
+#pwd_form {
+
+}
+#pwd_form .btn {
+	
+}
+#textObj {
+	width: 100%;
+}
+</style>
+<h2>随机密码生成</h2>
+<form id="pwd_form">
+<fieldset>
+<legend>设置</legend>
+<div class="form-inline">
+	<label class="inline">密码长度 <input id="pwdLength" size="6" value="8"/></label>
+	<label class="inline">生成个数 <input id="pwdNum" size="6" value="10"/></label>
+</div>
+<label>生成类型&#65306;</label>
+	<label class="checkbox inline"><input type="radio" name="genType" value="0" /> 数字</label>
+	<label class="checkbox inline"><input type="radio" name="genType" value="1" /> 数字+小写字母</label>
+	<label class="checkbox inline"><input type="radio" name="genType" value="2" checked="true"/> 数字+大小写字母</label>
+	<label class="checkbox inline"><input type="radio" name="genType" value="3" /> 数字+大小写字母+特殊字符</label>
+</fieldset>
+<fieldset>
+	<legend>生成密码 <button type="button" onclick="genPWD(this.form)" class="btn btn-primary">生成</button></legend>
+	<div style="text-align:center;">
+		<textarea id="textObj" rows="10" class="span10"></textarea>
+	</div>
+</fieldset>
+</form>
+<script type='text/javascript'>
+table = {0:"+",1:"=",2:"-",3:"@",4:"#",5:"~",6:",",7:".",8:"[",9:"]",10:"(",11:")",12:"!",13:"%",14:"^",15:"*",16:"$"}
+function genPWD(iform)
+{
+var len = parseInt(document.getElementById("pwdLength").value,10);
+var num = parseInt(document.getElementById("pwdNum").value,10);
+var txtobj = document.getElementById("textObj");
+var gentype = 2;
+var pwd = "";
+var c;
+var genRange = 26*2+9;
+for (i=0;i<4;i++)
+if (iform.genType[i].checked) {gentype = parseInt(iform.genType[i].value);break;}
+genRange = 9 + 26*gentype;
+if (gentype==3) genRange -= 10; 
+txtobj.value = "";
+for (i=0;i<num;i++)
+{pwd = "";
+for (j=0;j<len;j++)
+{rn = parseInt(Math.random()*genRange);
+if (rn<10) c = rn;
+else if (rn<36) c = String.fromCharCode(rn-10+97);
+else if (rn<62) c = String.fromCharCode(rn-36+65);
+else c = table[rn-62]
+pwd += c;
+}
+txtobj.value += pwd + "\n";
+}
+}
+</script>

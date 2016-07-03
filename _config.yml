@@ -1,0 +1,108 @@
+# Welcome to Jekyll!
+#
+# This config file is meant for settings that affect your whole blog, values
+# which you are expected to set up once and rarely need to edit after that.
+# For technical reasons, this file is *NOT* reloaded automatically when you use
+# 'jekyll serve'. If you change this file, please restart the server process.
+
+# Site settings
+title: AOPOD's Blog
+owner: aopod
+email: aopodcom@gmail.com
+description: > # this means to ignore newlines until "baseurl:"
+  aopod的涂鸦板
+
+baseurl: "" # the subpath of your site, e.g. /blog
+url: "http://www.aopod.com" # the base hostname & protocol for your site
+
+# Build settings
+markdown: kramdown
+
+# Append
+include:  [_ipages, _itags, _icategories, _itools]
+exclude: [backup]
+gems: [jekyll-paginate]
+
+defaults:
+  -
+    scope:
+      path: "" # an empty string here means all files in the project
+    values:
+      author: "MM"
+  -
+    scope:
+      path: "_posts"
+    values:
+      type: "post"
+      comment: true
+      permalink: /:year/:month/:day/:title/
+  -
+    scope:
+      path: "_itags"
+    values:
+      layout: "icontainer"
+      type: "tag"
+      imported_css: "cat_tag.css"
+  -
+    scope:
+      path: "_icategories"
+    values:
+      layout: "icontainer"
+      type: "category"
+      imported_css: "cat_tag.css"
+
+# excerpt_separator: "<!-- more -->"
+
+# Pagination
+paginate: 5
+paginate_path: "/page:num/"
+
+#Custom
+ao_copyright: "AOPOD © <year> • All rights reserved."
+
+asset_path: "/assets"
+
+aopod_charset: "utf-8"
+
+ao_categories: ["iOS", "碎碎念"]
+
+ao_menu_items:
+  -
+    name: 'CATEGORIES'
+    url: '/categories'
+  -
+    name: 'ABOUT ME'
+    url: '/about'
+  -
+    name: '订阅'
+    url: '/feed.xml'
+    target: _blank
+
+ao_bottom_items:
+  -
+    name: "HOME"
+    url: "/"
+  -
+    name: "CATEGORIES"
+    url: "/categories/"
+  # -
+  #   name: "ABOUT"
+  #   url: "/about/"
+  -
+    name: "FEED"
+    url: "/feed.xml"
+
+ao_tools:
+  -
+    name: "种子转磁链"
+    url: "http://mag.aopod.com/"
+  -
+    name: "进制转换"
+    url: "/tools/ary_convert"
+  -
+    name: "随机密码生成"
+    url: "/tools/password_generator"
+  -
+    name: "Bing美图"
+    url: "http://aobing.aopod.com"
+

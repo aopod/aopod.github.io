@@ -1,0 +1,25 @@
+---
+title: Tags
+permalink: /tags/
+---
+
+<div id="list_area">
+<ul>
+{% for tag_info in site.tags %}
+	{% assign tag_name = tag_info | first %}
+	<a href="#tag_{{ tag_name }}"><li>{{ tag_name }}</li></a>
+{% endfor %}
+</ul>
+</div>
+<div id="detail_area">
+{% for tag_info in site.tags %}
+	{% assign tag_name = tag_info | first %}
+	{% assign posts = tag_info | last %}
+	<ul>
+	<h3><a id="tag_{{ tag_name }}">{{ tag_name }}</a></h3>
+	{% for post in posts %}
+		<li><a href="{{ post.url }}">{{ post.title }}</a></li>
+	{% endfor %}
+	</ul>
+{% endfor %}
+</div>

@@ -1,2 +1,52 @@
-<p>My First Page</p>
-<p>We will rock you</p>
+---
+layout: default
+---
+
+<div id="content" class="container">
+  {% assign current_year = null %}
+  {% for post in paginator.posts %}
+    {% assign tmp_year = post.date | date:'%Y' %}
+    {% if current_year %}
+      {% if current_year > tmp_year %}
+        <div class="farewell_past">Hello <strong>{{ current_year }}</strong>, Bye <del>{{ tmp_year }}</del></div>
+        {% assign current_year = tmp_year %}
+      {% endif %}
+    {% else %}
+      {% assign current_year = post.date | date:'%Y' %}
+    {% endif %}
+  <div class="article">
+    <div class="title"><h2><a href="{{ post.url }}">{{ post.title }}</a></h2></div>
+    <div class="brief_info"><time datetime="{{ post.date | date_to_xmlschema }}" itemprop="datePublished">{{ post.date | date: '%Y/%m/%d'}}</time> {% if post.category %} in <a href="/categories/#{{ post.category }}"><span>{{ post.category }}</span></a> {% elsif post.categories %}
+    in
+    {% for category in post.categories %}
+    <a href="/categories/#tag_{{ category }}"><span>{{ category }}</span></a>
+    {% endfor %}
+    {% endif %}</div>
+    <div class="content">
+      {{ post.excerpt }}
+    </div>
+    <a href="{{ post.url }}" class="aread_more"><span class="read_more"><i></i>Read More</span></a>
+  </div>
+  {% endfor %}
+</div>
+
+{% comment %}
+<div id="subscribe">
+  <p class="rss-subscribe">subscribe <a href="{{ "/feed.xml" | prepend: site.baseurl }}" target="_blank">via RSS</a></p>
+</div>
+{% endcomment %}
+
+{% if paginator.previous_page or paginator.next_page %}
+<div id="page_nav" class="container">
+{% if paginator.previous_page %}
+  <div class="prev nav"><a href="{{ paginator.previous_page_path }}">NEWER POSTS</a></div>
+{% else %}
+  <div class="prev nav disabled">NEWER POSTS</div>
+{% endif %}
+{% if paginator.next_page %}
+  <div class="next nav"><a href="{{ paginator.next_page_path }}">OLDER POSTS</a></div>
+{% else %}
+  <div class="next nav disabled">OLDER POSTS</div>
+{% endif %}
+</div>
+{% endif %}

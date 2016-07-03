@@ -1,0 +1,44 @@
+---
+layout: default
+---
+
+<div id="content" class="container">
+  <div class="article">
+    <div class="title"><h2>{{ page.title }}</h2></div>
+    <div class="brief_info"><p class="post-meta"><time datetime="{{ page.date | date_to_xmlschema }}" itemprop="datePublished">{{ page.date | date: "%Y/%m/%d" }}</time>{% if page.category %} in <a href="/categories/#tag_{{ page.category }}"><span>{{ page.category }}</span></a> {% elsif page.categories %}
+    in
+    {% for category in page.categories %}<a href="/categories/#tag_{{ category }}"><span>{{ category }}</span></a>
+    {% endfor %}
+    {% endif %}</div>
+
+    <div class="content">
+      {{ content }}
+    </div>
+
+    {% if page.tags.size > 0 %}
+    <div class="tags">
+      <em>Tags</em>
+      {% for tag in page.tags %}
+        <a href="/tags/#tag_{{ tag }}"><span>{{ tag }}</span></a>
+      {% endfor %}
+    </div>
+    {% endif %}
+
+  </div>
+
+</div>
+
+{% if page.previous or page.next %}
+<div id="page_guide" class="container">
+{% if page.previous %}
+  <div class="previous page">
+  <span>上一篇:</span> <a href="{{ page.previous.url }}">{{ page.previous.title }}</a>
+  </div>
+{% endif %}
+{% if page.next %}
+  <div class="next page">
+    <span>下一篇:</span><a href="{{ page.next.url }}">{{ page.next.title }}</a>
+  </div>
+{% endif %}
+</div>
+{% endif %}

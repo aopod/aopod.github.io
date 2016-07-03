@@ -1,0 +1,25 @@
+---
+title: Categories
+permalink: /categories/
+---
+
+<div id="list_area">
+<ul>
+{% for category_info in site.categories %}
+	{% assign category_name = category_info | first %}
+	<a href="#tag_{{ category_name }}"><li>{{ category_name }}</li></a>
+{% endfor %}
+</ul>
+</div>
+<div id="detail_area">
+{% for category_info in site.categories %}
+	{% assign category_name = category_info | first %}
+	{% assign posts = category_info | last %}
+	<ul>
+	<h3><a id="tag_{{ category_name }}">{{ category_name }}</a></h3>
+	{% for post in posts %}
+		<li><a href="{{ post.url }}">{{ post.title }}</a></li>
+	{% endfor %}
+	</ul>
+{% endfor %}
+</div>

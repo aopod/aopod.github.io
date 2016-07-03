@@ -1,0 +1,87 @@
+
+<div id="author" class="container">
+  <div class="avatar">
+    <a href="/about"><img src={{ "/images/author.jpg" | prepend: site.asset_path }} title="关于我"></a>
+  </div>
+</div>
+
+{% if page.comment == true %}
+<div id="disqus_thread" class="container"></div>
+<script>
+    var disqus_config = function () {
+        this.page.url = {{ page.url | prepend:site.baseurl | prepend:site.url | jsonify }};
+        this.page.identifier = {{ page.url | jsonify}};
+    };
+    (function() {  // DON'T EDIT BELOW THIS LINE
+        var d = document, s = d.createElement('script');
+        
+        s.src = '//aopodcom.disqus.com/embed.js';
+        
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+    })();
+</script>
+{% endif %}
+
+<div id="footer">
+  <div class="share">
+  {% comment %}
+    <div class="btn"></div>
+    <!-- <ul>
+      <li class="weibo"></li>
+    </ul> -->
+    <div class="share_content">
+      <ul>
+        <li class="weixin">
+          <div class="thumb"></div><div class="hint">微信分享</div>
+        </li>
+        <li class="sina">
+          <div class="thumb"></div><div class="hint">分享到新浪微博</div>
+        </li>
+        <li class="qq">
+          <div class="thumb"></div><div class="hint">分享给QQ好友</div>
+        </li>
+        <!-- <li>
+          <div class="thumb douban"></div><div class="hint">分享到豆瓣</div>
+        </li> -->
+        <li class="tweet">
+          <div class="thumb "></div><div class="hint">Tweet This!</div>
+        </li>
+        <!-- <li class="facebook">
+          <div class="thumb"></div><div class="hint">Share on Facebook</div>
+        </li> -->
+      </ul>
+      <div style="width:0;height:0;overflow:hidden;position:relative;">
+      <input value="" style="height:1px;">
+      </div>
+    </div>
+  {% endcomment %}
+  </div>
+
+  <div class="copy_right">
+  {% assign current_year = site.time | date: '%Y' %}
+    <h3>{{ site.ao_copyright | replace: '<year>', current_year }}</h3>
+  {% if site.ao_bottom_items %}
+    <ul class="indexes">
+    {% for item in site.ao_bottom_items %}
+      <li><a href="{{ item.url }}" title="{{ item.name }}">{{ item.name }}</a></li>
+    {% endfor %}
+    </ul>
+  {% endif %}
+  </div>
+
+  <div id="weixinShare"></div>
+{% comment %}
+  <div id="weixin_qr">
+    <div class="content" id="weixin_qr_content"></div>
+  </div>
+{% endcomment %}
+
+  <script   src="https://code.jquery.com/jquery-1.12.4.min.js"   integrity="sha256-ZosEbRLbNQzLpnKIkEdrPv7lOy9C27hHQ+Xp8a4MxAQ="   crossorigin="anonymous"></script>
+  <script type="text/javascript" src="{{ "/js/main.js" | prepend: site.asset_path }}"></script>
+  <script type="text/javascript" src="{{ "/js/qrcode.min.js" | prepend: site.asset_path }}"></script>
+
+
+</div>
+
+{% include statistics.html %}
