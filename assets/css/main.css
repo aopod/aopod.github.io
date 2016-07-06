@@ -11,7 +11,7 @@
 }
 
 .container {
-	width: 48%;
+	width: 52%;
 	min-width: 520px;
 	margin: auto;
 }
@@ -375,18 +375,18 @@ body.menu #menu .ctl:after {
 
 #header {
 	background: rgb(240, 240, 240);
-	/*background-image: url(http://aobing.aopod.com/assets/latest.jpg);*/
-	/*filter: blur(5px);*/
-	/*-webkit-filter: blur(5px);*/
-	background-size: 100% auto;
 	height: 360px;
 	width: 100%;
+	background-image: url(http://aobing.aopod.com/assets/aopod_bg.jpg);
+	/*filter: blur(5px);*/
+	/*-webkit-filter: blur(5px);*/
+	background-size: auto 360px;
 	min-width: 520px;
 	/*overflow-x: hidden;*/
 	position: relative;
 	/*transform: skewX(30deg);*/
 	background-attachment: fixed;
-	background-position: center;
+	background-position: center top;
 	transition: background-position .5s ease;
 	overflow: hidden;
 	z-index: 900;
@@ -435,23 +435,6 @@ body.menu #header {
 
 #header:hover:after {
 	opacity: .3;
-}
-
-#header .bg_image {
-	position: absolute;
-	top: 0;
-	left: 0;
-	width: 100%;
-	min-width: 520px;
-	height: 100%;
-	z-index: 10;
-	background-image: url(http://aobing.aopod.com/assets/latest.jpg);
-	background-size: 100% auto;
-	background-attachment: fixed;
-	background-position: center;
-	transition: background-position .5s ease;
-	/*filter: blur(1px);*/
-	/*-webkit-filter: blur(1px);*/
 }
 
 #header .title {
@@ -710,10 +693,30 @@ body.menu #header {
 	font-size: 16px;
 	margin-bottom: 20px;
 	background-color: rgb(250, 250, 250);
+	position: relative;
+	height: 34px;
+}
+
+#page_guide a {
+	text-decoration: none;
+	color: rgb(100, 100, 100);
+}
+
+#page_guide a:hover {
+	color: rgb(60, 60, 60);
 }
 
 #page_guide .page {
 	line-height: 30px;
+	max-width: 50%;
+}
+
+#page_guide .page.next {
+	float: right;
+}
+
+#page_guide .page.previous {
+	float: left;
 }
 
 #subscribe {
@@ -1137,3 +1140,10 @@ body.menu #header {
 	visibility: visible;
 	opacity: 1;
 }
+
+@media screen and (min-width: 1920px) {
+    #header {
+		background-size: 100% auto;
+	}
+}
+
