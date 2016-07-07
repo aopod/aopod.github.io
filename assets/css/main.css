@@ -28,7 +28,8 @@ body {
 	transition: left .5s ease;
 	width: 100%;
 	background-color: #fefefe;
-	font-family: Arial, Helvetica, "Microsoft YaHei", STHeiti, "黑体","宋体",sans-serif;
+	/*font-family: Arial, Helvetica, "Microsoft YaHei", STHeiti, "黑体","宋体",sans-serif;*/
+	font-family: "lucida grande","lucida sans unicode",lucida,helvetica,"Hiragino Sans GB","Microsoft YaHei","WenQuanYi Micro Hei",sans-serif;
 }
 
 body.menu {
@@ -463,7 +464,7 @@ body.menu #header {
 #content {
 	margin:auto;
 	color: #424143;
-	font-size: 18px;
+	font-size: 16px;
 	line-height: 1.71429em;
 	margin-top: 40px;
 	margin-bottom: 20px;
@@ -543,6 +544,10 @@ body.menu #header {
 
 #content blockquote p {
 	margin: 0;
+}
+
+#content .article .title {
+	font-size: 24px;
 }
 
 #content .article .title a {
