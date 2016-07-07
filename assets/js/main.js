@@ -33,11 +33,6 @@
 				    },
 					'init' : function() {
 					    var thisStyle = thisBody.style;
-						// http://www.abeautifulsite.net/feature-detection-for-css-transitions-via-jquery-support/
-				        // this.transition = (function() {
-					       //  var support = thisStyle.transition !== undefined || thisStyle.WebkitTransition !== undefined || thisStyle.MozTransition !== undefined || thisStyle.MsTransition !== undefined || thisStyle.OTransition !== undefined;
-					       //  return support;
-				        // }());
 				        this.transition = this.property_check(thisStyle, 'transition')
 
 				        var elem = document.createElement('div');
@@ -84,8 +79,6 @@
 							if (scrollTop == null)
 								return;
 							$(scrollTop).click(function() {
-								// _this.scrollTop.scroll(0);
-								// console.log('run');
 								__this.scroll(0);
 							});
 						})();
@@ -127,7 +120,6 @@
 									'<div class="content">' +
 										'<h3>Search Results</h3>' +
 										'<ol id="search_result_area" class="hide">' +
-											// '<li><a href="/">title</a><span></span></li>' +
 										'</ol>' +
 									'</div>' +
 								'</div>' +
@@ -166,18 +158,12 @@
 									return;
 								}
 								_this._search['data'] = data.data;
-								// alert(JSON.stringify(data.data));
 								_this._search.search(keyword);
 							});
 							return;
 						}
-						// alert('data: ' + _this._search['data']);
 						keyword = keyword.trim().toLowerCase();
-						// alert(keyword);
-						// if (keyword.length == 0) {
-						// 	_this._search.show_result();
-						// 	return;
-						// }
+						alert(keyword);
 						var data = _this._search['data'];
 						var keywords = keyword.split(" ");
 						var items = [];
@@ -220,28 +206,21 @@
 								}
 							}
 						}
-						
-						// if (items.length == 0) {
-						// 	alert('No Result');
-						// }
 						_this._search.show_result(items);
 					},
 					'show_result' : function(items) {
-						// alert('show result, count: ' + items.length);
 						var container = $('#search_result_area');
 						items = items || [];
 						if (items.length > 0) {
 							container.removeClass('hide');
 							container.html('');
 						} else {
-							// container.addClass('hide');
 							container.removeClass('hide');
 							container.html('No Result');
 						}
 						for (var i = 0; i < items.length; i++) {
 							var item = items[i];
 							var item_str = '<li><a href="' + item['url'] + '" target="_blank">' + item['title'] + '</a></li>';
-							// alert(item_str);
 							container.append(item_str);
 						}
 					}
@@ -356,19 +335,6 @@
           						$('#footer .share .share_content input').focus();
       						}
     					});
-
-    					/*
-    					var weixinShare = $('#weixinShare');
-      					// http://stackoverflow.com/questions/3552944/how-to-get-the-anchor-from-the-url-using-jquery
-      					var hash = window.location.hash.substring(1);
-      					weixinShare.click(function() {
-        					$(this).removeClass('show');
-      					});
-      					if (hash === 'qr' || 
-        					navigator.userAgent.toLowerCase().match(/MicroMessenger/i) === "micromessenger") {
-        					weixinShare.addClass('show');
-      					}
-      					*/
 					}
 				};
 
@@ -398,12 +364,5 @@
 	$(document).ready(function() {
 		window.aopod = AOPOD_CLASS.create();
 		window.aopod.init();
-		// alert(window.aopod.support.transition);
-		// var template = 'test1: {{abc}}, test2: {{cdef}}, test3:{{abc}}, test4: {{xxxx}}';
-		// var data = {
-		// 	'abc' : 'hehe',
-		// 	'cdef' : '123'
-		// };
-		// alert(window.aopod.template.generate(template, data));
 	});
 })();
