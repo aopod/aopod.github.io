@@ -163,7 +163,6 @@
 							return;
 						}
 						keyword = keyword.trim().toLowerCase();
-						alert(keyword);
 						var data = _this._search['data'];
 						var keywords = keyword.split(" ");
 						var items = [];
