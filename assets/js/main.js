@@ -172,6 +172,12 @@
 							return;
 						}
 						// alert('data: ' + _this._search['data']);
+						keyword = keyword.trim().toLowerCase();
+						// alert(keyword);
+						// if (keyword.length == 0) {
+						// 	_this._search.show_result();
+						// 	return;
+						// }
 						var data = _this._search['data'];
 						var keywords = keyword.split(" ");
 						var items = [];
@@ -179,11 +185,15 @@
 						for (var i = 0; i < data.length; i++) {
 							var item = data[i];
 							for (var j = 0; j < keywords.length; j++) {
-								var keyword = keywords[j];
+								var keyword = keywords[j].trim();
+								if (keyword.length == 0) {
+									continue;
+								}
 								var isHit = false;
 								for (var key in keys) {
 									var value = item[key];
 									if (typeof value == typeof "") {
+										value = value.toLowerCase();
 										if (value.indexOf(keyword) >= 0) {
 											isHit = true;
 											break;
@@ -192,6 +202,7 @@
 										var isHit2 = false;
 										for (var k = 0; k < value.length; k++) {
 											var value2 = value[k];
+											value2 = value2.toLowerCase();
 											if (value2.indexOf(keyword) >= 0) {
 												isHit2 = true;
 												break;
@@ -218,6 +229,7 @@
 					'show_result' : function(items) {
 						// alert('show result, count: ' + items.length);
 						var container = $('#search_result_area');
+						items = items || [];
 						if (items.length > 0) {
 							container.removeClass('hide');
 							container.html('');

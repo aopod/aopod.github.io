@@ -4,9 +4,9 @@ layout: null
 {
     "data" : [
     	{% for post in site.posts %}{
-            "title" : {{ post.title | jsonify | downcase}},
-            "tags" : {{ post.tags | jsonify | downcase }},
-            "categories" : {{ post.categories | jsonify | downcase }},
+            "title" : {{ post.title | jsonify}},
+            "tags" : {{ post.tags | jsonify }},
+            "categories" : {{ post.categories | jsonify }},
             "date_cn" : "{{ post.date | date: "%Y年%m月%d日" }}",
             "url" : {{ post.url | prepend:site.baseurl | prepend:site.url | jsonify }}
     	}{% if forloop.last %}{% else %},{% endif %}
