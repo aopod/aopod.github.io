@@ -539,11 +539,15 @@ body.menu #header {
 
 #content p {
 	margin: 1.2em 0 1.2em 0;
-	line-height: 1.6em;
+	line-height: 1.8em;
 }
 
 #content blockquote p {
 	margin: 0;
+}
+
+#content h1 {
+	margin-top: 1em;
 }
 
 #content .article .title {
