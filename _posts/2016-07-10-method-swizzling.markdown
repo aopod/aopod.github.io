@@ -53,7 +53,7 @@ tags: Runtime
 
 首先，创建一个Category (当然不是用来直接重写`ViewWillAppear:`方法)。
 
-{% highlight objective-c %}
+{% highlight objc %}
 
 #import <objc/runtime.h>
 

@@ -26,7 +26,7 @@ Objective-C对于命名是有自己一套规则，比如对于引用计数有一
 
 我们在Objective-C中可以使用这样的语法：`obj.property1.property2 = @"aopod";`，那么在KVC中我们有没有类似的方法？答案是肯定的，通过点语法我们能够做到这个。
 
-{% highlight Objective-C %}
+{% highlight objc %}
 [obj setValue:@"aopod" forKeyPath:@"property1.property2.value"];
 {% endhighlight %}
 
@@ -38,7 +38,7 @@ Objective-C对于命名是有自己一套规则，比如对于引用计数有一
 
 KVC的一大功用便是简化代码。在逻辑有很多分支的情况下，我们很可能会写出下面这样一段代码：
 
-{% highlight Objective-C %}
+{% highlight objc %}
 - (id)tableView:(NSTableView *)tableview
       objectValueForTableColumn:(id)column row:(NSInteger)row {
  
@@ -58,7 +58,7 @@ KVC的一大功用便是简化代码。在逻辑有很多分支的情况下，�
 
 上述代码虽然结构简单固定，但如果需要处理的分支变多，那么代码将会极为庞大，并且很容易在拼写方面出错不好排查，对于日后的管理是不利的。所幸我们有KVC：
 
-{% highlight Objective-C %}
+{% highlight objc %}
 - (id)tableView:(NSTableView *)tableview
       objectValueForTableColumn:(id)column row:(NSInteger)row {
  
@@ -77,7 +77,7 @@ KVC的一大功用便是简化代码。在逻辑有很多分支的情况下，�
 
 如果比较传统点，我们可以通过下面的方式初始化对象：
 
-{% highlight Objective-C %}
+{% highlight objc %}
 APDKVCTestObject * testObject = [[APDKVCTestObject alloc] init];
 testObject.aString = @"a";
 testObject.bString = @"b";
@@ -86,7 +86,7 @@ testObject.cString = @"c";
 
 可以想见，如果Property多了的话，这一定是个灾难。在KVC的帮助下，我们又可以得到救赎了：
 
-{% highlight Objective-C %}
+{% highlight objc %}
 APDKVCTestObject * testObject = [[APDKVCTestObject alloc] init];
 [testObject setValuesForKeysWithDictionary:@{@"aString": @"a", @"bString": @"b", @"cString": @"c"}];
 {% endhighlight %}
@@ -129,7 +129,7 @@ KVC同样规定了值校验的规范，对于属性值校验的方法名一般�
 
 `@avg`操作符使用`valueForKeyPath:`获取特定的值，将值转换为double后取得平均值后以NSNumber类型返回。如果为nil，则默认为0。
 
-{% highlight Objective-C %}
+{% highlight objc %}
 NSNumber *transactionAverage = [transactions valueForKeyPath:@"@avg.amount"];
 {% endhighlight %}
 
@@ -139,7 +139,7 @@ NSNumber *transactionAverage = [transactions valueForKeyPath:@"@avg.amount"];
 
 `@count`操作符获取keypathToCollection的元素个数，并以NSNumber形式返回。
 
-{% highlight Objective-C %}
+{% highlight objc %}
 NSNumber *numberOfTransactions = [transactions valueForKeyPath:@"@count"];
 {% endhighlight %}
 
@@ -147,7 +147,7 @@ NSNumber *numberOfTransactions = [transactions valueForKeyPath:@"@count"];
 
 `@max`求取集合元素的keypathToProperty的最大值。
 
-{% highlight Objective-C %}
+{% highlight objc %}
 NSDate *latestDate = [transactions valueForKeyPath:@"@max.date"];
 {% endhighlight %}
 
@@ -155,7 +155,7 @@ NSDate *latestDate = [transactions valueForKeyPath:@"@max.date"];
 
 `@min`求取集合元素的keypathToProperty的最小值。
 
-{% highlight Objective-C %}
+{% highlight objc %}
 NSDate *earliestDate = [transactions valueForKeyPath:@"@min.date"];
 {% endhighlight %}
 
@@ -163,7 +163,7 @@ NSDate *earliestDate = [transactions valueForKeyPath:@"@min.date"];
 
 `@sum`对集合元素的keypathToProperty转换为double后求和，并以NSNumber类型返回。如果为nil，则直接跳过。
 
-{% highlight Objective-C %}
+{% highlight objc %}
 NSNumber *amountSum = [transactions valueForKeyPath:@"@sum.amount"];
 {% endhighlight %}
 
@@ -174,7 +174,7 @@ NSNumber *amountSum = [transactions valueForKeyPath:@"@sum.amount"];
 
 `@distinctUnionOfObjects`返回keypathToProperty的唯一的所有值的集合。如下所示，将会返回对象payee属性不重复的所有payee值。
 
-{% highlight Objective-C %}
+{% highlight objc %}
 NSArray *payees = [transactions valueForKeyPath:@"@distinctUnionOfObjects.payee"];
 {% endhighlight %}
 
@@ -184,7 +184,7 @@ NSArray *payees = [transactions valueForKeyPath:@"@distinctUnionOfObjects.payee"
 
 `@unionOfObjects`类似`@distinctUnionOfObjects`，但会保留相同的值。
 
-{% highlight Objective-C %}
+{% highlight objc %}
 NSArray *payees = [transactions valueForKeyPath:@"@unionOfObjects.payee"];
 {% endhighlight %}
 
@@ -211,7 +211,7 @@ KVC存取值的主要方法有：`valueForKey:`, `setValue:forKey:`, `mutableArr
 
 同时需要注意的是，*如果对于非对象的属性，需要对设置为nil的情况通过`setNilValueForKey:`进行处理*，例如我们有BOOL类型的`hidden`:
 
-{% highlight Objective-C %}
+{% highlight objc %}
 - (void)setNilValueForKey:(NSString *)theKey {
  
     if ([theKey isEqualToString:@"hidden"]) {
@@ -235,7 +235,7 @@ KVC存取值的主要方法有：`valueForKey:`, `setValue:forKey:`, `mutableArr
 
 如：
 
-{% highlight Objective-C %}
+{% highlight objc %}
 - (NSUInteger)countOfEmployees {
     return [self.employees count];
 }
@@ -265,7 +265,7 @@ KVC存取值的主要方法有：`valueForKey:`, `setValue:forKey:`, `mutableArr
 
 如:
 
-{% highlight Objective-C %}
+{% highlight objc %}
 - (void)insertObject:(Employee *)employee inEmployeesAtIndex:(NSUInteger)index {
     [self.employees insertObject:employee atIndex:index];
     return;
@@ -313,7 +313,7 @@ KVC存取值的主要方法有：`valueForKey:`, `setValue:forKey:`, `mutableArr
 
 如下：
 
-{% highlight Objective-C %}
+{% highlight objc %}
 - (NSUInteger)countOfTransactions {
     return [self.transactions count];
 }
@@ -337,7 +337,7 @@ KVC存取值的主要方法有：`valueForKey:`, `setValue:forKey:`, `mutableArr
 
 实现如下：
 
-{% highlight Objective-C %}
+{% highlight objc %}
 - (void)addTransactionsObject:(Transaction *)anObject {
     [self.transactions addObject:anObject];
 }
