@@ -55,14 +55,11 @@ body.menu {
 	top: 0;
 	left: -284px;
 	color: #aaaaaa;
-	/*border-right: 4px solid #444444;*/
 	transition: left .6s ease;
 }
 
 #fade {
-	/*display: none;*/
 	z-index: 2147483645;
-	/*background-color: red;*/
 	background-image: url(../images/black50.png);
 	height: 100%;
 	width: 100%;
@@ -80,23 +77,8 @@ body.menu #menu {
 
 body.menu #fade {
 	visibility: visible;
-	/*display: block;*/
 	opacity: 1;
 }
-
-/*#menu:after {
-	content: 'M';
-	position: absolute;
-	right: -50px;
-	width: 40px;
-	height: 40px;
-	background-color: #999999;
-	line-height: 40px;
-	text-align: center;
-	font-size: 24px;
-	border-radius: 4px;
-	cursor: pointer;
-}*/
 
 #menu .ctl {
 	position: absolute;
@@ -121,15 +103,12 @@ body.menu #fade {
 }
 
 #menu .ctl:after {
-	/*content: 'M';*/
-	/*content: '';*/
 	content: '';
 	height: 100%;
 	width: 100%;
 }
 
 body.menu #menu .ctl:after {
-	/*content: 'H';*/
 	content: '';
 }
 
@@ -154,13 +133,9 @@ body.menu #menu .ctl:after {
 	font-size: 16px;
 	line-height: 30px;
 	text-align: center;
-	/*position: fixed;*/
 	position: absolute;
 	right: 30px;
-	/*top: 30px;*/
 	top: 100px;
-	/*background-color: #fff;*/
-	/*background-image: url(img/white80.png);*/
 	background-color: #262626;
 	color: #fff;
 	cursor: pointer;
@@ -187,13 +162,11 @@ body.menu #menu .ctl:after {
 	z-index: 2147483644;
 	width: 100%;
 	height: 100%;
-	/*display: none;*/
 	visibility: hidden;
 	background-image: url(../images/black50.png);
 }
 
 #search.show {
-	/*display: block;*/
 	visibility: visible;
 }
 
@@ -328,7 +301,6 @@ body.menu #menu .ctl:after {
 }
 
 #menu .category li {
-	/*margin-bottom: .6em;*/
 	list-style: none;
 	padding: .4em 0;
 }
@@ -379,13 +351,9 @@ body.menu #menu .ctl:after {
 	height: 360px;
 	width: 100%;
 	background-image: url(http://aobing.aopod.com/assets/aopod_bg.jpg);
-	/*filter: blur(5px);*/
-	/*-webkit-filter: blur(5px);*/
 	background-size: auto 360px;
 	min-width: 520px;
-	/*overflow-x: hidden;*/
 	position: relative;
-	/*transform: skewX(30deg);*/
 	background-attachment: fixed;
 	background-position: center top;
 	transition: background-position .5s ease;
@@ -468,6 +436,10 @@ body.menu #header {
 	line-height: 1.71429em;
 	margin-top: 40px;
 	margin-bottom: 20px;
+}
+
+#content h2 {
+	line-height: 1.2em;
 }
 
 #content a {
