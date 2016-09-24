@@ -455,6 +455,14 @@ body.menu #header {
 	margin-bottom: 40px;
 }
 
+#content table {
+	min-width: 98%;
+}
+
+#content table th {
+	text-align: left;
+}
+
 #content code, #content kbd {
 	background: #e8f2fb none repeat scroll 0 0;
     border: 1px solid #c9e1f6;
