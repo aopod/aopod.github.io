@@ -1,7 +1,7 @@
 ---
 layout: post
 title:  "字节序"
-date:   2016-09-25 06:10:00 +0800
+date:   2016-09-25 18:10:00 +0800
 categories: Architecture
 tags: Low-level Fundamental
 ---
