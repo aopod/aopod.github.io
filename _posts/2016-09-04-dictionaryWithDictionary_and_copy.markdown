@@ -3,7 +3,7 @@ layout: post
 title:  "dictionaryWithDictionary和copy引起的思考"
 date:   2016-09-04 22:30:00 +0800
 categories: iOS
-tags: Objective-C Assembly
+tags: Objective-C Assembly Low-level
 ---
 
 在开发过程中，常见到这样的写法：`[NSDictionary dictionaryWithDictionary:otherDict]`、`[otherDict copy]`。在很多情况下，我们甚至不用去考虑两种方法的异同，随机地选择用哪个方法。但二者又确确实实地有着些许不同。
