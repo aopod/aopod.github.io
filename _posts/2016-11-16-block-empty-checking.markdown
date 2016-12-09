@@ -148,7 +148,7 @@ libobjc.A.dylib`objc_storeStrong:
     0x10e4f5d1a <+64>: nopw   (%rax,%rax)
 {% endhighlight %}
 
-虽然也可以分析下汇编，但还是尽量避免这种分析吧，搜一搜`objc_storeStrong`能够找到[clang文档][http://clang.llvm.org/docs/AutomaticReferenceCounting.html#arc-runtime-objc-storestrong]关于`objc_storeStrong`的实现如下：
+虽然也可以分析下汇编，但还是尽量避免这种分析吧，搜一搜`objc_storeStrong`能够找到[clang文档](http://clang.llvm.org/docs/AutomaticReferenceCounting.html#arc-runtime-objc-storestrong)关于`objc_storeStrong`的实现如下：
 
 {% highlight objc %}
 id objc_storeStrong(id *object, id value) {
