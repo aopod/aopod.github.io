@@ -159,7 +159,7 @@ body.menu #menu .ctl:after {
 	position: fixed;
 	top: 0;
 	left: 0;
-	z-index: 2147483644;
+	z-index: 2147483647;
 	width: 100%;
 	height: 100%;
 	visibility: hidden;
@@ -352,7 +352,6 @@ body.menu #menu .ctl:after {
 	width: 100%;
 	background-image: url(http://aobing.aopod.com/assets/aopod_bg.jpg);
 	background-size: auto 360px;
-	min-width: 520px;
 	position: relative;
 	background-attachment: fixed;
 	background-position: center top;
@@ -528,6 +527,7 @@ body.menu #header {
 
 #content h1 {
 	margin-top: 1em;
+	line-height: 1.4em;
 }
 
 #content .article .title {
@@ -1136,3 +1136,44 @@ body.menu #header {
 	}
 }
 
+@media (max-width: 500px) {
+	.container {
+		width: 92%;
+		min-width: 100px;
+	}
+
+	#search .wrap {
+		width: 90%;
+	}
+
+	#search.show .wrap {
+		left: 5%;
+	}
+
+	#search .wrap .search_box {
+		width: 100%;
+	}
+
+	#search .wrap .content {
+		width: 100%;
+	}
+
+	#header {
+		height: 240px;
+		background-size: auto 240px;
+	}
+
+	body.menu #header {
+		background-size: auto 240px;
+		background-position: 50% 0;
+	}
+
+	#header .title {
+		top: 80px;
+		font-size: 20px;
+	}
+
+	#author .avatar img {
+		width: 120px;
+	}
+}
