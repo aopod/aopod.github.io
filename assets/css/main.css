@@ -452,6 +452,11 @@ body.menu #header {
 
 #content .article {
 	margin-bottom: 40px;
+	word-wrap: break-word;
+}
+
+#content .article img {
+	max-width: 100%;
 }
 
 #content table {
@@ -1175,5 +1180,9 @@ body.menu #header {
 
 	#author .avatar img {
 		width: 120px;
+	}
+
+	#content .article figure {
+		margin: 0;
 	}
 }
