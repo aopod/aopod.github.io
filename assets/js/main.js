@@ -291,7 +291,7 @@
 '    <li class="qq"><div class="thumb"></div><div class="hint">分享给QQ好友</div></li>' +
 '    <li class="tweet"><div class="thumb "></div><div class="hint">Tweet This!</div></li>' +
 '  </ul>' +
-'  <div style="width:0;height:0;overflow:hidden;position:relative;"><input value="" style="height:1px;"></div>' +
+'  <div style="width:0;height:0;overflow:hidden;position:relative;"><input value="" style="height:0px;" readonly></div>' +
 '</div>';
 						return html;
 					},
@@ -332,6 +332,9 @@
       						} else {
         						$(obj).addClass('show');
           						$('#footer .share .share_content input').focus();
+          						setTimeout(function() {
+          							$(obj).removeClass('show');
+          						}, 5000);
       						}
     					});
 					}
