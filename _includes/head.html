@@ -16,10 +16,8 @@
 
 	<link rel="stylesheet" href="{{ "/css/main.css" | prepend: site.asset_path }}">
 	<link rel="stylesheet" href="{{ "/css/highlight.css" | prepend: site.asset_path }}">
-	<link rel="stylesheet" href="{{ "/css/article.css" | prepend: site.asset_path }}">
-	{% for css in page.imported_css %}
-	<link rel="stylesheet" href="{{ site.asset_path }}/css/{{ css }}">
-	{% endfor %}
+	<!-- <link rel="stylesheet" href="{{ "/css/article.css" | prepend: site.asset_path }}"> -->
+	{% for css in page.imported_css %}<link rel="stylesheet" href="{{ site.asset_path }}/css/{{ css }}">{% endfor %}
 	{% if page.ao_has_math %}
 	<script src="http://kramdown.gettalong.org/MathJax/MathJax.js" type="text/javascript"></script>
 	{% endif %}
