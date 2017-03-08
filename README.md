@@ -1,3 +1,3 @@
-# aopod.com
+# [aopod.com](http://www.aopod.com)
 
-![Image](https://images.weserv.nl/?url=aobing.aopod.com/assets/aopod_bg.jpg)
+![Image](https://raw.githubusercontent.com/aopod/bing_images/gh-pages/assets/aopod_bg.jpg)
