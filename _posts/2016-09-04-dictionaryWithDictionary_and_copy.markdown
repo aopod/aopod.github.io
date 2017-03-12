@@ -344,7 +344,9 @@ for (NSInteger i = 0; i < 102400; i++) {
 
 当然以上仅仅是在模拟器中获取x86_64汇编代码的，跟ARM中指令还是有所区别的，但我想逻辑理应是相通的，有时间再去看看是否真机中也是如此（我想是个有生之年系列）。
 
-PS: 在准备提交一个Pull Request的时候发现最新版本已经为有问题的方法添加上了dispatch_barrier_async、dispatch_sync等，残念。
+PS: 在准备提交一个Pull Request的时候发现最新版本已经为有问题的方法添加上了`dispatch_barrier_async`、`dispatch_sync`等，残念。
+
+PS2: 事实上`dispatch_barrier_async`、`dispatch_sync`的方案作为此问题的patch是很好的，可以兼顾到其他情况，所以不要学我:D。
 
 *最后的最后，嗯，我只是把`[NSDictionary dictionaryWithDictionary:otherDict]`改成`[otherDict copy]`而已。*
 
