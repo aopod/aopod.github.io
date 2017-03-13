@@ -53,6 +53,16 @@ tags: Javascript Chrome Extension
 
 	虽然如果页面包含此类信息的话，在手机打开后的页面顶部会有banner提示打开app，但这样如果想直接打开app也就意味着重复进入两次了。虽然直接打开iOS URL相关的地址，比如`zhihu://question/xxxx`，在微信上显示的是空白页面，但选择在系统浏览器中打开即可直接打开app。
 
+## Version 1.3.0 (2017-03-13)
+
+- 允许调整问题页面字体大小
+
+	想来字体大小的调整应该是个刚需了，于我来说，在笔记本屏幕上感觉是偏小了点儿，于是就顺手做了调整文字大小的功能。调整方式如下（对应按键）：
+
+	* `0` 恢复默认大小
+	* `-` 缩小字体大小
+	* '=' 增加字体大小
+
 # 用法
 
 - Clone之
@@ -65,6 +75,17 @@ tags: Javascript Chrome Extension
 	2. 勾选`Developer mode`
 	3. `Load unpacked extension`选择clone下来的repository
 	4. 就酱
+
+# 更新
+
+- 进入Clone的目录，执行：
+
+	> git pull
+
+- 进入设置重新载入
+
+	1. 进入`chrome://extensions`
+	2. 对应扩展下选择`Reload`
 
 # 吐槽
 
