@@ -61,7 +61,7 @@ tags: Javascript Chrome Extension
 
 	* `0` 恢复默认大小
 	* `-` 缩小字体大小
-	* '=' 增加字体大小
+	* `=` 增加字体大小
 
 # 用法
 
