@@ -1,10 +1,7 @@
-#list_area {
-
-}
+#list_area {}
 
 #list_area ul {
 	padding-left: 0;
-	/*text-align: center;*/
 }
 
 #list_area li {
