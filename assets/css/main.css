@@ -22,18 +22,15 @@ body {
 	position: absolute;
 	top: 0;
 	left: 0;
-	/*transition: transform .6s ease;*/
 	overflow-x: hidden;
 	overflow-y: scroll;
 	transition: left .5s ease;
 	width: 100%;
 	background-color: #fefefe;
-	/*font-family: Arial, Helvetica, "Microsoft YaHei", STHeiti, "黑体","宋体",sans-serif;*/
 	font-family: "lucida grande","lucida sans unicode",lucida,helvetica,"Hiragino Sans GB","Microsoft YaHei","WenQuanYi Micro Hei",sans-serif;
 }
 
 body.menu {
-	/*transform: translateX(284px);*/
 	left: 120px;
 	overflow: hidden;
 }
