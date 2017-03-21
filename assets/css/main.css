@@ -204,7 +204,6 @@ body.menu #menu .ctl:after {
 	color: white;
 	width: 80%;
 	font-size: 1em;
-	/*float: left;*/
 }
 
 #search .wrap .search_box input:focus {
@@ -226,7 +225,6 @@ body.menu #menu .ctl:after {
 }
 
 #search .wrap .search_box .close:after {
-	/*content: 'x';*/
 	content: '';
 }
 
@@ -241,7 +239,6 @@ body.menu #menu .ctl:after {
 
 #search_result_area {
 	background-image: url(../images/black50.png);
-	/*padding: 10px 12px;*/
 	padding-top: 10px;
 	padding-bottom: 10px;
 }
