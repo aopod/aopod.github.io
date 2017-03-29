@@ -63,6 +63,11 @@ tags: Javascript Chrome Extension
 	* `-` 缩小字体大小
 	* `=` 增加字体大小
 
+## Version 1.3.1 (2017-03-28)
+
+- 问题页面收起评论优化
+- 修复文字大小调整问题
+
 # 用法
 
 - Clone之
