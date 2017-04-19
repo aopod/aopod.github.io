@@ -75,7 +75,7 @@ ao_menu_items:
     name: 'ABOUT ME'
     url: '/about'
   -
-    name: 'Github'
+    name: 'GitHub'
     url: 'https://github.com/aopod/'
     target: _blank
   -

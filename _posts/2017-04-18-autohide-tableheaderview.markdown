@@ -179,11 +179,11 @@ tags: Objective-C UITableView
 }
 {% endhighlight %}
 
-当然上面这段代码是略过了一些细节，完整的代码可以在github中看到。
+当然上面这段代码是略过了一些细节，完整的代码可以在GitHub中看到。
 
 ## 完善方案
 
-方案二和方案三都可以作为正式的解决方案，但是依然有可以改进的空间。对于UI开发来说，最重要的还是需要支持Interface Builder。所以最终github上的代码是针对Interface Builder作了改进了的。
+方案二和方案三都可以作为正式的解决方案，但是依然有可以改进的空间。对于UI开发来说，最重要的还是需要支持Interface Builder。所以最终GitHub上的代码是针对Interface Builder作了改进了的。
 
 然后需要支持方便地集成进项目，这边就选用了Cocoapods。分为了两个子Subspec：UIView和UITableView。可单独导入项目。
 
@@ -197,11 +197,11 @@ tags: Objective-C UITableView
 
 总的来说方案一只是个过渡产物，看看就好。方案二和方案三都是可以用的，方案二更为简洁但有小问题；方案三复杂些但适用范围稍广些，但因用上了私有API，可能在上架AppStore时被拒。而且在研究过程中，感觉方案二兼容性还是更强，毕竟说不定哪天UITableView的实现方式又变了……其实在项目开发过程中还是看心情使用了。（毕竟像我这种懒人说不定就用了方案二:D）。
 
-## Github & Cocoapods
+## GitHub & Cocoapods
 
-### Github
+### GitHub
 
-代码整理到了[Github](https://github.com/aopod/AOPAutohideTableViewHeader)上，细节上和文中会有些许不同，文中考虑可读性还是精简了一些东西。
+代码整理到了[GitHub](https://github.com/aopod/AOPAutohideTableViewHeader)上，细节上和文中会有些许不同，文中考虑可读性还是精简了一些东西。
 
 > [https://github.com/aopod/AOPAutohideTableViewHeader](https://github.com/aopod/AOPAutohideTableViewHeader)
 
