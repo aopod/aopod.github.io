@@ -75,6 +75,10 @@ ao_menu_items:
     name: 'ABOUT ME'
     url: '/about'
   -
+    name: 'Github'
+    url: 'https://github.com/aopod/'
+    target: _blank
+  -
     name: '订阅'
     url: '/feed.xml'
     target: _blank
