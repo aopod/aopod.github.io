@@ -52,7 +52,7 @@ defaults:
       type: "category"
       imported_css: "cat_tag.css"
 
-# excerpt_separator: "<!-- more -->"
+excerpt_separator: "<!-- more -->"
 
 # Pagination
 paginate: 6

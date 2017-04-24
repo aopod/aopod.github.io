@@ -8,6 +8,8 @@ tags: Javascript Chrome Extension
 
 知乎改版有一段时间了，新版褒贬不一。鉴于自己并不是知乎重度患者，所以对我来说虽有些瑕疵，自己动动手就好了。于是写了[*一个Chrome扩展*](https://github.com/aopod/aopod-zhihu-extension)，慢慢完善。
 
+<!-- more -->
+
 # Github地址
 
 [aopod-zhihu-extension](https://github.com/aopod/aopod-zhihu-extension)

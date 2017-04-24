@@ -8,6 +8,7 @@ tags: Objective-C Compiler Clang
 
 __attribute__指令在C、C++和Objective-C中修饰一段代码，用处一是为编译器提供上下文，用处之二是为未来看到这段代码的人（包括自己）提供额外的信息。__attribute__指令对编译器优化有重要意义，并且对于开发者来说一定程度的额外信息是有积极意义的。在开发过程中可以发现苹果的SDK中已经普遍运用了__attribute__指令。
 
+<!-- more -->
 
 __attribute__指令格式如下：
 

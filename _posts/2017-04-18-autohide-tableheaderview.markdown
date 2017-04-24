@@ -8,6 +8,7 @@ tags: Objective-C UITableView
 
 可以说UITableView是iOS开发中极为重要的一个View。其头部(Header)的展示也是非常重要。其中一种常见的需求就是Header跟随TableView滑动中间，需要根据情况将头部收起或者完全展示出来。当然常见的做法可以通过KVO监听contentOffset，或者通过UIScrollViewDelegate获取contentOffset的值后进行处理——直到我注意到UISearchBar竟然完美地实现了这个效果，于是就有了本文。
 
+<!-- more -->
 
 # 效果预览
 

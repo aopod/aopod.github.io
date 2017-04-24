@@ -9,6 +9,7 @@ tags: Objective-C Assembly Low-Level Design-Pattern
 
 在iOS开发中，广泛运用了类蔟(Class clusters)的设计模式。如NSNumber、NSString、NSArray等。类簇其实是对现实的一种抽象和封装，基于抽象工厂模式(Abstract Factory Pattern)。最近在读书过程中联想到一些东西，于是尝试更加深入地去了解它。
 
+<!-- more -->
 
 # 问题
 

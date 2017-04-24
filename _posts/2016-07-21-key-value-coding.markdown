@@ -8,6 +8,8 @@ tags: Objective-C
 
 Key-value coding (KVC)是非直接地访问通过字符串访问Property的机制。这种机制下，我们通过键值对的形式来访问对象的属性，形式上类似于字典的操作。
 
+<!-- more -->
+
 # 如何支持KVC
 
 值得指出的是，KVC遵循NSKeyValueCoding协议，但此协议跟Protocol有些不同，仅指一套规范。一个类（或属性）遵循了这套规范，我们就能够说这个类（或属性）支持KVC。具体定义在`NSKeyValueCoding.h`中。主要在于Getter和Setter的命名，一些方法的实现等。
