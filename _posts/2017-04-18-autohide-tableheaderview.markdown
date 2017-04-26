@@ -182,9 +182,27 @@ tags: Objective-C UITableView
 
 当然上面这段代码是略过了一些细节，完整的代码可以在GitHub中看到。
 
+## Swift支持
+
+为了让此项目更加完善，还是试验了下在Swift项目中如何集成它。事实上变动不大，需要注意的几点：
+
+1. 在Podfile中使用`use_frameworks!`引入项目；
+2. 在需要使用的swift文件中引入项目:`import AOPAutohideTableViewHeader`；
+3. 对于UIView方案，Objective-C中虽然很简洁，但在Swift中如果使用Interface Builder的话，还需要在代码重新设置一遍tableHeaderView才能生效:`tableView.tableHeaderView = tableView.tableHeaderView`。
+
 ## 完善方案
 
 方案二和方案三都可以作为正式的解决方案，但是依然有可以改进的空间。对于UI开发来说，最重要的还是需要支持Interface Builder。所以最终GitHub上的代码是针对Interface Builder作了改进了的。
+
+通过Interface Builder使用时，需要设置对应的值:
+
+![Interface Builder setting](/assets/post/2017/04-18-interface-builder-setting.png)
+
+分别对应枚举AOPAutohideHeaderMode的值：
+
+* AOPAutohideHeaderModeDefault    = 0       // tableHeaderView默认行为
+* AOPAutohideHeaderModeAutohide   = 1       // 始终自动隐藏
+* AOPAutohideHeaderModeNoAutohide = 2       // 始终不自动隐藏，会消除UISearchBar的本来行为
 
 然后需要支持方便地集成进项目，这边就选用了Cocoapods。分为了两个子Subspec：UIView和UITableView。可单独导入项目。
 
@@ -211,16 +229,22 @@ tags: Objective-C UITableView
 此方案可通过Cocoapods引入，引入两种方案：
 
 ```ruby
+# 如为Swift项目则需反注释下面一行
+# use_frameworks!
 pod "AOPAutohideTableViewHeader", :git => 'https://github.com/aopod/AOPAutohideTableViewHeader'
 ```
 
 单独引入:
 
 ```ruby
+# 如为Swift项目则需反注释下面一行
+# use_frameworks!
 pod "AOPAutohideTableViewHeader/UIView", :git => 'https://github.com/aopod/AOPAutohideTableViewHeader'
 ```
 
 ```ruby
+# 如为Swift项目则需反注释下面一行
+# use_frameworks!
 pod "AOPAutohideTableViewHeader/UITableView", :git => 'https://github.com/aopod/AOPAutohideTableViewHeader'
 ```
 
