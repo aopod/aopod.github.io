@@ -70,6 +70,10 @@ tags: Javascript Chrome Extension
 - 问题页面收起评论优化
 - 修复文字大小调整问题
 
+## Version 1.3.2 (2017-08-03)
+
+- 修复了下不能复制的问题
+
 # 用法
 
 - Clone之
