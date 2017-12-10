@@ -251,6 +251,23 @@ AOPRouterMissHandler(SCHEME,...)
 }
 {% endhighlight %}
 
+## 调用
+
+{% highlight c %}
+[AOPRouter open:kAOPRouterPath(aop_blog_open)];
+
+[AOPRouter open:@"aop://blog/open")];
+
+[AOPRouter openInternal:kAOPRouterPath(aop_log)
+                     parameters:@{
+                                  @"message": @"Hello, World!"
+                                  } animated:NO];
+
+AOPRouterOpen(aop_blog_redirect);
+{% endhighlight %}
+
+上面出现两个宏:`AOPRouterOpen`, `kAOPRouterPath`，分别是快速打开某个property对应的URL和获取某个property对应的URL。主要用途仅为简化调用。完整调用应参照AOPRouter实现。
+
 ## 未命中处理
 
 {% highlight c %}
@@ -267,22 +284,6 @@ AOPRouterMissHandler(aop,log)
 }
 {% endhighlight %}
 
-## 调用
-
-{% highlight c %}
-[AOPRouter open:kAOPRouterPath(aop_blog_open)];
-
-[AOPRouter openInternal:kAOPRouterPath(aop_log)
-                     parameters:@{
-                                  @"message": @"Hello, World!"
-                                  } animated:NO];
-
-AOPRouterOpen(aop_blog_redirect);
-
-{% endhighlight %}
-
-上面出现两个宏:`AOPRouterOpen`, `kAOPRouterPath`，分别是快速打开某个property对应的URL和获取某个property对应的URL。主要用途仅为简化调用。完整调用应参照AOPRouter实现。
-
 # GitHub & Cocoapods
 
 ## GitHub
@@ -294,7 +295,7 @@ AOPRouterOpen(aop_blog_redirect);
 ```ruby
 # 如为Swift项目则需反注释下面一行
 # use_frameworks!
-pod 'AOPRouter', :git => 'https://github.com/aopod/AOPRouter'
+pod 'AOPRouter'
 ```
 
 API调用参照Demo。
