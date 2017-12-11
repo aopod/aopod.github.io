@@ -104,7 +104,7 @@ URL形式的优点：
 @property(nonatomic,strong,readonly) NSString *scheme_host_path1_path2;
 {% endhighlight %}
 
-当然，使用`_`可能会造成其他的问题（比如无法区分`_`和`/`）。但对比问题少些的表达：scheme$host$path1$path2来说，使用下划线更明显些，并且通过实践，`_`对代码补全更加友好。
+当然，使用`_`可能会造成其他的问题（比如无法区分`_`和`/`）。但对比问题少些的表达：scheme$host$path1$path2来说，使用下划线视觉上更明显些，并且通过实践，`_`对代码补全更加友好。
 
 并且，我们需要通过这个property获取到对应的URL地址。
 
@@ -124,7 +124,7 @@ URL形式的优点：
 对于声明一个路由，我们定义为这种形式：
 
 {% highlight objc %}
-`@AOPRouterMethodName(SCHEME,HOST,PATH1,PATH2)`
+@AOPRouterMethodName(SCHEME,HOST,PATH1,PATH2)
 {% endhighlight %}
 
 其展开为
@@ -132,7 +132,7 @@ URL形式的优点：
 /**
  * Comment
  */
-property(nonatomic,strong,readonly) NSString *scheme_host_path1_path2;
+@property(nonatomic,strong,readonly) NSString *scheme_host_path1_path2;
 {% endhighlight %}
 
 对于实现，定义为这种形式：
@@ -140,14 +140,14 @@ property(nonatomic,strong,readonly) NSString *scheme_host_path1_path2;
 /**
  * Comment
  */
-- AOPRouterMethodImpl(VISIBILITY,SCHEME,HOST,PATH1,PATH2) {
++/- AOPRouterMethodImpl(VISIBILITY,SCHEME,HOST,PATH1,PATH2) {
 	// Do something
 }
 {% endhighlight %}
 
 其展开为:
 {% highlight objc %}
-(NSString *)scheme_host_path1_path2 {
++/- (NSString *)scheme_host_path1_path2 {
 	return @"scheme" "/" "host" "/" "path1/path2";
 }
 +/- (void)scheme:(AOPRouterContext *)context host$path1$path2:_ {
@@ -196,7 +196,7 @@ AOPRouterMissHandler(SCHEME,...)
 # 注意点（和缺点）
 
 * 命名允许的字符有所限制；
-* 因为宏限制，path最大个数为19个（一般都够用）,如果不够用可以扩展宏;
+* 因为宏的限制，path最大个数为19个（一般都够用）,如果不够用可继续扩展;
 * 无法区分`_`和`/`，所以`scheme://host/path1_path2`和`scheme://host/path1/path2`会判定为相同的路由；
 * 尽量少在URL中使用`-`,`.`（特别提到这俩是因为它们比较常见）。定义它们分别要替换为:`$`,`$$`。
 * 无法在URL的path中附加其他信息，如：`aop://comment/:commend_id`。这个方法要求变量始终在query中体现；
