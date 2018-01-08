@@ -77,6 +77,14 @@
   </div>
 {% endcomment %}
 
+{% if page.weixin %}
+  <script type="text/javascript">
+    window.aopod_page = {
+      'weixin': '{{ page.weixin }}'
+    };
+  </script>
+{% endif %}
+
   <script type="text/javascript" src="https://cdn.staticfile.org/jquery/1.9.1/jquery.min.js"></script>
   <script type="text/javascript" src="{{ "/js/main.js" | prepend: site.asset_path }}"></script>
   <script type="text/javascript" src="{{ "/js/qrcode.min.js" | prepend: site.asset_path }}"></script>

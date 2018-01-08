@@ -252,7 +252,12 @@
 							var container = $('#weixin_qr');
 							var content = $('#weixin_qr_content');
 							content.html('');
-							new QRCode(document.getElementById('weixin_qr_content'), _this.share.info.url);
+							if (window.aopod_page && window.aopod_page['weixin_qrcode']) {
+								content.html('<img src="' + window.aopod_page['weixin_qrcode'] + '" title="微信公众号:aopodcom">')
+							} else {
+								new QRCode(document.getElementById('weixin_qr_content'), _this.share.info['weixin'] || _this.share.info.url);
+							}
+							
 							$(container).addClass('show');
 						},
 						'sina' : function() {
@@ -302,12 +307,13 @@
 					'init' : function() {
 						var __this = this;
 
+						__this['info']['title'] = document.title;
+						__this['info']['url'] = window.location.href;
+						__this['info']['weixin'] = window.location.href;
 						if (window.aopod_page) {
-							__this['info']['title'] = window.aopod_page.title;
-							__this['info']['url'] = window.aopod_page.url;
-						} else {
-							__this['info']['title'] = document.title;
-							__this['info']['url'] = window.location.href;
+							__this['info']['title'] = window.aopod_page['title'] || __this['info']['title'];
+							__this['info']['url'] = window.aopod_page['url'] || __this['info']['url'];
+							__this['info']['weixin'] = window.aopod_page['weixin'] || __this['info']['weixin'];
 						}
 
 						$('#footer .share').append(this.share_html());

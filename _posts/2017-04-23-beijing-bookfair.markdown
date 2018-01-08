@@ -4,6 +4,7 @@ title:  "2017北京书市"
 date:   2017-04-23 22:00:00 +0800
 categories: 随笔
 tags: Beijing
+weixin: "https://mp.weixin.qq.com/s/jdhd5BbVNVobUkpydeJhvw"
 ---
 
 ![北京书市](/assets/post/2017/04-23-beijing-bookfair.jpg)

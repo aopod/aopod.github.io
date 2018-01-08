@@ -4,6 +4,7 @@ title:  "一个iOS下的URL路由方案"
 date:   2017-12-10 22:30:00 +0800
 categories: iOS
 tags: Objective-C Open-Source
+weixin: "https://mp.weixin.qq.com/s/e6F8u1WwLwC17Ojdd0oKyw"
 ---
 
 所有项目在一定阶段都会遇到组件化的问题。特别是在代码量越来越大、模块越来越多的情况下，都需要一定的机制去简化页面间跳转的流程，并通过这个机制实现不同模块之间一定程度的解耦。在我看来，我需要一个有如下特点的方案：

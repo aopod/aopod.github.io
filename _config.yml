@@ -67,6 +67,9 @@ aopod_charset: "utf-8"
 
 ao_categories: ["iOS", "碎碎念"]
 
+weixin_mp: "aopodcom"
+weixin_qrcode: "/assets/images/weixin_qr_code.jpg"
+
 ao_menu_items:
   -
     name: 'CATEGORIES'
