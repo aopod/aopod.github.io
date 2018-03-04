@@ -16,5 +16,5 @@ permalink: /about/
 
 
 [e-mail]: mailto:aopodcom@gmail.com
-[blog]: http://www.aopod.com
+[blog]: https://www.aopod.com
 

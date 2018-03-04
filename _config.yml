@@ -13,7 +13,7 @@ description: > # this means to ignore newlines until "baseurl:"
   aopod的涂鸦板
 
 baseurl: "" # the subpath of your site, e.g. /blog
-url: "http://www.aopod.com" # the base hostname & protocol for your site
+url: "https://www.aopod.com" # the base hostname & protocol for your site
 timezone: Asia/Shanghai
 
 # Build settings
@@ -112,5 +112,5 @@ ao_tools:
     url: "/tools/password_generator"
   -
     name: "Bing美图"
-    url: "http://aobing.aopod.com"
+    url: "https://aobing.aopod.com"
 

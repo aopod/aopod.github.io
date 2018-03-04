@@ -1,8 +1,8 @@
 ﻿/*
 	功能：根据标签显示相应印章
 	作者:Aopod
-	博客:http://www.aopod.com
-	用法:http://www.aopod.com/2012/02/post-tag-stamp-for-blogger.html
+	博客:https://www.aopod.com
+	用法:https://www.aopod.com/2012/02/post-tag-stamp-for-blogger.html
 	转载请保留此信息，谢谢!
 */
 document.onreadystatechange=function(){var obj=document.getElementById("AopodTagStamp");if(obj.getAttribute("exec")!=null)return;var status=false;var labelArr=new Array(3);var opt,tmp;var data=obj.getAttribute("data")==null?"012":obj.getAttribute("data");var ot=obj.getAttribute("ot")==null?0:obj.getAttribute("ot");var ol=obj.getAttribute("ol")==null?0:obj.getAttribute("ol");var eid=obj.getAttribute("eid")==null?"post-body-":obj.getAttribute("eid");var zindex=obj.getAttribute("zindex")==null?0:obj.getAttribute("zindex");obj.setAttribute("exec","true");for(var i=0;i<data.length;i++){switch(data.charAt(i)){case'0':labelArr[i]="原创";break;case'1':labelArr[i]="精品";break;case'2':labelArr[i]="推荐";break;}}
