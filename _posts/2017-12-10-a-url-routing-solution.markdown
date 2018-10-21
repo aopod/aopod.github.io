@@ -19,8 +19,9 @@ weixin: "https://mp.weixin.qq.com/s/e6F8u1WwLwC17Ojdd0oKyw"
 * 允许重定向；
 * 增加起来直观；
 * 私有和公共的简单权限控制；
-* 缓存机制;
+* 缓存机制；
 * 错误处理；
+* 链式调用；
 * 等等
 
 要求还挺多……那还是自己造个轮子吧。于是催生了这个方案：*[AOPRouter][AOPRouter]*。简单的说，它是一个基于URL形式的、利用了Objective-C Runtime特性的路由方案。
@@ -284,6 +285,37 @@ AOPRouterMissHandler(aop,log)
     return YES;
 }
 {% endhighlight %}
+
+## 链式调用
+
+{% highlight c %}
+// 定义
+- AOPRouterMethodImpl(+,aop,handle)
+{
+    UIViewController *fromVC = context.parameters[@"from"];
+    UIViewController *viewController = xxx;
+    [AOPRouterHandleVC handle:viewController default:^(__kindof UIViewController *vc) {
+        [fromVC presentViewController:vc animated:context.animated completion:nil];
+    }];
+}
+{% endhighlight %}
+
+{% highlight c %}
+
+// 链式设置参数等
+AOPRouter.open(@"aop://handle").animated(NO).parameter(@"key", @"value");
+
+// 手动处理结果
+AOPRouter.open(@"aop://handle").handle(^(id result, AOPRouterContext *context) {
+    // Do something
+});
+{% endhighlight %}
+
+# 更新
+
+* v1.0.0 初始版本
+* v1.0.1 修复部分bug
+* v1.1.0 增加链式调用
 
 # GitHub & Cocoapods
 
