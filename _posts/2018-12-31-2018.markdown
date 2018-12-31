@@ -1,8 +1,10 @@
 ---
 layout: post
-title:  "二零一八"
-date:   2018-12-31 22:24:00 +0800
+title: "二零一八"
+date: 2018-12-31 22:24:00 +0800
 categories: 随笔
+tags: Beijing
+weixin: "https://mp.weixin.qq.com/s/7MGeoVoy8jndOQDbhJ2twg"
 ---
 
 ![2018](/assets/post/2018/12-31-2018.jpg)
