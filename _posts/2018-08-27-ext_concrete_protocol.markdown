@@ -2,7 +2,8 @@
 layout: post
 title:  "EXTConcreteProtocol浅析"
 date:   2019-08-27 22:36:00 +0800
-categories: iOS SourceCode
+categories: iOS
+tags: Objective-C SourceCode
 ---
 
 在Swift中，一个Protocol能够通过extension为特定的类型提供method, initializer, subscript, computed property的默认实现。这着实是一个很好的特性。那么在Objective-C中是否能够实现类似的效果？答案是肯定的。有若干个库都提供了自己的实现，因为大同小异，这边稍微讲一下[`libextobj`](https://github.com/jspahrsummers/libextobjc)库中的`EXTConcreteProtocol`的实现。
