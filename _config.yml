@@ -20,7 +20,7 @@ timezone: Asia/Shanghai
 markdown: kramdown
 
 # Append
-include:  [_ipages, _itags, _icategories, _itools]
+include:  [_ipages, _itags, _icategories, _itools, _iprivacy]
 exclude: [backup]
 gems: [jekyll-paginate]
 
@@ -51,6 +51,12 @@ defaults:
       layout: "icontainer"
       type: "category"
       imported_css: "cat_tag.css"
+  -
+    scope:
+      path: "_iprivacy"
+    values:
+      layout: "privacy"
+      hide_about: true
 
 excerpt_separator: "<!-- more -->"
 
