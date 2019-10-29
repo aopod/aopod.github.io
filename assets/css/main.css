@@ -892,7 +892,7 @@ body.menu #header {
 	color: white;
 }
 
-#footer .share_content {
+#footer .menu_content {
 	/*width: 0;*/
 	/*color: blue;*/
 	/*background-color: blue;*/
@@ -910,7 +910,7 @@ body.menu #header {
 	/*visibility: hidden;*/
 }
 
-#footer .share_content.show {
+#footer .menu_content.show {
 	/*visibility: visible;*/
 	/*overflow: auto;*/
 
@@ -918,7 +918,7 @@ body.menu #header {
 	/*height: 200px;*/
 }
 
-#footer .share_content ul {
+#footer .menu_content ul {
 	padding: 0;
 	position: absolute;
 	left: -90px;
@@ -931,14 +931,14 @@ body.menu #header {
 	z-index: 2;
 }
 
-#footer .share_content.show ul {
+#footer .menu_content.show ul {
 	/*left: -70px;*/
 	top: -230px;
 	width: 220px;
 	height: 170px;
 }
 
-#footer .share_content li {
+#footer .menu_content li {
 	display: block;
 	cursor: pointer;
 	position: absolute;
@@ -954,7 +954,7 @@ body.menu #header {
 	transition: right .4s ease, top .4s ease, transform .4s ease;
 }
 
-#footer .share_content li .thumb {
+#footer .menu_content li .thumb {
 	float: right;
 	width: 32px;
 	height: 32px;
@@ -966,7 +966,7 @@ body.menu #header {
 	box-shadow: 0 0 2px gray;
 }
 
-#footer .share_content li .hint {
+#footer .menu_content li .hint {
 	padding: 4px 6px;
 	border: 1px solid #d4d4d4;
 	border-radius: 4px;
@@ -978,11 +978,11 @@ body.menu #header {
 	/*box-shadow: 0 0 2px #d4d4d4;*/
 }
 
-#footer .share_content li .thumb img {
+#footer .menu_content li .thumb img {
 	width: 100%;
 }
 
-#footer .share_content li .thumb:after {
+#footer .menu_content li .thumb:after {
 	font-family: FontAwesome;
 	font-size: 26px;
 	line-height: 32px;
@@ -990,95 +990,95 @@ body.menu #header {
 	text-shadow: 0 0 2px gray;
 }
 
-#footer .share_content ul li:nth-child(1) {
+#footer .menu_content ul li:nth-child(1) {
 	top: 10px;
 	right: 2px;
 	transform: rotate(6deg);
 }
 
-#footer .share_content ul li:nth-child(2) {
+#footer .menu_content ul li:nth-child(2) {
 	top: 50px;
 	right: 5px;
 	transform: rotate(4deg);
 }
 
-#footer .share_content ul li:nth-child(3) {
+#footer .menu_content ul li:nth-child(3) {
 	top: 90px;
 	right: 7px;
 	transform: rotate(2deg);
 }
 
-#footer .share_content ul li:nth-child(4) {
+#footer .menu_content ul li:nth-child(4) {
 	top: 130px;
 	right: 9px;
 	transform: rotate(1deg);
 }
 
-#footer .share_content li.weixin .thumb {
+#footer .menu_content li.weixin .thumb {
 	color: rgb(105, 245, 98);
 	/*background-color: #1d9d74;*/
 	background-color: rgb(239, 244, 244);
 }
 
-#footer .share_content li.weixin .thumb:after {
+#footer .menu_content li.weixin .thumb:after {
 	content: '';
 }
 
-#footer .share_content.show li.sina {
+#footer .menu_content.show li.sina {
 	/*right: 0px;
 	top: 10px;
 	transform: rotate(6deg);*/
 }
 
-#footer .share_content li.sina .thumb {
+#footer .menu_content li.sina .thumb {
 	color: #c30f05;
 	background-color: #ffda48;
 }
 
-#footer .share_content li.sina .thumb:after {
+#footer .menu_content li.sina .thumb:after {
 	content: '';
 }
 
-/*#footer .share_content li .thumb.douban:after {
+/*#footer .menu_content li .thumb.douban:after {
 	content: '';
 }*/
 
-#footer .share_content.show li.tweet {
+#footer .menu_content.show li.tweet {
 	/*top: 50px;
 	right: 4px;
 	transform: rotate(4deg);*/
 }
 
-#footer .share_content li.tweet .thumb {
+#footer .menu_content li.tweet .thumb {
 	color: #eefbff;
 	background-color: #2a94be;
 }
 
-#footer .share_content li.tweet .thumb:after {
+#footer .menu_content li.tweet .thumb:after {
 	content: '';
 }
 
-#footer .share_content li.facebook .thumb {
+#footer .menu_content li.facebook .thumb {
 	color: #e2e8f6;
 	background-color: #44609a;
 }
 
-#footer .share_content.show li.facebook {
+#footer .menu_content.show li.facebook {
 	/*top: 90px;
 	right: 6px;
 	transform: rotate(2deg);*/
 }
 
-#footer .share_content li.facebook .thumb:after {
+#footer .menu_content li.facebook .thumb:after {
 	content: '';
 }
 
-#footer .share_content li.qq .thumb {
+#footer .menu_content li.qq .thumb {
 	color: rgb(14, 190, 235);
 	background-color: #e2e8f6;
 }
 
-#footer .share_content li.qq .thumb:after {
+#footer .menu_content li.qq .thumb:after {
 	content: '';
 }
 

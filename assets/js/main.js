@@ -289,7 +289,7 @@
 					'share_html' : function() {
 						var html = '' +
 '<div class="btn"></div>' +
-'<div class="share_content">' +
+'<div class="menu_content">' +
 '  <ul>' +
 '    <li class="weixin"><div class="thumb"></div><div class="hint">微信分享</div></li>' +
 '    <li class="sina"><div class="thumb"></div><div class="hint">分享到新浪微博</div></li>' +
@@ -327,17 +327,17 @@
 							$('#weixin_qr').removeClass('show');
 						});
 
-						$('#footer .share .share_content input').focusout(function() {
-      						$('#footer .share .share_content').removeClass('show');
+						$('#footer .share .menu_content input').focusout(function() {
+      						$('#footer .share .menu_content').removeClass('show');
     					});
 
     					$('#footer .share .btn').click(function() {
-      						var obj = $('#footer .share .share_content');
-      						if ($('#footer .share .share_content ul').height() > 10) {
+      						var obj = $('#footer .share .menu_content');
+      						if ($('#footer .share .menu_content ul').height() > 10) {
         						$(obj).removeClass('show');
       						} else {
         						$(obj).addClass('show');
-          						$('#footer .share .share_content input').focus();
+          						$('#footer .share .menu_content input').focus();
           						setTimeout(function() {
           							$(obj).removeClass('show');
           						}, 5000);
