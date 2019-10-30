@@ -682,7 +682,7 @@ body.menu #header {
 	margin-bottom: 20px;
 	background-color: rgb(250, 250, 250);
 	position: relative;
-	height: 34px;
+	min-height: 34px;
 }
 
 #page_guide a {
