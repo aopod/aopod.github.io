@@ -1117,11 +1117,15 @@ body.menu #header {
 	width: 256px;
 	height: 256px;
 	margin: auto;
-	margin-top: 25%;
+	position: absolute;
+	top: 50%;
+	left: 50%;
+	margin-left: -128px;
+	margin-top: -128px;
 }
 
 #weixin_qr .content img {
-	margin-top: -128px;
+	margin-top: 0px;
 }
 
 #weixin_qr.show {
