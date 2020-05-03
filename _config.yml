@@ -119,4 +119,6 @@ ao_tools:
   -
     name: "Bing美图"
     url: "https://aobing.aopod.com"
-
+  -
+    name: "二维码生成"
+    url: "/tools/qrcode"

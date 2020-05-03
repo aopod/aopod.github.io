@@ -1,0 +1,64 @@
+---
+layout: icontainer
+title: 二维码生成
+permalink: /tools/qrcode
+---
+
+<style type="text/css">
+#qr_area {
+	margin-top: 20px;
+}
+#qr_display {
+	width: 90%;
+	margin: auto;
+	text-align: center;
+}
+#qr_display img {
+	margin: auto;
+}
+#qr_input {
+	margin-top: 30px;
+}
+#qr_input > textarea {
+	width: 100%;
+	min-height: 60px;
+	font-size: 1.4em;
+	padding: 0.6em;
+}
+</style>
+<h2>二维码生成</h2>
+<div id="qr_area">
+	<div id="qr_display">
+		
+	</div>
+	<div id="qr_input">
+		<textarea placeholder="{{site.url}}"></textarea>
+	</div>
+</div>
+<script type='text/javascript'>
+(function () {
+	const displayElement = document.querySelector('#qr_display');
+	const inputElement = document.querySelector('#qr_input > textarea');
+	function updateQRCode(text) {
+		displayElement.innerHTML = '';
+		if (text == null || text.length == 0) {
+			text = '{{site.url}}';
+		}
+		new QRCode(displayElement, text);
+	}
+	let timeoutToken = null;
+	inputElement.addEventListener('input', () => {
+		if (timeoutToken != null) {
+			window.clearTimeout(timeoutToken);
+			timeoutToken = null;
+		}
+		timeoutToken = window.setTimeout(() => {
+			let text = inputElement.value;
+			updateQRCode(text);
+		}, 500);
+	});
+	window.addEventListener('load', () => {
+		updateQRCode();
+	});
+})();
+</script>
