@@ -40,6 +40,7 @@
 	--header-title-link-color: rgb(240, 240, 240);
 	--header-title-link-hover-color: rgb(240, 240, 240);
 	--header-sep-bg-color: white;
+	--header-opacity: 1;
 
 	--content-text-color: #424143;
 	--content-link-color: #b21827;
@@ -127,13 +128,17 @@
 		--header-title-link-color: #cccccc;
 		--header-title-link-hover-color:#ddddddd;
 		--header-sep-bg-color: #333333;
+		--header-opacity: 0.6;
 
+		--content-article-title-color: #f1f1f1;
+		--content-article-title-hover-color: #b9b9b9;
 		--content-text-color: #e0e0e0;
 		--content-code-bg-color: #333333;
 		--content-code-border-color: #444444;
 		--content-pre-bg-color: #333333;
 		--content-pre-border-color: #444444;
 		--content-pre-code-bg-color: #333333;
+		--content-article-readmore-text-color: #232323;
 		--content-article-readmore-bg-color: #d63e39;
 		--content-article-readmore-bg-hover-color: #d32721;
 		--content-article-readmore-border-color: #232323;
@@ -517,6 +522,7 @@ body.menu #menu .ctl:after {
 	transition: background-position .5s ease;
 	overflow: hidden;
 	z-index: 900;
+	opacity: var(--header-opacity);
 }
 
 #header .title a {
