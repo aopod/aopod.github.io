@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    {% assign title = "aopod" %}
+    {% if page.title %}
+    {% assign title = page.title %}
+    {% endif %}
+
+    {% assign url = site.url %}
+    {% if page.redirectLink %}
+    {% assign url = page.redirectLink %}
+    {% endif %}
+    <title>{{ title }}</title>
+    <meta http-equiv="refresh" content="0; URL={{ url }}">
+    <link rel="canonical" href="{{ url }}">
+</head>
+<body></body>
+</html>
