@@ -122,3 +122,6 @@ ao_tools:
   -
     name: "二维码生成"
     url: "/tools/qrcode"
+  -
+    name: "webloc 文件生成"
+    url: "/tools/webloc-generator"

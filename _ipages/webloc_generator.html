@@ -1,0 +1,98 @@
+---
+layout: icontainer
+title: webloc 文件生成
+permalink: /tools/webloc-generator
+---
+
+<style type="text/css">
+#op_area {
+	margin-top: 20px;
+}
+#result_display {
+	width: 90%;
+	margin: auto;
+	text-align: center;
+}
+#result_display img {
+	margin: auto;
+}
+#url_input {
+	margin-top: 30px;
+}
+#url_input > input {
+	width: 100% !important;
+	min-height: 1.4em;
+	font-size: 1.4em;
+	padding: 0.6em;
+}
+#generate_button {
+	display: inline-block;
+	padding: 0.6em 1em;
+	border: 1px solid var(--content-link-color);
+	margin-top: 1em;
+}
+#generate_button:hover {
+	background-color: #F2F2F2;
+	border: 1px solid var(--content-link-hover-color);
+}
+</style>
+<h2>{{page.title}}</h2>
+<div id="op_area">
+	<div id="result_display">
+		<div id="result_display_url"></div>
+		<a id="generate_button">生成 & 下载</a>
+	</div>
+	<div id="url_input">
+		<input placeholder="{{site.url}}"></input>
+	</div>
+</div>
+<script type='text/javascript'>
+(function () {
+	const displayElement = document.querySelector('#result_display');
+	const urlDisplayElement = document.querySelector('#result_display_url');
+	const generateButton = document.querySelector('#generate_button');
+	const inputElement = document.querySelector('#url_input > input');
+	function formatURL(url) {
+		return encodeURI(url);
+	}
+	function generateContent(text) {
+		return `<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>URL</key>
+	<string>${text}</string>
+</dict>
+</plist>`;
+	}
+	function getCurrentRawValue() {
+		let text = inputElement.value;
+		if (!text || text.length == 0) {
+			text = inputElement.getAttribute('placeholder');
+		}
+		return text;
+	}
+	function updateUI() {
+		let text = getCurrentRawValue();
+		text = formatURL(text);
+		urlDisplayElement.innerHTML = text;
+		const content = generateContent(text);
+		const blob = new Blob([content], {type: 'text/plain'});
+		generateButton.download = 'generated.webloc';
+		generateButton.href = window.URL.createObjectURL(blob);
+	}
+	let timeoutToken = null;
+	inputElement.addEventListener('input', () => {
+		if (timeoutToken != null) {
+			window.clearTimeout(timeoutToken);
+			timeoutToken = null;
+		}
+		timeoutToken = window.setTimeout(() => {
+			updateUI();
+		}, 500);
+	});
+	window.addEventListener('load', () => {
+		updateUI();
+	});
+})();
+</script>
