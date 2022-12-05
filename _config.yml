@@ -107,9 +107,9 @@ ao_bottom_items:
     url: "/feed.xml"
 
 ao_tools:
-  -
-    name: "种子转磁链"
-    url: "http://mag.aopod.com/"
+  # -
+  #   name: "种子转磁链"
+  #   url: "http://mag.aopod.com/"
   -
     name: "进制转换"
     url: "/tools/ary_convert"
