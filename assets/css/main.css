@@ -622,6 +622,8 @@ body.menu #header {
 
 #content .article img {
 	max-width: 100%;
+	display: block;
+	margin: auto;
 }
 
 #content table {
