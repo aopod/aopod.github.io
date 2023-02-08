@@ -1,0 +1,98 @@
+---
+layout: icontainer
+title: pkpass 文件导入
+permalink: /tools/pkpass-importer
+---
+
+<style type="text/css">
+#op_area {
+	margin-top: 20px;
+}
+#result_display {
+	width: 90%;
+	margin: auto;
+	text-align: center;
+}
+#result_display img {
+	margin: auto;
+}
+#file_input {
+	margin-top: 30px;
+}
+#file_input > input {
+	width: 100% !important;
+	min-height: 1.4em;
+	font-size: 1.4em;
+	padding: 0.6em;
+}
+#upload_button {
+	display: inline-block;
+	padding: 0.6em 1em;
+	border: 1px solid var(--content-link-color);
+	margin-top: 1em;
+}
+#generate_button {
+	display: inline-block;
+	background-color: #F6F6F6;
+	padding: 0.6em 1em;
+	border: 1px solid var(--content-link-color);
+	margin-top: 1em;
+	margin-bottom: 2em;
+}
+#generate_button:hover {
+	background-color: #F2F2F2;
+	border: 1px solid var(--content-link-hover-color);
+}
+#file_input {
+	display: none;
+}
+</style>
+<h2>{{page.title}}</h2>
+<div id="op_area">
+	<div><p>在 iPhone/iPad Safari 浏览器上，选择手机上的 .pkpass 文件，点击「导入」即可将 pkpass 文件导入 Wallet 应用中</p></div>
+	<div><p>注意：在电脑、非 Apple 设备上无效</p></div>
+	<div id="result_display">
+		<div><a id="upload_button" href="javascript:void(0);">点此选择 pkpass 文件</a></div>
+		<a id="generate_button" href="javascript:void(0);">导入</a>
+	</div>
+	<div id="file_input">
+		<input type="file"></input>
+	</div>
+</div>
+<script type='text/javascript'>
+(function () {
+	const generateButton = document.querySelector('#generate_button');
+	const uploadButton = document.querySelector('#upload_button');
+	const inputElement = document.querySelector('#file_input > input');
+	uploadButton.addEventListener('click', (e) => {
+		inputElement.click();
+		e.preventDefault();
+	});
+	generateButton.addEventListener('click', () => {
+		if (inputElement.files == undefined || inputElement.files.length == 0) {
+			alert('请先上传 .pkpass 文件');
+			return;
+		}
+	});
+	inputElement.addEventListener('change', function() {
+		if (this.files.length == 0) {
+			return;
+		}
+		const file = this.files[0];
+		const filename = file.name;
+		if (!filename.toLowerCase().endsWith('.pkpass')) {
+			alert('应该为 .pkpass 文件');
+			return;
+		}
+		uploadButton.innerHTML = filename;
+		const fr = new FileReader();
+		fr.onload = function() {
+			const blob = new Blob([fr.result], {type: 'application/vnd.apple.pkpass'});
+			generateButton.download = filename;
+			generateButton.href = window.URL.createObjectURL(blob);
+		};
+		fr.readAsArrayBuffer(file);
+	});
+
+})();
+</script>
