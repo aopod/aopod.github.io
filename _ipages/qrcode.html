@@ -1,5 +1,5 @@
 ---
-layout: icontainer
+layout: icontainer_with_ad
 title: 二维码生成
 permalink: /tools/qrcode
 ---
@@ -44,7 +44,34 @@ permalink: /tools/qrcode
 		if (text == null || text.length == 0) {
 			text = '{{site.url}}';
 		}
-		new QRCode(displayElement, text);
+		let length = 4096;
+		const bitSize = new Blob([text]).size * 8;
+		console.log(`bitsize: ${bitSize}`)
+		// if (bitSize > 1056) {
+		// 	length = 512;
+		// }
+		let hasError = false;
+		let count = 0;
+		do {
+			hasError = false;
+			try {
+				new QRCode(displayElement, {
+					text: text,
+					width: length,
+					height: length,
+					colorDark : "#000000",
+					colorLight : "#ffffff",
+					correctLevel : QRCode.CorrectLevel.H
+				});
+			} catch (error) {
+				console.log(`length: ${length}, error: ${error}`);
+				hasError = true;
+				length += 64;
+			}
+			count += 1;
+		} while (hasError && length <= 1024);
+		
+		
 	}
 	let timeoutToken = null;
 	inputElement.addEventListener('input', () => {
