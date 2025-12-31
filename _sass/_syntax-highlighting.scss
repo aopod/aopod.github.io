@@ -7,7 +7,7 @@
     p, blockquote, pre,
     ul, ol, dl, figure,
     %vertical-rhythm {
-        margin-bottom: $spacing-unit / 2;
+        margin-bottom: calc($spacing-unit / 2);
     }
 
     .highlighter-rouge & {
