@@ -832,14 +832,52 @@ body.menu #header {
 	background: var(--content-article-farewell-bg-color);
 	font-style: italic;
 	color: var(--content-article-farewell-text-color);
+	padding: 1em;
+	border-radius: 8px;
+	position: relative;
+	overflow: hidden;
+	transition: all 0.4s ease;
+	cursor: default;
+}
+
+#content .farewell_past:hover {
+	background: var(--content-article-farewell-bg-color);
 }
 
 #content .farewell_past strong {
+	display: inline-block;
+	transition: color 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+	position: relative;
+}
 
+#content .farewell_past:hover strong {
+	color: #d9534f;
 }
 
 #content .farewell_past del {
 	color: var(--content-article-farewell-del-color);
+	display: inline-block;
+	transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+	position: relative;
+}
+
+#content .farewell_past:hover del {
+	color: #95a5a6;
+	opacity: 0.5;
+	transform: translateX(-10px);
+	text-decoration: line-through;
+	animation: goodbyeFade 0.35s ease;
+}
+
+@keyframes goodbyeFade {
+	0% {
+		opacity: 1;
+		transform: translateX(0);
+	}
+	100% {
+		opacity: 0.5;
+		transform: translateX(-10px);
+	}
 }
 
 #page_guide {
