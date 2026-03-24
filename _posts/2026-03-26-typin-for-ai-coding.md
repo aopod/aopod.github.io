@@ -2,7 +2,7 @@
 layout: post
 title: "Typin - 为 AI Coding 而生"
 date: 2026-03-25 01:22:00 +0800
-categories: App
+categories: AI
 tags: AI Creative App Coding
 ---
 
