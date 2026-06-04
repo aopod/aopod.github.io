@@ -514,7 +514,8 @@ body.menu #menu .ctl:after {
 	background: var(--header-bg-color);
 	height: 360px;
 	width: 100%;
-	background-image: url(https://aobing.aopod.com/assets/aopod_bg.jpg);
+	/* original: url(https://aobing.aopod.com/assets/aopod_bg.jpg) */
+	background-image: url(https://raw.githubusercontent.com/aopod/bing_images/6652c13bb409a7117fa0fc2a3dc72878650a02c7/assets/aopod_bg.jpg);
 	background-size: auto 360px;
 	position: relative;
 	background-attachment: fixed;
