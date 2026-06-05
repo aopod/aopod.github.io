@@ -167,6 +167,114 @@
 	}
 }
 
+[data-theme="dark"] {
+	--body-bg-color: #121212;
+
+	--menu-ctl-text-color: #999999;
+	--menu-ctl-bg-hover-color: #666666;
+	--menu-tools-bg-color: #999999;
+	--menu-category-link-hover-color: #f1f1f1;
+
+	--search-icon-bg-hover-color: #dddddd;
+	--search-icon-text-color: #bbbbbb;
+
+	--header-bg-color: #141414;
+	--header-title-color: #cccccc;
+	--header-title-link-color: #cccccc;
+	--header-title-link-hover-color:#ddddddd;
+	--header-sep-bg-color: #333333;
+	--header-opacity: 0.6;
+
+	--content-article-title-color: #f1f1f1;
+	--content-article-title-hover-color: #b9b9b9;
+	--content-text-color: #e0e0e0;
+	--content-code-bg-color: #333333;
+	--content-code-border-color: #444444;
+	--content-pre-bg-color: #333333;
+	--content-pre-border-color: #444444;
+	--content-pre-code-bg-color: #333333;
+	--content-article-readmore-text-color: #232323;
+	--content-article-readmore-bg-color: #d63e39;
+	--content-article-readmore-bg-hover-color: #d32721;
+	--content-article-readmore-border-color: #232323;
+	--content-article-briefinfo-bg-color: #999999;
+	--content-article-farewell-bg-color: #232323;
+	--content-article-farewell-text-color: #f2f2f2;
+
+	--page-guide-border-color: #262626;
+	--page-guide-bg-color: #212121;
+	--page-guide-link-color: #d8d8d8;
+	--page-guide-link-hover-color: #eaeaea;
+
+	--pagenav-disabled-text-color: #333333;
+	--pagenav-link-color: #f2f2f2;
+	--pagenav-link-hover-color: #fefefe;
+
+	--footer-bg-color: #0f0f0f;
+	--footer-border-color: #101010;
+	--footer-copyright-text-color: #eaeaea;
+	--footer-copyright-hover-color: #f0f0f0;
+	--footer-nav-text-color: #eaeaea;
+	--footer-nav-text-hover-color: #f0f0f0;
+	--footer-share-btn-icon-color: #d8d8d8;
+	--footer-share-item-hint-bg-color: #e6e6e6;
+	--footer-share-item-hint-text-color: #bbbbbb;
+}
+
+[data-theme="light"] {
+	--body-bg-color: #fefefe;
+
+	--menu-ctl-text-color: #fefefe;
+	--menu-ctl-bg-hover-color: #999999;
+	--menu-tools-bg-color: white;
+	--menu-category-link-hover-color: white;
+
+	--search-icon-bg-hover-color: #ffffff;
+	--search-icon-text-color: #ffffff;
+
+	--header-bg-color: rgb(240, 240, 240);
+	--header-title-color: white;
+	--header-title-link-color: rgb(240, 240, 240);
+	--header-title-link-hover-color: rgb(240, 240, 240);
+	--header-sep-bg-color: white;
+	--header-opacity: 1;
+
+	--content-article-title-color: #424143;
+	--content-article-title-hover-color: black;
+	--content-text-color: #424143;
+	--content-code-bg-color: #e8f2fb;
+	--content-code-border-color: #c9e1f6;
+	--content-pre-bg-color: #e8f2fb;
+	--content-pre-border-color: #c9e1f6;
+	--content-pre-code-bg-color: rgba(0, 0, 0, 0);
+	--content-article-readmore-text-color: white;
+	--content-article-readmore-bg-color: #d9534f;
+	--content-article-readmore-bg-hover-color: #be534f;
+	--content-article-readmore-border-color: #eeeeee;
+	--content-article-briefinfo-bg-color: rgb(240, 240, 240);
+	--content-article-farewell-bg-color: rgb(250, 250, 250);
+	--content-article-farewell-text-color: #262626;
+
+	--page-guide-border-color: rgb(240, 240, 240);
+	--page-guide-bg-color: rgb(250, 250, 250);
+	--page-guide-link-color: rgb(100, 100, 100);
+	--page-guide-link-hover-color: rgb(60, 60, 60);
+
+	--pagenav-disabled-text-color: #dedede;
+	--pagenav-link-color: black;
+	--pagenav-link-hover-color: rgb(66,66,66);
+
+	--footer-bg-color: #f5f5f5;
+	--footer-border-color: #e5e5e5;
+	--footer-copyright-text-color: #424143;
+	--footer-copyright-hover-color: black;
+	--footer-nav-text-color: #424143;
+	--footer-nav-text-hover-color: #black;
+	--footer-share-btn-icon-color: white;
+	--footer-share-item-hint-bg-color: #f0f0f0;
+	--footer-share-item-hint-text-color: #acacac;
+}
+
 
 @font-face{
 	font-family:'FontAwesome';
@@ -508,6 +616,39 @@ body.menu #menu .ctl:after {
 
 #menu .tools li a:hover {
 	color: var(--menu-tools-link-hover-color);
+}
+
+#menu .theme-toggle {
+	position: absolute;
+	bottom: 0;
+	left: 0;
+	width: 100%;
+	padding: 15px 0;
+	border-top: 1px solid rgba(62, 62, 62, 200);
+	text-align: center;
+}
+
+#menu .theme-toggle a {
+	color: var(--menu-category-link-color);
+	text-decoration: none;
+	font-size: 1.4em;
+	display: inline-block;
+	padding: .4em .8em;
+	border-radius: 4px;
+	transition: color .2s ease, background-color .2s ease;
+}
+
+#menu .theme-toggle a:hover {
+	color: var(--menu-category-link-hover-color);
+	background: var(--menu-category-bg-color);
+}
+
+#menu .theme-toggle .fa {
+	margin-right: 6px;
+}
+
+#menu .theme-toggle span {
+	font-size: 0.9em;
 }
 
 #header {

@@ -105,6 +105,84 @@
       						$('body').toggleClass('menu');
     					});
 					}
+				}
+
+				this.theme = {
+					'STORAGE_KEY': 'theme',
+					'DARK': 'dark',
+					'LIGHT': 'light',
+					'AUTO': 'auto',
+					'init': function() {
+						var __this = this;
+						var saved = localStorage.getItem(__this.STORAGE_KEY);
+						if (saved === __this.DARK || saved === __this.LIGHT) {
+							__this._apply(saved);
+						}
+						__this._updateIcon();
+
+						$('#theme-toggle-btn').click(function(e) {
+							e.preventDefault();
+							__this.toggle();
+						});
+					},
+					'toggle': function() {
+						var raw = this._raw();
+						var next;
+						if (raw === this.LIGHT) {
+							next = this.DARK;
+						} else if (raw === this.DARK) {
+							next = this.AUTO;
+						} else {
+							next = this.LIGHT;
+						}
+						if (next === this.AUTO) {
+							localStorage.removeItem(this.STORAGE_KEY);
+						} else {
+							localStorage.setItem(this.STORAGE_KEY, next);
+						}
+						this._apply(next);
+						this._updateIcon();
+					},
+					'_raw': function() {
+						var saved = localStorage.getItem(this.STORAGE_KEY);
+						if (saved === this.DARK || saved === this.LIGHT) {
+							return saved;
+						}
+						return this.AUTO;
+					},
+					'_current': function() {
+						var saved = localStorage.getItem(this.STORAGE_KEY);
+						if (saved === this.DARK || saved === this.LIGHT) {
+							return saved;
+						}
+						if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+							return this.DARK;
+						}
+						return this.LIGHT;
+					},
+					'_apply': function(theme) {
+						if (theme === this.AUTO) {
+							document.documentElement.removeAttribute('data-theme');
+						} else {
+							document.documentElement.setAttribute('data-theme', theme);
+						}
+					},
+					'_updateIcon': function() {
+						var raw = this._raw();
+						var icon = document.getElementById('theme-icon');
+						var label = document.getElementById('theme-label');
+						if (!icon || !label) return;
+						if (raw === this.LIGHT) {
+							icon.className = 'fa fa-sun-o';
+							label.textContent = 'Light Mode';
+						} else if (raw === this.DARK) {
+							icon.className = 'fa fa-moon-o';
+							label.textContent = 'Dark Mode';
+						} else {
+							icon.className = 'fa fa-desktop';
+							label.textContent = 'Auto Theme';
+						}
+					}
 				};
 
 				this._search = {
@@ -351,6 +429,7 @@
 					isInitialized = true;
 					setTimeout(function() {
 						_this.menu.init();
+						_this.theme.init();
 						_this.scrollTop.init();
 						_this.share.init();
 						_this._search.init();
