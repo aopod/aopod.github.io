@@ -63,6 +63,22 @@
 					}
 				};
 
+				this.quote = {
+					'init' : function() {
+						var quotes = window.aopod_quotes;
+						if (!quotes || quotes.length === 0) return;
+						var quote = quotes[Math.floor(Math.random() * quotes.length)];
+						if (!quote) return;
+						var el = document.getElementById('header-quote');
+						if (!el) return;
+						var html = quote.text;
+						if (quote.by) {
+							html += '<span class="by">—— ' + quote.by + '</span>';
+						}
+						el.innerHTML = html;
+					}
+				};
+
 				this.scrollTop = {
 					'_timeout' : null,
 					'scroll' : function(offset) {
@@ -430,6 +446,7 @@
 					setTimeout(function() {
 						_this.menu.init();
 						_this.theme.init();
+						_this.quote.init();
 						_this.scrollTop.init();
 						_this.share.init();
 						_this._search.init();

@@ -1,0 +1,29 @@
+# Random quotes displayed below the site title.
+# Each entry:
+#   text: (required) the quote text, supports multi-line via YAML `|` syntax
+#   by:   (optional) attribution, rendered as "—— author"
+
+- text: "Stay hungry, stay foolish."
+  by: "Steve Jobs"
+
+- text: "任何足够先进的技术，都与魔法无异。"
+  by: "Arthur C. Clarke"
+
+- text: "写代码就是写人生。"
+
+- text: |
+    我们听过无数的道理，却仍旧过不好这一生。
+  by: "韩寒《后会无期》"
+
+- text: "简单是终极的复杂。"
+  by: "Leonardo da Vinci"
+
+- text: "代码写得好，就像是在写诗。"
+
+- text: |
+    世界上只有一种真正的英雄主义，
+    那就是在认清生活的真相后依然热爱生活。
+  by: "罗曼·罗兰"
+
+- text: "去冈瓦纳整点 Token。"
+  by: "aopod"

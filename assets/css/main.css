@@ -735,6 +735,26 @@ body.menu #header {
 	margin: 0;
 }
 
+#header .title .quote {
+	margin: 14px auto 0 auto;
+	padding: 10px 20px;
+	font-size: 18px;
+	font-weight: normal;
+	line-height: 1.8;
+	color: white;
+	text-shadow: 0 0 1px var(--header-title-shadow-color);
+	background: rgba(0, 0, 0, 0.35);
+	border-radius: 8px;
+	display: inline-block;
+}
+
+#header .title .quote .by {
+	display: block;
+	margin-top: 6px;
+	font-size: 15px;
+	font-style: italic;
+}
+
 #content {
 	margin:auto;
 	color: var(--content-text-color);
@@ -1526,6 +1546,14 @@ body.menu #header {
 	#header .title {
 		top: 80px;
 		font-size: 20px;
+	}
+
+	#header .title .quote {
+		font-size: 16px;
+	}
+
+	#header .title .quote .by {
+		font-size: 13px;
 	}
 
 	#author .avatar img {

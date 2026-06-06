@@ -10,6 +10,10 @@
     {% else %}
     <h1><a href="/">{{ site.title }}</a></h1>
     {% endif %}
+    {% if site.data.quotes and site.data.quotes.size > 0 %}
+    <p class="quote" id="header-quote"></p>
+    <script>window.aopod_quotes={{ site.data.quotes | jsonify }};</script>
+    {% endif %}
   </div>
 </div>
 
