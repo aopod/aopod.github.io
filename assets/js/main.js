@@ -76,6 +76,7 @@
 							html += '<span class="by">—— ' + quote.by + '</span>';
 						}
 						el.innerHTML = html;
+						el.style.display = 'inline-block';
 					}
 				};
 
