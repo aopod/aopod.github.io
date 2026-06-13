@@ -4,6 +4,7 @@ title: "Typin - 为 AI Coding 而生"
 date: 2026-03-25 01:22:00 +0800
 categories: AI
 tags: AI Creative App Coding
+header_quote: "因 AI 而生，为 AI 而生"
 ---
 
 ![Typin for AI Coding](/assets/post/2026/03-25-typin-for-ai-coding.jpg)

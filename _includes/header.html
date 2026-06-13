@@ -10,7 +10,18 @@
     {% else %}
     <h1><a href="/">{{ site.title }}</a></h1>
     {% endif %}
-    {% if site.data.quotes and site.data.quotes.size > 0 %}
+    {% if page.header_quote %}
+      {% if page.header_quote.text %}
+        {% assign quote_text = page.header_quote.text %}
+        {% assign quote_by = page.header_quote.by %}
+      {% else %}
+        {% assign quote_text = page.header_quote %}
+      {% endif %}
+    {% endif %}
+
+    {% if quote_text %}
+    <p class="quote" id="header-quote">{{ quote_text }}{% if quote_by %}<span class="by">—— {{ quote_by }}</span>{% endif %}</p>
+    {% elsif site.data.quotes and site.data.quotes.size > 0 %}
     <p class="quote" id="header-quote"></p>
     <script>window.aopod_quotes={{ site.data.quotes | jsonify }};</script>
     {% endif %}
