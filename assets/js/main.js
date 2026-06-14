@@ -118,9 +118,17 @@
 
 				this.menu = {
 					'init' : function() {
+						$('#menu .apps-trigger').click(function(e) {
+							e.preventDefault();
+							$(this).closest('.apps-entry').toggleClass('open');
+						});
 						$('#menu .ctl, #fade').click(function() {
-      						$('body').toggleClass('menu');
-    					});
+							var opening = !$('body').hasClass('menu');
+							$('body').toggleClass('menu');
+							if (!opening) {
+								$('.apps-entry').removeClass('open');
+							}
+						});
 					}
 				}
 

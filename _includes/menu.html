@@ -1,6 +1,24 @@
 <div id="menu">
 	<div class="ctl"></div>
 	<div class="logo"><a href="/">AOPOD</a></div>
+	<div class="apps-entry">
+		<a href="javascript:void(0);" class="apps-trigger">
+			<span>我们的 APP</span>
+			<span class="apps-arrow"></span>
+		</a>
+		<div class="apps-flyout-wrap">
+			<ul class="apps-flyout">
+			{% for app in site.data.apps %}
+				<li>
+					<a href="{{ app.url }}" target="_blank">
+						<span class="apps-name">{{ app.name }}</span>
+						{% if app.desc %}<span class="apps-desc">{{ app.desc }}</span>{% endif %}
+					</a>
+				</li>
+			{% endfor %}
+			</ul>
+		</div>
+	</div>
 	<div class="category">
 		<ul>
 		{% for category in site.ao_categories %}

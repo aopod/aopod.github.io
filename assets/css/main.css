@@ -288,6 +288,26 @@
 	font-style:normal;
 }
 
+/* FontAwesome icon classes — the @font-face above loads the font, these map
+   the class names used in markup (e.g. <i class="fa fa-moon-o">) to glyphs. */
+.fa {
+	font-family: FontAwesome;
+	font-style: normal;
+	font-weight: normal;
+}
+
+.fa-moon-o:before {
+	content: '\f186';
+}
+
+.fa-sun-o:before {
+	content: '\f185';
+}
+
+.fa-desktop:before {
+	content: '\f108';
+}
+
 .container {
 	width: 52%;
 	min-width: 520px;
@@ -559,6 +579,109 @@ body.menu #menu .ctl:after {
 
 #menu .logo a:hover {
 	color: var(--menu-logo-text-hover-color);
+}
+
+#menu .apps-entry {
+	text-align: center;
+	margin: 14px 0;
+}
+
+#menu .apps-trigger {
+	display: inline-block;
+	color: var(--menu-category-link-color);
+	text-decoration: none;
+	font-size: 1.4em;
+	padding: .4em 1em;
+	border-radius: 4px;
+	cursor: pointer;
+	transition: color .2s ease, background-color .2s ease;
+}
+
+#menu .apps-trigger:hover,
+#menu .apps-entry.open .apps-trigger {
+	color: var(--menu-category-link-hover-color);
+	background: var(--menu-category-bg-color);
+}
+
+#menu .apps-arrow {
+	display: inline-block;
+	margin-left: 8px;
+	font-size: .8em;
+	font-family: FontAwesome;
+	transition: transform .3s ease;
+}
+
+#menu .apps-arrow:before {
+	content: '\f054';
+}
+
+#menu .apps-entry.open .apps-arrow {
+	transform: rotate(90deg);
+}
+
+/* Accordion: the wrapper's single grid row animates 0fr → 1fr, so the list
+   expands below the trigger and pushes the rest of the menu down. Animating
+   fr units (not height/max-height) keeps the motion smooth for any number of
+   apps — no fixed height to tune. */
+#menu .apps-flyout-wrap {
+	display: grid;
+	grid-template-rows: 0fr;
+	transition: grid-template-rows .3s ease;
+}
+
+#menu .apps-entry.open .apps-flyout-wrap {
+	grid-template-rows: 1fr;
+}
+
+#menu .apps-flyout {
+	min-height: 0;
+	overflow: hidden;
+	margin: 0;
+	padding: 0;
+	list-style: none;
+	font-size: 1.2em;
+	opacity: 0;
+	transition: opacity .3s ease;
+}
+
+/* Spacer so the first app's hover highlight doesn't sit flush against the
+   trigger. It lives inside the clipped/animated list, so the gap only appears
+   when expanded — the collapsed layout stays unchanged. */
+#menu .apps-flyout::before {
+	content: '';
+	display: block;
+	height: 8px;
+}
+
+#menu .apps-entry.open .apps-flyout {
+	opacity: 1;
+}
+
+#menu .apps-flyout li a {
+	display: block;
+	padding: .5em .8em;
+	color: var(--menu-category-link-color);
+	text-decoration: none;
+	border-radius: 4px;
+}
+
+#menu .apps-flyout li a:hover {
+	color: var(--menu-category-link-hover-color);
+	background: var(--menu-category-bg-color);
+}
+
+#menu .apps-name {
+	display: block;
+	font-weight: bold;
+}
+
+#menu .apps-desc {
+	display: block;
+	font-size: 1em;
+	font-weight: normal;
+	line-height: 1.4;
+	margin-top: 2px;
+	color: var(--menu-text-color);
 }
 
 #menu .category {

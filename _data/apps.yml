@@ -1,0 +1,11 @@
+# 我们开发的 APP — 显示在侧边栏「我们的 APP」入口的二级菜单中。
+# 每个条目：
+#   name: (必填) App 名称
+#   desc: (选填) 简介，hover 该 App 时展示
+#   url:  (必填) App 链接（新标签页打开）
+- name: Typin
+  desc: 一个简洁的为 AI 而生的文档编辑 App
+  url: https://app.aopod.com/Typin
+- name: Shopod
+  desc: 一个极简风格的购物 App
+  url: https://app.aopod.com/Shopod
