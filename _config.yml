@@ -128,3 +128,6 @@ ao_tools:
   -
     name: "pkpass 文件导入"
     url: "/tools/pkpass-importer"
+  -
+    name: "Markdown 预览"
+    url: "/tools/markdown_preview"

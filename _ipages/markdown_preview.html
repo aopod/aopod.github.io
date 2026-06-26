@@ -1,0 +1,538 @@
+---
+layout: icontainer
+title: Markdown 预览
+permalink: /tools/markdown_preview
+header_quote: "所见即所得的 Markdown 预览"
+---
+
+<style type="text/css">
+/* highlight.js token colors —— 通过变量随站点全局明暗主题切换（参考 main.css 的四块写法） */
+.md-preview {
+	--hl-fg: #24292e;
+	--hl-keyword: #d73a49;
+	--hl-string: #032f62;
+	--hl-comment: #6a737d;
+	--hl-number: #005cc5;
+	--hl-title: #6f42c1;
+	--hl-attr: #005cc5;
+}
+@media (prefers-color-scheme: dark) {
+	.md-preview {
+		--hl-fg: #c9d1d9;
+		--hl-keyword: #ff7b72;
+		--hl-string: #a5d6ff;
+		--hl-comment: #8b949e;
+		--hl-number: #79c0ff;
+		--hl-title: #d2a8ff;
+		--hl-attr: #79c0ff;
+	}
+}
+html[data-theme="dark"] .md-preview {
+	--hl-fg: #c9d1d9; --hl-keyword: #ff7b72; --hl-string: #a5d6ff;
+	--hl-comment: #8b949e; --hl-number: #79c0ff; --hl-title: #d2a8ff; --hl-attr: #79c0ff;
+}
+html[data-theme="light"] .md-preview {
+	--hl-fg: #24292e; --hl-keyword: #d73a49; --hl-string: #032f62;
+	--hl-comment: #6a737d; --hl-number: #005cc5; --hl-title: #6f42c1; --hl-attr: #005cc5;
+}
+
+/* 本页：内容容器撑满视口（封顶）而非站点默认的 52% 窄列；小屏铺满 */
+#content {
+	width: auto;
+	max-width: 912px;
+	min-width: 0;
+	margin-left: auto;
+	margin-right: auto;
+	padding-left: 16px;
+	padding-right: 16px;
+	box-sizing: border-box;
+}
+
+/* 卡片（复用既有主题变量，无需额外明暗代码） */
+#content .md-preview {
+	display: flex;
+	flex-direction: column;
+	width: 100%;
+	max-width: 880px;
+	margin: 0 auto 40px;
+	box-sizing: border-box;
+	background: var(--page-guide-bg-color);
+	border: 1px solid var(--page-guide-border-color);
+	border-radius: 8px;
+	overflow: hidden;
+	box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+/* 全屏按钮图标（站点 FA 图标子集未含，补上字形 content；字体由全局 @font-face 提供） */
+#content .md-preview .fa-expand:before { content: "\f065"; }
+#content .md-preview .fa-compress:before { content: "\f066"; }
+
+/* 工具栏 */
+#content .md-toolbar {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 10px;
+	padding: 10px 14px;
+	background: var(--footer-bg-color);
+	border-bottom: 1px solid var(--page-guide-border-color);
+}
+#content .md-title {
+	font-size: 15px;
+	font-weight: 600;
+	color: var(--content-text-color);
+}
+#content .md-title small {
+	margin-left: 8px;
+	font-weight: normal;
+	font-size: 12px;
+	color: var(--footer-copyright-text-color);
+}
+#content .md-actions {
+	display: flex;
+	align-items: center;
+	gap: 6px;
+}
+#content .md-actions button,
+#content .md-input-actions button {
+	min-width: 30px;
+	height: 30px;
+	padding: 0 9px;
+	font-size: 13px;
+	line-height: 1;
+	color: var(--content-text-color);
+	background: var(--content-code-bg-color);
+	border: 1px solid var(--content-code-border-color);
+	border-radius: 5px;
+	cursor: pointer;
+	transition: background .15s, border-color .15s, color .15s;
+}
+#content .md-actions button:hover,
+#content .md-input-actions button:hover {
+	color: #ffffff;
+	background: var(--content-link-color);
+	border-color: var(--content-link-color);
+}
+#content #mdFontSize {
+	display: inline-block;
+	min-width: 42px;
+	text-align: center;
+	font-size: 12px;
+	color: var(--content-text-color);
+}
+
+/* 滚动进度条 */
+#content .md-progress {
+	height: 3px;
+	background: var(--page-guide-border-color);
+	overflow: hidden;
+}
+#content #mdProgressBar {
+	width: 0;
+	height: 100%;
+	background: var(--content-link-color);
+	transition: width .1s linear;
+}
+
+/* 预览正文（滚动容器） */
+#content .md-content {
+	flex: 0 0 auto;
+	height: 60vh;
+	max-height: 60vh;
+	overflow-y: auto;
+	overflow-x: hidden;
+	padding: 18px 22px;
+	font-size: var(--md-font-size, 16px);
+	line-height: 1.75;
+	color: var(--content-text-color);
+	scroll-behavior: smooth;
+	scrollbar-width: thin;
+	scrollbar-color: var(--content-link-hover-color) var(--page-guide-border-color);
+}
+/* 在继承的 #content 代码块基础上做微调 */
+#content .md-content pre {
+	margin: 1.2em 0;
+	padding: 12px 14px;
+	overflow: auto;
+	border-radius: 6px;
+}
+#content .md-content pre code {
+	padding: 0;
+	border: none;
+	background: var(--content-pre-code-bg-color);
+	font-size: 0.875em;
+}
+#content .md-content code {
+	font-size: 0.875em;
+}
+#content .md-content img {
+	max-width: 100%;
+	height: auto;
+}
+#content .md-content table {
+	border-collapse: collapse;
+}
+#content .md-content th,
+#content .md-content td {
+	border: 1px solid var(--page-guide-border-color);
+	padding: 6px 12px;
+}
+#content .md-content hr {
+	border: none;
+	border-top: 1px solid var(--page-guide-border-color);
+}
+#content .md-content li {
+	margin: 0.3em 0;
+}
+
+/* highlight.js token 配色 */
+#content .md-content .hljs {
+	color: var(--hl-fg);
+	background: none;
+}
+#content .md-content .hljs-keyword,
+#content .md-content .hljs-selector-tag,
+#content .md-content .hljs-literal,
+#content .md-content .hljs-doctag {
+	color: var(--hl-keyword);
+}
+#content .md-content .hljs-string,
+#content .md-content .hljs-regexp,
+#content .md-content .hljs-meta-string {
+	color: var(--hl-string);
+}
+#content .md-content .hljs-comment,
+#content .md-content .hljs-quote {
+	color: var(--hl-comment);
+	font-style: italic;
+}
+#content .md-content .hljs-number,
+#content .md-content .hljs-symbol,
+#content .md-content .hljs-bullet {
+	color: var(--hl-number);
+}
+#content .md-content .hljs-title,
+#content .md-content .hljs-section,
+#content .md-content .hljs-name,
+#content .md-content .hljs-attribute {
+	color: var(--hl-title);
+}
+#content .md-content .hljs-attr,
+#content .md-content .hljs-built_in,
+#content .md-content .hljs-type,
+#content .md-content .hljs-class .hljs-title {
+	color: var(--hl-attr);
+}
+#content .md-content .hljs-meta {
+	color: var(--hl-comment);
+}
+
+/* 始终可见、主题化的自定义滚动条（WebKit） */
+#content .md-content::-webkit-scrollbar {
+	width: 10px;
+}
+#content .md-content::-webkit-scrollbar-track {
+	background: var(--page-guide-border-color);
+}
+#content .md-content::-webkit-scrollbar-thumb {
+	background: var(--content-link-hover-color);
+	border: 2px solid var(--page-guide-bg-color);
+	border-radius: 5px;
+}
+#content .md-content::-webkit-scrollbar-thumb:hover {
+	background: var(--content-link-color);
+}
+
+/* 可折叠输入区 */
+#content .md-input-wrap {
+	background: var(--footer-bg-color);
+	border-bottom: 1px solid var(--page-guide-border-color);
+}
+#content .md-input-head {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	padding: 8px 14px;
+	font-size: 13px;
+	color: var(--content-text-color);
+}
+#content .md-input-actions {
+	display: flex;
+	gap: 6px;
+}
+#content .md-input-body {
+	padding: 0 14px 14px;
+}
+#content #mdInput {
+	display: block;
+	width: 100%;
+	box-sizing: border-box;
+	min-height: 150px;
+	padding: 10px 12px;
+	resize: vertical;
+	font-family: Consolas, Menlo, Monaco, "Lucida Console", monospace;
+	font-size: 13px;
+	line-height: 1.6;
+	color: var(--content-text-color);
+	background: var(--body-bg-color);
+	border: 1px solid var(--content-code-border-color);
+	border-radius: 6px;
+}
+#content #mdInput:focus {
+	outline: none;
+	border-color: var(--content-link-color);
+}
+#content .md-input-wrap.collapsed .md-input-body {
+	display: none;
+}
+
+/* 全屏态 */
+.md-preview:fullscreen,
+.md-preview:-webkit-full-screen {
+	max-width: none;
+	width: 100%;
+	height: 100%;
+	border-radius: 0;
+}
+.md-preview:fullscreen .md-content,
+.md-preview:-webkit-full-screen .md-content,
+#content .md-preview.is-fullscreen .md-content {
+	flex: 1 1 auto;
+	height: auto;
+	max-height: none;
+}
+.md-preview:fullscreen .md-input-wrap,
+.md-preview:-webkit-full-screen .md-input-wrap,
+#content .md-preview.is-fullscreen .md-input-wrap {
+	display: none;
+}
+
+/* 响应式 */
+@media (max-width: 600px) {
+	#content .md-toolbar {
+		flex-wrap: wrap;
+	}
+	#content .md-title {
+		font-size: 14px;
+	}
+	#content .md-content {
+		padding: 14px;
+		height: 55vh;
+		max-height: 55vh;
+	}
+}
+</style>
+
+<div class="md-preview" id="mdPreview">
+	<div class="md-input-wrap" id="mdInputWrap">
+		<div class="md-input-head">
+			<span>输入 Markdown</span>
+			<div class="md-input-actions">
+				<button type="button" id="mdSample">示例</button>
+				<button type="button" id="mdClear">清空</button>
+				<button type="button" id="mdToggleInput">收起</button>
+			</div>
+		</div>
+		<div class="md-input-body">
+			<textarea id="mdInput" placeholder="在此输入或粘贴 Markdown…"></textarea>
+		</div>
+	</div>
+	<div class="md-toolbar">
+		<span class="md-title">Markdown 预览<small id="mdCount"></small></span>
+		<div class="md-actions">
+			<button type="button" id="mdFontDec" title="缩小字号">A-</button>
+			<span id="mdFontSize">16px</span>
+			<button type="button" id="mdFontInc" title="放大字号">A+</button>
+			<button type="button" id="mdFullscreen" title="全屏"><i class="fa fa-expand"></i></button>
+		</div>
+	</div>
+	<div class="md-progress"><div id="mdProgressBar"></div></div>
+	<div class="md-content" id="mdContent"></div>
+</div>
+
+<script src="https://cdn.staticfile.org/marked/12.0.2/marked.min.js"></script>
+<script src="https://cdn.staticfile.org/highlight.js/11.9.0/highlight.min.js"></script>
+<script type="text/javascript">
+(function () {
+	var STORAGE_CONTENT = 'md_preview_content';
+	var STORAGE_FONT = 'md_preview_fontsize';
+	var FONT_MIN = 12, FONT_MAX = 28, FONT_STEP = 1, FONT_DEFAULT = 16;
+
+	function $(id) { return document.getElementById(id); }
+
+	var preview = $('mdPreview');
+	var content = $('mdContent');
+	var input = $('mdInput');
+	var inputWrap = $('mdInputWrap');
+	var fontLabel = $('mdFontSize');
+	var countEl = $('mdCount');
+	var progressBar = $('mdProgressBar');
+	var fullscreenBtn = $('mdFullscreen');
+
+	// 内置示例，便于首屏有内容可看
+	var SAMPLE = [
+		'# Markdown 预览',
+		'',
+		'这是一个 **所见即所得** 的 Markdown 预览工具。支持 GFM：~~删除线~~、`行内代码`、[链接](https://www.aopod.com)。',
+		'',
+		'## 功能特性',
+		'',
+		'- 实时渲染',
+		'- 代码语法高亮',
+		'- 字号调整 / 全屏阅读 / 滚动进度',
+		'- [x] 已完成任务',
+		'- [ ] 待办事项',
+		'',
+		'## 代码高亮',
+		'',
+		'```js',
+		'function greet(name) {',
+		'  return `Hello, ${name}!`;',
+		'}',
+		'```',
+		'',
+		'> 提示：预览样式跟随站点侧边栏的全局明暗主题。',
+		'',
+		'| 名称 | 说明 |',
+		'| --- | --- |',
+		'| marked | Markdown 解析 |',
+		'| highlight.js | 代码高亮 |',
+		''
+	].join('\n');
+
+	if (window.marked) {
+		marked.setOptions({ gfm: true, breaks: true });
+	}
+
+	var currentFont = FONT_DEFAULT;
+	var renderTimer = null;
+	var saveTimer = null;
+
+	function escapeHtml(s) {
+		return String(s).replace(/[&<]/g, function (c) { return c === '&' ? '&amp;' : '&lt;'; });
+	}
+
+	function render() {
+		var md = input.value;
+		var html;
+		try {
+			html = window.marked ? marked.parse(md) : escapeHtml(md);
+		} catch (e) {
+			html = '<p style="color:#d32f2f">渲染出错：' + escapeHtml(String(e && e.message || e)) + '</p>';
+		}
+		content.innerHTML = html;
+		if (window.hljs) {
+			content.querySelectorAll('pre code').forEach(function (el) {
+				try { hljs.highlightElement(el); } catch (e) {}
+			});
+		}
+		updateCount();
+		updateProgress();
+	}
+
+	function scheduleRender() {
+		if (renderTimer) clearTimeout(renderTimer);
+		renderTimer = setTimeout(function () {
+			render();
+			scheduleSave();
+		}, 250);
+	}
+
+	function scheduleSave() {
+		if (saveTimer) clearTimeout(saveTimer);
+		saveTimer = setTimeout(function () {
+			try { localStorage.setItem(STORAGE_CONTENT, input.value); } catch (e) {}
+		}, 400);
+	}
+
+	function updateCount() {
+		var n = input.value.length;
+		countEl.textContent = n ? (n + ' 字') : '';
+	}
+
+	// 字号
+	function applyFont(n) {
+		currentFont = Math.max(FONT_MIN, Math.min(FONT_MAX, n));
+		content.style.setProperty('--md-font-size', currentFont + 'px');
+		fontLabel.textContent = currentFont + 'px';
+		try { localStorage.setItem(STORAGE_FONT, String(currentFont)); } catch (e) {}
+	}
+
+	function loadFont() {
+		var n = FONT_DEFAULT;
+		try {
+			var s = localStorage.getItem(STORAGE_FONT);
+			if (s) { var p = parseInt(s, 10); if (!isNaN(p)) n = p; }
+		} catch (e) {}
+		applyFont(n);
+	}
+
+	function loadContent() {
+		var saved = null;
+		try { saved = localStorage.getItem(STORAGE_CONTENT); } catch (e) {}
+		input.value = (saved != null && saved.length) ? saved : SAMPLE;
+	}
+
+	// 滚动进度
+	function updateProgress() {
+		var max = content.scrollHeight - content.clientHeight;
+		var pct = max > 0 ? content.scrollTop / max : 0;
+		if (pct < 0) pct = 0; else if (pct > 1) pct = 1;
+		progressBar.style.width = (pct * 100) + '%';
+	}
+
+	// 全屏
+	function isFullscreen() {
+		return document.fullscreenElement === preview ||
+			document.webkitFullscreenElement === preview;
+	}
+	function toggleFullscreen() {
+		if (isFullscreen()) {
+			(document.exitFullscreen || document.webkitExitFullscreen || function () {}).call(document);
+		} else {
+			var req = preview.requestFullscreen || preview.webkitRequestFullscreen;
+			if (req) req.call(preview);
+		}
+	}
+	function syncFullscreenUI() {
+		var fs = isFullscreen();
+		preview.classList.toggle('is-fullscreen', fs);
+		fullscreenBtn.innerHTML = fs ? '<i class="fa fa-compress"></i>' : '<i class="fa fa-expand"></i>';
+		fullscreenBtn.title = fs ? '退出全屏' : '全屏';
+		updateProgress();
+	}
+
+	// 折叠输入
+	function toggleInput() {
+		var collapsed = inputWrap.classList.toggle('collapsed');
+		$('mdToggleInput').textContent = collapsed ? '展开' : '收起';
+	}
+
+	// 事件绑定
+	input.addEventListener('input', scheduleRender);
+	$('mdFontDec').addEventListener('click', function () { applyFont(currentFont - FONT_STEP); });
+	$('mdFontInc').addEventListener('click', function () { applyFont(currentFont + FONT_STEP); });
+	fullscreenBtn.addEventListener('click', toggleFullscreen);
+	document.addEventListener('fullscreenchange', syncFullscreenUI);
+	document.addEventListener('webkitfullscreenchange', syncFullscreenUI);
+	$('mdSample').addEventListener('click', function () {
+		input.value = SAMPLE;
+		render();
+		scheduleSave();
+	});
+	$('mdClear').addEventListener('click', function () {
+		input.value = '';
+		render();
+		scheduleSave();
+		input.focus();
+	});
+	$('mdToggleInput').addEventListener('click', toggleInput);
+	content.addEventListener('scroll', updateProgress, { passive: true });
+	window.addEventListener('resize', updateProgress);
+
+	// 初始化（marked / highlight.js 已在上方以阻塞方式加载）
+	loadFont();
+	loadContent();
+	render();
+})();
+</script>
