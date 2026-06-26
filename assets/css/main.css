@@ -1668,16 +1668,25 @@ body.menu #header {
 	}
 
 	#header .title {
-		top: 80px;
+		top: 60px;
 		font-size: 20px;
 	}
 
 	#header .title .quote {
-		font-size: 16px;
+		margin-top: 10px;
+		padding: 8px 14px;
+		font-size: 14px;
+		line-height: 1.5;
+		overflow-wrap: break-word;
+		/* Safety net: cap the box so any quote (incl. long per-page custom
+		   quotes) stays inside the 240px hero and never spills on iOS. */
+		max-height: 112px;
+		overflow: hidden;
 	}
 
 	#header .title .quote .by {
-		font-size: 13px;
+		margin-top: 4px;
+		font-size: 12px;
 	}
 
 	#author .avatar img {
