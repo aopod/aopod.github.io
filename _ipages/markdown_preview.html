@@ -66,6 +66,7 @@ html[data-theme="light"] .md-preview {
 /* 全屏按钮图标（站点 FA 图标子集未含，补上字形 content；字体由全局 @font-face 提供） */
 #content .md-preview .fa-expand:before { content: "\f065"; }
 #content .md-preview .fa-compress:before { content: "\f066"; }
+#content .md-preview .fa-bullseye:before { content: "\f140"; }
 
 /* 工具栏 */
 #content .md-toolbar {
@@ -109,6 +110,11 @@ html[data-theme="light"] .md-preview {
 }
 #content .md-actions button:hover,
 #content .md-input-actions button:hover {
+	color: #ffffff;
+	background: var(--content-link-color);
+	border-color: var(--content-link-color);
+}
+#content .md-actions button.active {
 	color: #ffffff;
 	background: var(--content-link-color);
 	border-color: var(--content-link-color);
@@ -307,6 +313,44 @@ html[data-theme="light"] .md-preview {
 	display: none;
 }
 
+/* 沉浸模式：弱化页面其它区域，预览主体浮起突出到最前 */
+.md-backdrop {
+	position: fixed;
+	top: 0; right: 0; bottom: 0; left: 0;
+	z-index: 9998;
+	background: rgba(0, 0, 0, 0.55);
+	-webkit-backdrop-filter: blur(3px);
+	backdrop-filter: blur(3px);
+	opacity: 0;
+	visibility: hidden;
+	transition: opacity .25s ease, visibility .25s ease;
+}
+.md-backdrop.show {
+	opacity: 1;
+	visibility: visible;
+}
+#content .md-preview.is-immersive {
+	position: fixed;
+	top: 50%;
+	left: 50%;
+	z-index: 9999;
+	width: min(960px, calc(100vw - 48px));
+	max-width: none;
+	max-height: calc(100vh - 48px);
+	margin: 0;
+	transform: translate(-50%, -50%);
+	box-shadow: 0 24px 70px rgba(0, 0, 0, 0.5);
+}
+#content .md-preview.is-immersive .md-input-wrap {
+	display: none;
+}
+#content .md-preview.is-immersive .md-content {
+	flex: 1 1 auto;
+	height: auto;
+	max-height: none;
+	min-height: 0; /* 允许收缩，使 overflow 滚动生效（覆盖 flex 项默认 min-height:auto） */
+}
+
 /* 响应式 */
 @media (max-width: 600px) {
 	#content .md-toolbar {
@@ -343,6 +387,7 @@ html[data-theme="light"] .md-preview {
 			<button type="button" id="mdFontDec" title="缩小字号">A-</button>
 			<span id="mdFontSize">16px</span>
 			<button type="button" id="mdFontInc" title="放大字号">A+</button>
+			<button type="button" id="mdImmersive" title="沉浸模式"><i class="fa fa-bullseye"></i></button>
 			<button type="button" id="mdFullscreen" title="全屏"><i class="fa fa-expand"></i></button>
 		</div>
 	</div>
@@ -368,6 +413,14 @@ html[data-theme="light"] .md-preview {
 	var countEl = $('mdCount');
 	var progressBar = $('mdProgressBar');
 	var fullscreenBtn = $('mdFullscreen');
+	var immersiveBtn = $('mdImmersive');
+
+	// 沉浸模式遮罩（挂到 body 以覆盖整页，避免卡片 transform 影响其 fixed 定位）
+	var backdrop = document.createElement('div');
+	backdrop.className = 'md-backdrop';
+	backdrop.id = 'mdBackdrop';
+	document.body.appendChild(backdrop);
+	var savedBodyOverflow = '';
 
 	// 内置示例，便于首屏有内容可看
 	var SAMPLE = [
@@ -379,7 +432,7 @@ html[data-theme="light"] .md-preview {
 		'',
 		'- 实时渲染',
 		'- 代码语法高亮',
-		'- 字号调整 / 全屏阅读 / 滚动进度',
+		'- 字号调整 / 沉浸阅读 / 全屏阅读 / 滚动进度',
 		'- [x] 已完成任务',
 		'- [ ] 待办事项',
 		'',
@@ -487,6 +540,7 @@ html[data-theme="light"] .md-preview {
 			document.webkitFullscreenElement === preview;
 	}
 	function toggleFullscreen() {
+		if (!isFullscreen() && isImmersive()) { exitImmersive(); }
 		if (isFullscreen()) {
 			(document.exitFullscreen || document.webkitExitFullscreen || function () {}).call(document);
 		} else {
@@ -502,6 +556,33 @@ html[data-theme="light"] .md-preview {
 		updateProgress();
 	}
 
+	// 沉浸模式
+	function isImmersive() {
+		return preview.classList.contains('is-immersive');
+	}
+	function enterImmersive() {
+		if (isFullscreen()) {
+			(document.exitFullscreen || document.webkitExitFullscreen || function () {}).call(document);
+		}
+		savedBodyOverflow = document.body.style.overflow;
+		document.body.style.overflow = 'hidden';
+		preview.classList.add('is-immersive');
+		backdrop.classList.add('show');
+		immersiveBtn.classList.add('active');
+		immersiveBtn.title = '退出沉浸';
+		updateProgress();
+	}
+	function exitImmersive() {
+		preview.classList.remove('is-immersive');
+		backdrop.classList.remove('show');
+		immersiveBtn.classList.remove('active');
+		immersiveBtn.title = '沉浸模式';
+		document.body.style.overflow = savedBodyOverflow;
+	}
+	function toggleImmersive() {
+		if (isImmersive()) { exitImmersive(); } else { enterImmersive(); }
+	}
+
 	// 折叠输入
 	function toggleInput() {
 		var collapsed = inputWrap.classList.toggle('collapsed');
@@ -515,6 +596,14 @@ html[data-theme="light"] .md-preview {
 	fullscreenBtn.addEventListener('click', toggleFullscreen);
 	document.addEventListener('fullscreenchange', syncFullscreenUI);
 	document.addEventListener('webkitfullscreenchange', syncFullscreenUI);
+	immersiveBtn.addEventListener('click', toggleImmersive);
+	backdrop.addEventListener('click', exitImmersive);
+	document.addEventListener('keydown', function (e) {
+		if ((e.key === 'Escape' || e.keyCode === 27) && isImmersive()) {
+			e.preventDefault();
+			exitImmersive();
+		}
+	});
 	$('mdSample').addEventListener('click', function () {
 		input.value = SAMPLE;
 		render();
