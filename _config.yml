@@ -131,3 +131,6 @@ ao_tools:
   -
     name: "Markdown 预览"
     url: "/tools/markdown_preview"
+  -
+    name: "Torrent 文件解析"
+    url: "/tools/torrent-parser"

@@ -1,0 +1,1309 @@
+---
+layout: icontainer
+title: Torrent 文件解析
+permalink: /tools/torrent-parser
+header_quote: "纯前端解析，文件不会上传到服务器"
+---
+
+<style type="text/css">
+/* === 分类配色（4 块写法，与 main.css 一致） === */
+.tp-root {
+	--tp-cat-video: #5b8def;
+	--tp-cat-audio: #a855f7;
+	--tp-cat-image: #ec4899;
+	--tp-cat-document: #f59e0b;
+	--tp-cat-subtitle: #14b8a6;
+	--tp-cat-archive: #8b5cf6;
+	--tp-cat-other: #71717a;
+	--tp-dropzone-border: #d4d4d8;
+	--tp-dropzone-bg: var(--page-guide-bg-color);
+	--tp-dropzone-hover-bg: var(--content-code-bg-color);
+	--tp-row-hover-bg: var(--content-code-bg-color);
+	--tp-row-selected-bg: var(--content-code-bg-color);
+	--tp-bar-bg: var(--page-guide-border-color);
+	--tp-bar-fill: var(--content-link-color);
+}
+@media (prefers-color-scheme: dark) {
+	.tp-root {
+		--tp-dropzone-border: #3f3f46;
+		--tp-dropzone-hover-bg: #262626;
+		--tp-row-hover-bg: #262626;
+		--tp-row-selected-bg: #2a2a2a;
+	}
+}
+html[data-theme="dark"] .tp-root {
+	--tp-dropzone-border: #3f3f46;
+	--tp-dropzone-hover-bg: #262626;
+	--tp-row-hover-bg: #262626;
+	--tp-row-selected-bg: #2a2a2a;
+}
+html[data-theme="light"] .tp-root {
+	--tp-dropzone-border: #d4d4d8;
+	--tp-dropzone-hover-bg: var(--content-code-bg-color);
+	--tp-row-hover-bg: var(--content-code-bg-color);
+	--tp-row-selected-bg: var(--content-code-bg-color);
+}
+
+/* === 宽度覆盖（同 markdown_preview，让工具页比站点默认 52% 窄列更宽） === */
+#content {
+	width: auto;
+	max-width: 912px;
+	min-width: 0;
+	margin-left: auto;
+	margin-right: auto;
+	padding-left: 16px;
+	padding-right: 16px;
+	box-sizing: border-box;
+}
+
+/* === 标题 === */
+.tp-title {
+	font-size: 20px;
+	font-weight: 600;
+	color: var(--content-text-color);
+	margin: 4px 0 16px;
+}
+
+/* === Dropzone === */
+.tp-dropzone {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	gap: 10px;
+	padding: 36px 20px;
+	border: 2px dashed var(--tp-dropzone-border);
+	border-radius: 10px;
+	background: var(--tp-dropzone-bg);
+	color: var(--content-text-color);
+	text-align: center;
+	cursor: pointer;
+	transition: border-color .15s, background .15s, transform .15s;
+}
+.tp-dropzone:hover,
+.tp-dropzone.drag-over {
+	border-color: var(--content-link-color);
+	background: var(--tp-dropzone-hover-bg);
+}
+.tp-dropzone:focus-visible {
+	outline: 2px solid var(--content-link-color);
+	outline-offset: 2px;
+}
+.tp-dropzone.drag-over {
+	transform: scale(1.005);
+}
+.tp-dropzone svg {
+	width: 36px;
+	height: 36px;
+	color: var(--content-link-color);
+}
+.tp-dropzone .tp-main-text {
+	font-size: 15px;
+}
+.tp-dropzone .tp-link {
+	color: var(--content-link-color);
+	font-weight: 500;
+}
+.tp-dropzone .tp-hint {
+	font-size: 12px;
+	color: var(--footer-copyright-text-color);
+}
+.tp-root.has-file .tp-dropzone {
+	padding: 14px 20px;
+}
+.tp-root.has-file .tp-dropzone svg {
+	width: 22px;
+	height: 22px;
+}
+.tp-root.has-file .tp-dropzone .tp-main-text {
+	font-size: 13px;
+}
+.tp-root.has-file .tp-dropzone .tp-hint {
+	display: none;
+}
+.tp-dropzone .tp-file-name {
+	font-size: 13px;
+	color: var(--content-text-color);
+	max-width: 100%;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+/* === Result 区 === */
+.tp-result {
+	margin-top: 16px;
+	display: flex;
+	flex-direction: column;
+	gap: 14px;
+}
+
+/* === 卡片基 === */
+.tp-card {
+	background: var(--page-guide-bg-color);
+	border: 1px solid var(--page-guide-border-color);
+	border-radius: 10px;
+	overflow: hidden;
+	box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+}
+.tp-card-label {
+	font-size: 11px;
+	font-weight: 600;
+	text-transform: uppercase;
+	letter-spacing: .05em;
+	color: var(--footer-copyright-text-color);
+	padding: 10px 16px 0;
+}
+
+/* === 概览 === */
+.tp-summary-body {
+	padding: 8px 16px 14px;
+}
+.tp-summary-name {
+	font-size: 15px;
+	font-weight: 600;
+	color: var(--content-text-color);
+	word-break: break-all;
+	line-height: 1.45;
+}
+.tp-summary-meta {
+	margin-top: 6px;
+	font-size: 12px;
+	color: var(--footer-copyright-text-color);
+	display: flex;
+	flex-wrap: wrap;
+	gap: 6px 10px;
+}
+.tp-summary-meta b {
+	color: var(--content-text-color);
+	font-weight: 500;
+}
+
+/* === 磁力链接 === */
+.tp-magnet-row {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	padding: 10px 16px;
+	border-top: 1px solid var(--page-guide-border-color);
+}
+.tp-magnet-row:first-of-type {
+	border-top: none;
+}
+.tp-magnet-row label {
+	flex: 0 0 70px;
+	font-size: 12px;
+	font-weight: 500;
+	color: var(--footer-copyright-text-color);
+	font-family: Consolas, Menlo, Monaco, monospace;
+}
+.tp-magnet-input {
+	flex: 1 1 auto;
+	min-width: 0;
+	height: 32px;
+	padding: 0 10px;
+	font-size: 12px;
+	font-family: Consolas, Menlo, Monaco, "Lucida Console", monospace;
+	color: var(--content-text-color);
+	background: var(--body-bg-color);
+	border: 1px solid var(--content-code-border-color);
+	border-radius: 6px;
+	cursor: text;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+.tp-magnet-input:focus {
+	outline: none;
+	border-color: var(--content-link-color);
+}
+.tp-btn {
+	flex: 0 0 auto;
+	min-width: 32px;
+	height: 32px;
+	padding: 0 10px;
+	font-size: 12px;
+	color: var(--content-text-color);
+	background: var(--content-code-bg-color);
+	border: 1px solid var(--content-code-border-color);
+	border-radius: 6px;
+	cursor: pointer;
+	transition: background .15s, border-color .15s, color .15s;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	gap: 4px;
+}
+.tp-btn:hover {
+	color: #fff;
+	background: var(--content-link-color);
+	border-color: var(--content-link-color);
+}
+.tp-btn svg {
+	width: 14px;
+	height: 14px;
+}
+.tp-btn.copied {
+	color: #fff;
+	background: #16a34a;
+	border-color: #16a34a;
+}
+
+/* === 工具栏 === */
+.tp-toolbar {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 10px;
+	padding: 10px 12px;
+	flex-wrap: wrap;
+	border-bottom: 1px solid var(--page-guide-border-color);
+	background: var(--footer-bg-color);
+}
+.tp-filters {
+	display: flex;
+	gap: 6px;
+	flex-wrap: wrap;
+}
+.tp-chip {
+	display: inline-flex;
+	align-items: center;
+	gap: 5px;
+	padding: 4px 10px;
+	font-size: 12px;
+	color: var(--content-text-color);
+	background: var(--content-code-bg-color);
+	border: 1px solid var(--content-code-border-color);
+	border-radius: 999px;
+	cursor: pointer;
+	transition: background .15s, color .15s, border-color .15s;
+	user-select: none;
+}
+.tp-chip:hover {
+	border-color: var(--content-link-hover-color);
+}
+.tp-chip.active {
+	color: #fff;
+	background: var(--content-link-color);
+	border-color: var(--content-link-color);
+}
+.tp-chip .tp-chip-count {
+	font-size: 11px;
+	opacity: .8;
+}
+.tp-chip svg {
+	width: 13px;
+	height: 13px;
+}
+.tp-chip[data-cat="video"] svg { color: var(--tp-cat-video); }
+.tp-chip[data-cat="audio"] svg { color: var(--tp-cat-audio); }
+.tp-chip[data-cat="image"] svg { color: var(--tp-cat-image); }
+.tp-chip[data-cat="document"] svg { color: var(--tp-cat-document); }
+.tp-chip[data-cat="subtitle"] svg { color: var(--tp-cat-subtitle); }
+.tp-chip[data-cat="archive"] svg { color: var(--tp-cat-archive); }
+.tp-chip[data-cat="other"] svg { color: var(--tp-cat-other); }
+.tp-chip.active svg { color: #fff; opacity: .9; }
+
+.tp-toolbar-right {
+	display: flex;
+	align-items: center;
+	gap: 6px;
+	flex-wrap: wrap;
+}
+.tp-select {
+	height: 28px;
+	padding: 0 8px;
+	font-size: 12px;
+	color: var(--content-text-color);
+	background: var(--content-code-bg-color);
+	border: 1px solid var(--content-code-border-color);
+	border-radius: 6px;
+	cursor: pointer;
+}
+.tp-select:focus { outline: none; border-color: var(--content-link-color); }
+.tp-chk {
+	display: inline-flex;
+	align-items: center;
+	gap: 4px;
+	padding: 0 6px;
+	height: 28px;
+	font-size: 12px;
+	color: var(--content-text-color);
+	background: var(--content-code-bg-color);
+	border: 1px solid var(--content-code-border-color);
+	border-radius: 6px;
+	cursor: pointer;
+	user-select: none;
+	white-space: nowrap;
+}
+.tp-chk input {
+	width: 13px;
+	height: 13px;
+	margin: 0;
+	accent-color: var(--content-link-color);
+	cursor: pointer;
+}
+.tp-chk:hover { border-color: var(--content-link-hover-color); }
+.tp-icon-btn {
+	width: 30px;
+	height: 30px;
+	padding: 0;
+	font-size: 12px;
+	color: var(--content-text-color);
+	background: var(--content-code-bg-color);
+	border: 1px solid var(--content-code-border-color);
+	border-radius: 6px;
+	cursor: pointer;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	transition: background .15s, border-color .15s, color .15s;
+}
+.tp-icon-btn:hover {
+	color: #fff;
+	background: var(--content-link-color);
+	border-color: var(--content-link-color);
+}
+.tp-icon-btn.active {
+	color: #fff;
+	background: var(--content-link-color);
+	border-color: var(--content-link-color);
+}
+.tp-icon-btn svg { width: 15px; height: 15px; }
+
+/* === 摘要条 === */
+.tp-summary-bar {
+	padding: 8px 16px;
+	font-size: 12px;
+	color: var(--footer-copyright-text-color);
+	background: var(--page-guide-bg-color);
+	border-bottom: 1px solid var(--page-guide-border-color);
+}
+.tp-summary-bar b {
+	color: var(--content-text-color);
+	font-weight: 600;
+}
+
+/* === 文件列表 === */
+.tp-filelist {
+	max-height: 540px;
+	overflow-y: auto;
+	scrollbar-width: thin;
+	scrollbar-color: var(--content-link-hover-color) var(--page-guide-border-color);
+}
+.tp-filelist::-webkit-scrollbar { width: 10px; }
+.tp-filelist::-webkit-scrollbar-track { background: var(--page-guide-border-color); }
+.tp-filelist::-webkit-scrollbar-thumb {
+	background: var(--content-link-hover-color);
+	border: 2px solid var(--page-guide-bg-color);
+	border-radius: 5px;
+}
+.tp-filelist::-webkit-scrollbar-thumb:hover { background: var(--content-link-color); }
+
+.tp-filerow {
+	display: flex;
+	align-items: center;
+	gap: 10px;
+	padding: 8px 16px;
+	border-bottom: 1px solid var(--page-guide-border-color);
+	cursor: pointer;
+	transition: background .1s;
+}
+.tp-filerow:last-child { border-bottom: none; }
+.tp-filerow:hover { background: var(--tp-row-hover-bg); }
+.tp-filerow.selected { background: var(--tp-row-selected-bg); }
+.tp-filerow input[type="checkbox"] {
+	flex: 0 0 auto;
+	width: 15px;
+	height: 15px;
+	accent-color: var(--content-link-color);
+	cursor: pointer;
+}
+.tp-filerow .tp-file-icon {
+	flex: 0 0 auto;
+	width: 18px;
+	height: 18px;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+}
+.tp-filerow .tp-file-icon svg { width: 18px; height: 18px; }
+.tp-filerow[data-cat="video"] .tp-file-icon svg { color: var(--tp-cat-video); }
+.tp-filerow[data-cat="audio"] .tp-file-icon svg { color: var(--tp-cat-audio); }
+.tp-filerow[data-cat="image"] .tp-file-icon svg { color: var(--tp-cat-image); }
+.tp-filerow[data-cat="document"] .tp-file-icon svg { color: var(--tp-cat-document); }
+.tp-filerow[data-cat="subtitle"] .tp-file-icon svg { color: var(--tp-cat-subtitle); }
+.tp-filerow[data-cat="archive"] .tp-file-icon svg { color: var(--tp-cat-archive); }
+.tp-filerow[data-cat="other"] .tp-file-icon svg { color: var(--tp-cat-other); }
+
+.tp-filerow .tp-file-name {
+	flex: 1 1 auto;
+	min-width: 0;
+	font-size: 13px;
+	color: var(--content-text-color);
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+.tp-filerow .tp-file-size {
+	flex: 0 0 auto;
+	font-size: 12px;
+	color: var(--footer-copyright-text-color);
+	font-variant-numeric: tabular-nums;
+	font-family: Consolas, Menlo, Monaco, monospace;
+}
+.tp-filerow .tp-file-bar {
+	flex: 0 0 60px;
+	height: 4px;
+	border-radius: 2px;
+	background: var(--tp-bar-bg);
+	overflow: hidden;
+}
+.tp-filerow .tp-file-bar-fill {
+	height: 100%;
+	background: var(--tp-bar-fill);
+	opacity: .6;
+	border-radius: 2px;
+}
+.tp-filerow:not(.selected) .tp-file-icon svg { opacity: .55; }
+.tp-filerow:not(.selected) .tp-file-name { opacity: .6; }
+
+/* === 沉浸模式 === */
+.tp-backdrop {
+	position: fixed;
+	top: 0; right: 0; bottom: 0; left: 0;
+	z-index: 9998;
+	background: rgba(0, 0, 0, 0.55);
+	-webkit-backdrop-filter: blur(3px);
+	backdrop-filter: blur(3px);
+	opacity: 0;
+	visibility: hidden;
+	transition: opacity .25s ease, visibility .25s ease;
+}
+.tp-backdrop.show {
+	opacity: 1;
+	visibility: visible;
+}
+.tp-files.is-immersive {
+	position: fixed;
+	top: 50%;
+	left: 50%;
+	z-index: 9999;
+	width: min(960px, calc(100vw - 48px));
+	max-height: calc(100vh - 48px);
+	transform: translate(-50%, -50%);
+	box-shadow: 0 24px 70px rgba(0, 0, 0, 0.5);
+	display: flex;
+	flex-direction: column;
+}
+.tp-files.is-immersive .tp-filelist {
+	flex: 1 1 auto;
+	max-height: none;
+	min-height: 0;
+}
+
+/* === 错误提示 === */
+.tp-error {
+	margin-top: 14px;
+	padding: 10px 14px;
+	font-size: 13px;
+	color: #b91c1c;
+	background: #fee2e2;
+	border: 1px solid #fecaca;
+	border-radius: 8px;
+}
+html[data-theme="dark"] .tp-error {
+	color: #fca5a5;
+	background: rgba(185, 28, 28, 0.18);
+	border-color: rgba(254, 202, 202, 0.25);
+}
+@media (prefers-color-scheme: dark) {
+	:root:not([data-theme="light"]) .tp-error {
+		color: #fca5a5;
+		background: rgba(185, 28, 28, 0.18);
+		border-color: rgba(254, 202, 202, 0.25);
+	}
+}
+.tp-banner {
+	margin-top: 14px;
+	padding: 10px 14px;
+	font-size: 12px;
+	color: var(--footer-copyright-text-color);
+	background: var(--content-code-bg-color);
+	border: 1px solid var(--content-code-border-color);
+	border-radius: 8px;
+}
+
+/* === 响应式 === */
+@media (max-width: 600px) {
+	.tp-dropzone { padding: 28px 16px; }
+	.tp-toolbar { padding: 8px; }
+	.tp-filerow { padding: 8px 10px; gap: 8px; }
+	.tp-filerow .tp-file-bar { display: none; }
+	.tp-magnet-row { padding: 8px 10px; }
+	.tp-magnet-row label { flex-basis: 56px; }
+}
+</style>
+
+<h2 class="tp-title">{{ page.title }}</h2>
+
+<div class="tp-root" id="tpRoot">
+	<div class="tp-dropzone" id="tpDropzone" tabindex="0" role="button" aria-label="选择或拖入 Torrent 文件">
+		<div id="tpDropIcon">
+			<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+		</div>
+		<div class="tp-main-text" id="tpDropText">拖拽 .torrent 文件到此处，或 <span class="tp-link">点击选择</span></div>
+		<div class="tp-hint">文件仅在浏览器本地解析，不会上传到服务器</div>
+		<div class="tp-file-name" id="tpFileName" hidden></div>
+		<input type="file" id="tpFileInput" accept=".torrent,application/x-bittorrent" hidden>
+	</div>
+
+	<div class="tp-banner" id="tpCryptoWarn" hidden>当前页面非 HTTPS，infoHash 计算可能不可用。</div>
+	<div class="tp-banner" id="tpLibError" hidden>解析库加载失败，请检查网络后刷新页面重试。</div>
+	<div class="tp-error" id="tpError" hidden></div>
+
+	<div class="tp-result" id="tpResult" hidden>
+		<div class="tp-card tp-summary">
+			<div class="tp-summary-body">
+				<div class="tp-summary-name" id="tpName"></div>
+				<div class="tp-summary-meta" id="tpMeta"></div>
+			</div>
+		</div>
+
+		<div class="tp-card tp-magnets">
+			<div class="tp-magnet-row">
+				<label>v1 btih</label>
+				<input class="tp-magnet-input" id="tpMagnetV1" readonly>
+				<button class="tp-btn" id="tpCopyV1" type="button">
+					<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+					<span>复制</span>
+				</button>
+			</div>
+			<div class="tp-magnet-row" id="tpMagnetV2Row" hidden>
+				<label>v2 btmh</label>
+				<input class="tp-magnet-input" id="tpMagnetV2" readonly>
+				<button class="tp-btn" id="tpCopyV2" type="button">
+					<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+					<span>复制</span>
+				</button>
+			</div>
+		</div>
+
+		<div class="tp-card tp-files" id="tpFiles">
+			<div class="tp-toolbar">
+				<div class="tp-filters" id="tpFilters"></div>
+				<div class="tp-toolbar-right">
+					<select class="tp-select" id="tpSort" title="排序">
+						<option value="path">按路径</option>
+						<option value="size-desc">按大小 ↓</option>
+						<option value="size-asc">按大小 ↑</option>
+					</select>
+					<button class="tp-btn" id="tpSelectAll" type="button">全选</button>
+					<button class="tp-btn" id="tpInvert" type="button">反选</button>
+					<button class="tp-btn" id="tpNone" type="button">全不选</button>
+					<label class="tp-chk" title="勾选后导出只包含当前已选文件"><input type="checkbox" id="tpSelOnly"> 仅已选</label>
+					<button class="tp-btn" id="tpExport" type="button" title="导出当前文件列表为 TXT">
+						<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+						<span>导出 TXT</span>
+					</button>
+					<button class="tp-icon-btn" id="tpImmersive" type="button" title="沉浸模式">
+						<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7V5a2 2 0 0 1 2-2h2"/><path d="M17 3h2a2 2 0 0 1 2 2v2"/><path d="M21 17v2a2 2 0 0 1-2 2h-2"/><path d="M7 21H5a2 2 0 0 1-2-2v-2"/></svg>
+					</button>
+				</div>
+			</div>
+			<div class="tp-summary-bar" id="tpSelBar"></div>
+			<div class="tp-filelist" id="tpFilelist"></div>
+		</div>
+	</div>
+</div>
+
+<script type="module">
+// 加载 bencode（jsDelivr ESM 优先，esm.sh 兜底）
+let bencode = null;
+try {
+	const mod = await import('https://cdn.jsdelivr.net/npm/bencode@4.0.0/+esm');
+	bencode = mod.default && mod.default.decode ? mod.default : mod;
+} catch (e) {
+	try {
+		const mod = await import('https://esm.sh/bencode@4.0.0');
+		bencode = mod.default && mod.default.decode ? mod.default : mod;
+	} catch (e2) {
+		console.error('[torrent-parser] bencode load failed:', e2);
+	}
+}
+
+if (!bencode || typeof bencode.decode !== 'function') {
+	document.getElementById('tpLibError').hidden = false;
+} else if (!window.crypto || !window.crypto.subtle) {
+	document.getElementById('tpCryptoWarn').hidden = false;
+} else {
+	init();
+}
+
+function init() {
+	const $ = (id) => document.getElementById(id);
+
+	const ICONS = {
+		video: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="18" rx="2"/><line x1="2" y1="8" x2="22" y2="8"/><line x1="2" y1="16" x2="22" y2="16"/><line x1="7" y1="3" x2="7" y2="21"/><line x1="17" y1="3" x2="17" y2="21"/></svg>',
+		audio: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>',
+		image: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>',
+		document: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>',
+		subtitle: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M7 15h4"/><path d="M14 15h3"/><path d="M7 11h2"/><path d="M12 11h5"/></svg>',
+		archive: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="21 8 21 21 3 21 3 8"/><rect x="1" y="3" width="22" height="5"/><line x1="10" y1="12" x2="14" y2="12"/></svg>',
+		other: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>',
+		all: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><circle cx="4" cy="6" r="1"/><circle cx="4" cy="12" r="1"/><circle cx="4" cy="18" r="1"/></svg>',
+	};
+
+	const CATEGORIES = [
+		{ id: 'all',      label: '全部',   exts: null },
+		{ id: 'video',    label: '视频',   exts: 'mp4,mkv,avi,mov,wmv,flv,webm,m4v,mpg,mpeg,ts,m2ts,3gp,vob,rm,rmvb' },
+		{ id: 'audio',    label: '音频',   exts: 'mp3,flac,wav,aac,ogg,m4a,wma,opus,ape,aiff,dsf,tak' },
+		{ id: 'image',    label: '图片',   exts: 'jpg,jpeg,png,gif,webp,bmp,svg,heic,tiff,ico,avif' },
+		{ id: 'document', label: '文档',   exts: 'pdf,doc,docx,txt,md,epub,mobi,rtf,xls,xlsx,ppt,pptx,csv,chm,djvu' },
+		{ id: 'subtitle', label: '字幕',   exts: 'srt,ass,ssa,sub,vtt,smi,lrc,sup,idx' },
+		{ id: 'archive',  label: '压缩',   exts: 'zip,rar,7z,tar,gz,bz2,xz,iso,cab,lz,zst,tgz' },
+		{ id: 'other',    label: '其他',   exts: null },
+	];
+
+	const extToCat = {};
+	for (const cat of CATEGORIES) {
+		if (!cat.exts) continue;
+		for (const ext of cat.exts.split(',')) extToCat[ext] = cat.id;
+	}
+
+	const state = {
+		files: [],
+		filter: 'all',
+		sort: 'path',
+		selected: new Set(),
+		maxSize: 1,
+		torrentName: '',
+	};
+
+	const root = $('tpRoot');
+	const dropzone = $('tpDropzone');
+	const fileInput = $('tpFileInput');
+	const errorEl = $('tpError');
+	const resultEl = $('tpResult');
+	const filelistEl = $('tpFilelist');
+	const filtersEl = $('tpFilters');
+
+	const backdrop = document.createElement('div');
+	backdrop.className = 'tp-backdrop';
+	backdrop.id = 'tpBackdrop';
+	document.body.appendChild(backdrop);
+
+	// ---- 工具函数 ----
+	function escapeHtml(s) {
+		return String(s).replace(/[&<>"']/g, (c) => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[c]));
+	}
+	function pad(n) { return n < 10 ? '0' + n : String(n); }
+	function getExt(name) {
+		const dot = name.lastIndexOf('.');
+		return dot >= 0 ? name.slice(dot + 1).toLowerCase() : '';
+	}
+	function getCategory(ext) { return extToCat[ext] || 'other'; }
+
+	function formatSize(n) {
+		if (!n || n < 0) return '0 B';
+		const units = ['B', 'KB', 'MB', 'GB', 'TB', 'PB'];
+		let i = 0;
+		let v = n;
+		while (v >= 1024 && i < units.length - 1) { v /= 1024; i++; }
+		return (i === 0 ? String(v) : v.toFixed(1).replace(/\.0$/, '')) + ' ' + units[i];
+	}
+	function bufToHex(buf) {
+		const bytes = new Uint8Array(buf);
+		let s = '';
+		for (let i = 0; i < bytes.length; i++) s += bytes[i].toString(16).padStart(2, '0');
+		return s;
+	}
+
+	// ---- bencode 字节范围扫描：精确定位 info 字典在原始字节中的范围 ----
+	// 不能用 bencode.encode(info) 重编码——二进制字段（如 pieces）会被破坏，infoHash 会算错。
+	function findInfoRange(bytes) {
+		if (!bytes || bytes[0] !== 0x64) throw new Error('种子顶层不是 dict');
+		function readString(pos) {
+			let colon = pos;
+			while (colon < bytes.length && bytes[colon] !== 0x3A) colon++;
+			let len = 0;
+			for (let k = pos; k < colon; k++) len = len * 10 + (bytes[k] - 0x30);
+			return { start: colon + 1, end: colon + 1 + len };
+		}
+		function skipValue(pos) {
+			const c = bytes[pos];
+			if (c === 0x64 || c === 0x6C) { // dict / list
+				pos++;
+				while (bytes[pos] !== 0x65) {
+					if (c === 0x64) pos = skipValue(pos); // key
+					pos = skipValue(pos); // value
+				}
+				return pos + 1;
+			}
+			if (c === 0x69) { // integer
+				pos++;
+				while (bytes[pos] !== 0x65) pos++;
+				return pos + 1;
+			}
+			if (c >= 0x30 && c <= 0x39) { // byte string
+				const r = readString(pos);
+				return r.end;
+			}
+			throw new Error('bencode 扫描异常 @' + pos);
+		}
+		let i = 1;
+		while (i < bytes.length && bytes[i] !== 0x65) {
+			const kr = readString(i);
+			let key = '';
+			for (let k = kr.start; k < kr.end; k++) key += String.fromCharCode(bytes[k]);
+			i = kr.end;
+			const valueStart = i;
+			i = skipValue(i);
+			if (key === 'info') return { start: valueStart, end: i };
+		}
+		throw new Error('未找到 info 字典');
+	}
+
+	// ---- 编码检测与统一 ----
+	// 旧版 BT 客户端（BitComet / 迅雷 等）常把 name/path 用 GBK 写入却不声明 encoding，
+	// 默认 UTF-8 解码会出现 � 替换符 → 文件名乱码。
+	// 解一次拿到原始字节数组，先按 UTF-8 规整用于探测，探测到非 UTF-8 再按目标编码重新规整。
+	function mapEncodingName(raw) {
+		if (!raw) return null;
+		const n = String(raw).toLowerCase().replace(/[-_\s]/g, '');
+		const map = {
+			utf8: 'utf-8', 'utf-8': 'utf-8',
+			gbk: 'gbk', gb2312: 'gbk', gb18030: 'gb18030',
+			big5: 'big5', big5hkscs: 'big5-hkscs',
+			shiftjis: 'shift_jis', sjis: 'shift_jis', windows31j: 'shift_jis', ms932: 'shift_jis',
+			eucjp: 'euc-jp',
+			euckr: 'euc-kr', ksc5601: 'euc-kr', ksx1001: 'euc-kr', ms949: 'euc-kr',
+			latin1: 'windows-1252', iso88591: 'windows-1252', 'iso-8859-1': 'windows-1252',
+			windows1252: 'windows-1252', cp1252: 'windows-1252',
+		};
+		return map[n] || null;
+	}
+	function hasReplacementChar(obj) {
+		if (typeof obj === 'string') return obj.indexOf('�') >= 0;
+		if (Array.isArray(obj)) {
+			for (const item of obj) if (hasReplacementChar(item)) return true;
+			return false;
+		}
+		if (obj && typeof obj === 'object') {
+			for (const k in obj) if (hasReplacementChar(obj[k])) return true;
+			return false;
+		}
+		return false;
+	}
+	// 把字节数组（bencode 在此构建里把字节串返回为 Array<number>）按指定编码解成字符串。
+	function decodeBytes(uint8, encoding) {
+		try {
+			const dec = new TextDecoder(encoding, { fatal: true });
+			return dec.decode(uint8);
+		} catch (e) {
+			try {
+				const dec = new TextDecoder(encoding);
+				return dec.decode(uint8);
+			} catch (e2) {
+				return new TextDecoder('utf-8').decode(uint8);
+			}
+		}
+	}
+	// 递归把结构里的字节串（Array<number> 或 Uint8Array）转成字符串；已是字符串/数字/对象的保留。
+	// 字典 key 在 bencode 里始终是字符串，无需处理。pieces 等二进制字段直接丢弃（不解码、省内存）。
+	function normalizeStrings(obj, encoding) {
+		// Typed array（Uint8Array / Buffer）= 字节串
+		if (obj && typeof obj === 'object' && ArrayBuffer.isView(obj) && !(obj instanceof DataView)) {
+			return decodeBytes(new Uint8Array(obj.buffer, obj.byteOffset, obj.byteLength), encoding);
+		}
+		if (Array.isArray(obj)) {
+			if (obj.length > 0 && typeof obj[0] === 'number') {
+				return decodeBytes(new Uint8Array(obj), encoding);
+			}
+			return obj.map((item) => normalizeStrings(item, encoding));
+		}
+		if (obj !== null && typeof obj === 'object') {
+			const out = {};
+			for (const k in obj) {
+				if (k === 'pieces' || k === 'pieces root' || k === 'piece hashes' || k === 'signatures') {
+					out[k] = null; // 二进制字段，丢弃
+				} else {
+					out[k] = normalizeStrings(obj[k], encoding);
+				}
+			}
+			return out;
+		}
+		return obj;
+	}
+
+	// ---- BTv2 file tree（BEP-52）文件提取 ----
+	// 结构：嵌套字典，叶子节点是 { '': { length, 'pieces root' } }。pathParts 走到叶子时已是完整路径。
+	function extractFilesFromFileTree(fileTree, name) {
+		const out = [];
+		// 单文件 v2：根 key 与 name 相同，叶子直接挂 length
+		const rootKeys = Object.keys(fileTree);
+		if (rootKeys.length === 1 && rootKeys[0] === name &&
+			fileTree[name] && fileTree[name][''] && typeof fileTree[name][''] === 'object') {
+			const leaf = fileTree[name][''];
+			out.push({ name: name, size: Number(leaf.length) || 0, ext: getExt(name) });
+			return out;
+		}
+		function walk(node, pathParts) {
+			for (const k in node) {
+				if (k === '') {
+					const leaf = node[k];
+					if (!leaf || typeof leaf !== 'object') continue;
+					const fileName = pathParts[pathParts.length - 1];
+					out.push({
+						name: name + '/' + pathParts.join('/'),
+						size: Number(leaf.length) || 0,
+						ext: getExt(fileName),
+					});
+				} else if (node[k] && typeof node[k] === 'object') {
+					walk(node[k], pathParts.concat(k));
+				}
+			}
+		}
+		walk(fileTree, []);
+		return out;
+	}
+
+	// ---- 解析主流程 ----
+	async function parseTorrent(file) {
+		const buf = await file.arrayBuffer();
+		const bytes = new Uint8Array(buf);
+
+		let parsedRaw;
+		try {
+			parsedRaw = bencode.decode(bytes);
+		} catch (e) {
+			throw new Error('bencode 解析失败：' + (e && e.message || e));
+		}
+		// bencode 在此 ESM 构建里把字节串返回为 Array<number>，需显式按编码转字符串。
+		// 先按 UTF-8 规整，用于编码探测。
+		const parsedUtf8 = normalizeStrings(parsedRaw, 'utf-8');
+
+		// 编码检测：优先 encoding 字段；否则若 UTF-8 出现替换符就按 GB18030 兜底。
+		const encFieldMapped = mapEncodingName(parsedUtf8.encoding);
+		const hasMojibake = hasReplacementChar(parsedUtf8);
+		let useEnc = 'utf-8';
+		let encSource = ''; // 用于 meta 显示
+		if (encFieldMapped && encFieldMapped !== 'utf-8') {
+			useEnc = encFieldMapped;
+			encSource = '声明';
+		} else if (hasMojibake) {
+			useEnc = 'gb18030';
+			encSource = '自动检测';
+		}
+
+		let parsed = parsedUtf8;
+		let detectedEncoding = 'UTF-8';
+		if (useEnc !== 'utf-8') {
+			// 从同一份原始字节数组按目标编码重新规整（.utf-8 后缀字段本就无替换符，会保持正确）
+			parsed = normalizeStrings(parsedRaw, useEnc);
+			detectedEncoding = (useEnc === 'gb18030' || useEnc === 'gbk') ? 'GB18030' : useEnc.toUpperCase();
+		}
+
+		const info = parsed && parsed.info;
+		if (!info || typeof info !== 'object') throw new Error('种子缺少 info 字段');
+
+		let range;
+		try {
+			range = findInfoRange(bytes);
+		} catch (e) {
+			throw new Error('info 字典定位失败：' + (e && e.message || e));
+		}
+		const infoBytes = bytes.subarray(range.start, range.end);
+
+		const sha1Buf = await crypto.subtle.digest('SHA-1', infoBytes);
+		const v1Hex = bufToHex(sha1Buf);
+
+		const metaVersion = info['meta version'];
+		let v2Hex = null;
+		if (metaVersion === 2) {
+			const sha256Buf = await crypto.subtle.digest('SHA-256', infoBytes);
+			v2Hex = '1220' + bufToHex(sha256Buf);
+		}
+
+		const dirName = info['name.utf-8'] || info.name || file.name.replace(/\.torrent$/i, '');
+		const name = String(dirName);
+		const files = [];
+		if (Array.isArray(info.files) && info.files.length > 0) {
+			// BTv1 / hybrid 多文件
+			for (const f of info.files) {
+				const pathParts = (f['path.utf-8'] || f.path || []).map(String).filter(Boolean);
+				if (!pathParts.length) continue;
+				const fileName = pathParts[pathParts.length - 1];
+				files.push({
+					name: name + '/' + pathParts.join('/'),
+					size: Number(f.length) || 0,
+					ext: getExt(fileName),
+				});
+			}
+		} else if (info['file tree'] && typeof info['file tree'] === 'object') {
+			// 纯 BTv2（BEP-52）：info 没有 files，只有 file tree 嵌套字典
+			files.push(...extractFilesFromFileTree(info['file tree'], name));
+		} else {
+			// BTv1 单文件
+			files.push({
+				name: name,
+				size: Number(info.length) || 0,
+				ext: getExt(name),
+			});
+		}
+		files.forEach((f, i) => { f.index = i; f.cat = getCategory(f.ext); });
+
+		const trackers = new Set();
+		if (parsed.announce) trackers.add(String(parsed.announce));
+		if (Array.isArray(parsed['announce-list'])) {
+			for (const tier of parsed['announce-list']) {
+				if (Array.isArray(tier)) for (const u of tier) trackers.add(String(u));
+			}
+		}
+
+		const dn = encodeURIComponent(name);
+		const trParam = Array.from(trackers).slice(0, 30).map(t => '&tr=' + encodeURIComponent(t)).join('');
+		const magnetV1 = `magnet:?xt=urn:btih:${v1Hex}&dn=${dn}${trParam}`;
+		const magnetV2 = v2Hex ? `magnet:?xt=urn:btmh:${v2Hex}&dn=${dn}${trParam}` : null;
+
+		const totalSize = files.reduce((s, f) => s + f.size, 0);
+		const meta = {
+			pieceLength: info['piece length'] ? Number(info['piece length']) : 0,
+			createdAt: parsed['creation date'] ? new Date(parsed['creation date'] * 1000) : null,
+			comment: parsed.comment ? String(parsed.comment) : '',
+			createdBy: parsed['created by'] ? String(parsed['created by']) : '',
+			isPrivate: info.private === 1,
+			encoding: detectedEncoding,
+			encodingSource: encSource,
+			trackerCount: trackers.size,
+		};
+
+		return { name, files, totalSize, magnetV1, magnetV2, meta, v1Hex, v2Hex };
+	}
+
+	// ---- 渲染 ----
+	function applyResult(result) {
+		state.files = result.files;
+		state.selected = new Set(result.files.map(f => f.index));
+		state.filter = 'all';
+		state.sort = 'path';
+		state.maxSize = result.files.reduce((m, f) => Math.max(m, f.size), 1);
+		state.torrentName = result.name;
+
+		// 概览
+		$('tpName').textContent = result.name;
+		const meta = result.meta;
+		const parts = [];
+		parts.push(`共 <b>${result.files.length}</b> 个文件`);
+		parts.push(`总计 <b>${formatSize(result.totalSize)}</b>`);
+		if (meta.encoding && meta.encoding !== 'UTF-8') {
+			parts.push(`编码 <b>${escapeHtml(meta.encoding)}</b>${meta.encodingSource ? ' (' + escapeHtml(meta.encodingSource) + ')' : ''}`);
+		}
+		if (meta.pieceLength) parts.push(`分块 <b>${formatSize(meta.pieceLength)}</b>`);
+		if (meta.trackerCount) parts.push(`Tracker <b>${meta.trackerCount}</b>`);
+		if (meta.createdAt) {
+			const d = meta.createdAt;
+			parts.push(`创建于 <b>${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}</b>`);
+		}
+		if (meta.isPrivate) parts.push(`<b>私有</b>`);
+		if (meta.createdBy) parts.push(`由 <b>${escapeHtml(meta.createdBy)}</b> 创建`);
+		if (meta.comment) parts.push(`备注：<b>${escapeHtml(meta.comment)}</b>`);
+		$('tpMeta').innerHTML = parts.join(' · ');
+
+		// 磁力链接
+		$('tpMagnetV1').value = result.magnetV1;
+		if (result.magnetV2) {
+			$('tpMagnetV2Row').hidden = false;
+			$('tpMagnetV2').value = result.magnetV2;
+		} else {
+			$('tpMagnetV2Row').hidden = true;
+		}
+
+		// 渲染 chips + 文件列表
+		renderFilters();
+		$('tpSort').value = 'path';
+		$('tpSelOnly').checked = false;
+		renderList();
+		updateSummary();
+
+		// dropzone 折叠显示文件名
+		const fn = $('tpFileName');
+		fn.textContent = result.name;
+		fn.hidden = false;
+		$('tpDropText').innerHTML = '已加载：<span class="tp-link">重新选择文件</span>';
+
+		root.classList.add('has-file');
+		resultEl.hidden = false;
+		errorEl.hidden = true;
+	}
+
+	function renderFilters() {
+		const counts = { all: state.files.length };
+		for (const f of state.files) counts[f.cat] = (counts[f.cat] || 0) + 1;
+		const frag = document.createDocumentFragment();
+		for (const cat of CATEGORIES) {
+			const n = counts[cat.id] || 0;
+			if (cat.id !== 'all' && n === 0) continue; // 没有该类文件就不显示 chip
+			const chip = document.createElement('button');
+			chip.type = 'button';
+			chip.className = 'tp-chip' + (state.filter === cat.id ? ' active' : '');
+			chip.dataset.cat = cat.id;
+			chip.innerHTML = (ICONS[cat.id] || ICONS.other) + `<span>${cat.label}</span><span class="tp-chip-count">${n}</span>`;
+			chip.addEventListener('click', () => {
+				state.filter = cat.id;
+				renderFilters();
+				renderList();
+				updateSummary();
+			});
+			frag.appendChild(chip);
+		}
+		filtersEl.innerHTML = '';
+		filtersEl.appendChild(frag);
+	}
+
+	function getVisibleFiles() {
+		let arr = state.files;
+		if (state.filter !== 'all') arr = arr.filter(f => f.cat === state.filter);
+		const sorted = arr.slice();
+		if (state.sort === 'size-desc') sorted.sort((a, b) => b.size - a.size || a.name.localeCompare(b.name));
+		else if (state.sort === 'size-asc') sorted.sort((a, b) => a.size - b.size || a.name.localeCompare(b.name));
+		else sorted.sort((a, b) => a.name.localeCompare(b.name, 'zh'));
+		return sorted;
+	}
+
+	function renderList() {
+		const visible = getVisibleFiles();
+		const frag = document.createDocumentFragment();
+		for (const f of visible) {
+			const row = document.createElement('label');
+			row.className = 'tp-filerow' + (state.selected.has(f.index) ? ' selected' : '');
+			row.dataset.cat = f.cat;
+			row.dataset.index = String(f.index);
+			const pct = state.maxSize > 0 ? Math.max(2, Math.round(f.size / state.maxSize * 100)) : 0;
+			row.innerHTML =
+				`<input type="checkbox" ${state.selected.has(f.index) ? 'checked' : ''}>` +
+				`<span class="tp-file-icon">${ICONS[f.cat] || ICONS.other}</span>` +
+				`<span class="tp-file-name" title="${escapeHtml(f.name)}">${escapeHtml(f.name)}</span>` +
+				`<span class="tp-file-size">${formatSize(f.size)}</span>` +
+				`<span class="tp-file-bar"><span class="tp-file-bar-fill" style="width:${pct}%"></span></span>`;
+			// <label> 原生行为：点击行内任意位置都会切换 checkbox，change 事件统一同步状态。
+			const cb = row.querySelector('input[type="checkbox"]');
+			cb.addEventListener('change', () => {
+				if (cb.checked) state.selected.add(f.index);
+				else state.selected.delete(f.index);
+				row.classList.toggle('selected', cb.checked);
+				updateSummary();
+			});
+			frag.appendChild(row);
+		}
+		filelistEl.innerHTML = '';
+		filelistEl.appendChild(frag);
+	}
+
+	function updateSummary() {
+		const visible = getVisibleFiles();
+		let selCount = 0, selSize = 0, totalSize = 0;
+		for (const f of visible) {
+			totalSize += f.size;
+			if (state.selected.has(f.index)) { selCount++; selSize += f.size; }
+		}
+		const pct = totalSize > 0 ? Math.round(selSize / totalSize * 100) : 0;
+		$('tpSelBar').innerHTML =
+			`已选 <b>${selCount}</b> / ${visible.length} 个文件` +
+			` · <b>${formatSize(selSize)}</b> / ${formatSize(totalSize)}` +
+			` · <b>${pct}%</b>`;
+	}
+
+	// ---- 沉浸模式 ----
+	let savedBodyOverflow = '';
+	function enterImmersive() {
+		savedBodyOverflow = document.body.style.overflow;
+		document.body.style.overflow = 'hidden';
+		$('tpFiles').classList.add('is-immersive');
+		backdrop.classList.add('show');
+		$('tpImmersive').classList.add('active');
+	}
+	function exitImmersive() {
+		$('tpFiles').classList.remove('is-immersive');
+		backdrop.classList.remove('show');
+		$('tpImmersive').classList.remove('active');
+		document.body.style.overflow = savedBodyOverflow;
+	}
+	function toggleImmersive() {
+		if ($('tpFiles').classList.contains('is-immersive')) exitImmersive();
+		else enterImmersive();
+	}
+
+	// ---- 复制 ----
+	async function copyText(text, btn) {
+		try {
+			await navigator.clipboard.writeText(text);
+		} catch (e) {
+			const ta = document.createElement('textarea');
+			ta.value = text;
+			ta.style.position = 'fixed';
+			ta.style.top = '-9999px';
+			document.body.appendChild(ta);
+			ta.select();
+			try { document.execCommand('copy'); } catch (e2) {}
+			document.body.removeChild(ta);
+		}
+		if (btn) {
+			const orig = btn.querySelector('span');
+			const origText = orig ? orig.textContent : '';
+			btn.classList.add('copied');
+			if (orig) orig.textContent = '已复制';
+			setTimeout(() => {
+				btn.classList.remove('copied');
+				if (orig) orig.textContent = origText || '复制';
+			}, 1200);
+		}
+	}
+
+	// ---- 导出 TXT ----
+	function sanitizeFilename(s) {
+		return String(s || 'torrent').replace(/[\\/:*?"<>|]/g, '_').replace(/\s+/g, ' ').trim().slice(0, 120) || 'torrent';
+	}
+	function exportTxt() {
+		const onlySelected = $('tpSelOnly').checked;
+		let list = getVisibleFiles();
+		if (onlySelected) list = list.filter(f => state.selected.has(f.index));
+		if (list.length === 0) {
+			showError('当前范围内没有可导出的文件。');
+			return;
+		}
+		const filterLabel = (CATEGORIES.find(c => c.id === state.filter) || {}).label || '全部';
+		const visSize = list.reduce((s, f) => s + f.size, 0);
+		const totalSizeAll = state.files.reduce((s, f) => s + f.size, 0);
+		const lines = [];
+		lines.push(state.torrentName || 'Torrent');
+		lines.push('----------------------------------------');
+		lines.push(`总文件数：${state.files.length}`);
+		lines.push(`已选文件：${state.selected.size}`);
+		lines.push(`总大小：${formatSize(totalSizeAll)}`);
+		lines.push(`导出范围：${filterLabel}${onlySelected ? ' + 仅已选' : ''}`);
+		lines.push(`导出文件：${list.length} 个，合计 ${formatSize(visSize)}`);
+		lines.push(`生成时间：${new Date().toLocaleString('zh-CN')}`);
+		lines.push('----------------------------------------');
+		lines.push('');
+		for (const f of list) {
+			lines.push(`${f.name}\t${formatSize(f.size)}\t${f.size} 字节`);
+		}
+		// UTF-8 BOM（﻿ → 字节 EF BB BF），便于 Windows 记事本等正确识别中文
+		const bom = '﻿';
+		const blob = new Blob([bom + lines.join('\n')], { type: 'text/plain;charset=utf-8' });
+		const url = URL.createObjectURL(blob);
+		const a = document.createElement('a');
+		a.href = url;
+		a.download = sanitizeFilename(state.torrentName) + '.文件列表.txt';
+		document.body.appendChild(a);
+		a.click();
+		document.body.removeChild(a);
+		setTimeout(() => URL.revokeObjectURL(url), 1000);
+	}
+
+	// ---- 错误显示 ----
+	function showError(msg) {
+		errorEl.textContent = msg;
+		errorEl.hidden = false;
+	}
+
+	// ---- 文件加载入口 ----
+	async function handleFile(file) {
+		if (!file) return;
+		const name = file.name || '';
+		if (!name.toLowerCase().endsWith('.torrent') &&
+			file.type !== 'application/x-bittorrent' &&
+			file.type !== 'application/octet-stream') {
+			showError('请选择 .torrent 种子文件（当前文件：' + name + '）。');
+			return;
+		}
+		errorEl.hidden = true;
+		try {
+			const result = await parseTorrent(file);
+			applyResult(result);
+		} catch (e) {
+			console.error('[torrent-parser] parse failed:', e);
+			showError('解析失败：' + (e && e.message || e));
+		}
+	}
+
+	// ---- 事件绑定 ----
+	dropzone.addEventListener('click', () => fileInput.click());
+	dropzone.addEventListener('keydown', (e) => {
+		if (e.key === 'Enter' || e.key === ' ' || e.keyCode === 13 || e.keyCode === 32) {
+			e.preventDefault();
+			fileInput.click();
+		}
+	});
+	fileInput.addEventListener('change', () => {
+		if (fileInput.files && fileInput.files[0]) handleFile(fileInput.files[0]);
+		fileInput.value = '';
+	});
+	['dragenter', 'dragover'].forEach(ev => {
+		dropzone.addEventListener(ev, (e) => {
+			e.preventDefault();
+			e.stopPropagation();
+			dropzone.classList.add('drag-over');
+		});
+	});
+	['dragleave', 'dragend'].forEach(ev => {
+		dropzone.addEventListener(ev, (e) => {
+			e.preventDefault();
+			e.stopPropagation();
+			dropzone.classList.remove('drag-over');
+		});
+	});
+	dropzone.addEventListener('drop', (e) => {
+		e.preventDefault();
+		e.stopPropagation();
+		dropzone.classList.remove('drag-over');
+		const files = e.dataTransfer && e.dataTransfer.files;
+		if (files && files[0]) handleFile(files[0]);
+	});
+	// 阻止整页拖放（避免误把文件拖到非 dropzone 时浏览器直接打开）
+	window.addEventListener('dragover', (e) => e.preventDefault());
+	window.addEventListener('drop', (e) => e.preventDefault());
+
+	$('tpSort').addEventListener('change', (e) => {
+		state.sort = e.target.value;
+		renderList();
+		updateSummary();
+	});
+
+	$('tpSelectAll').addEventListener('click', () => {
+		for (const f of getVisibleFiles()) state.selected.add(f.index);
+		renderList();
+		updateSummary();
+	});
+	$('tpInvert').addEventListener('click', () => {
+		for (const f of getVisibleFiles()) {
+			if (state.selected.has(f.index)) state.selected.delete(f.index);
+			else state.selected.add(f.index);
+		}
+		renderList();
+		updateSummary();
+	});
+	$('tpNone').addEventListener('click', () => {
+		for (const f of getVisibleFiles()) state.selected.delete(f.index);
+		renderList();
+		updateSummary();
+	});
+
+	$('tpExport').addEventListener('click', exportTxt);
+	$('tpImmersive').addEventListener('click', toggleImmersive);
+	backdrop.addEventListener('click', exitImmersive);
+	document.addEventListener('keydown', (e) => {
+		if ((e.key === 'Escape' || e.keyCode === 27) &&
+			$('tpFiles').classList.contains('is-immersive')) {
+			e.preventDefault();
+			exitImmersive();
+		}
+	});
+
+	$('tpCopyV1').addEventListener('click', () => copyText($('tpMagnetV1').value, $('tpCopyV1')));
+	$('tpCopyV2').addEventListener('click', () => copyText($('tpMagnetV2').value, $('tpCopyV2')));
+	['tpMagnetV1', 'tpMagnetV2'].forEach(id => {
+		$(id).addEventListener('focus', (e) => e.target.select());
+	});
+}
+</script>
