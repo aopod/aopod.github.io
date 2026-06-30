@@ -67,6 +67,7 @@ html[data-theme="light"] .md-preview {
 #content .md-preview .fa-expand:before { content: "\f065"; }
 #content .md-preview .fa-compress:before { content: "\f066"; }
 #content .md-preview .fa-bullseye:before { content: "\f140"; }
+#content .md-preview .fa-list-ul:before { content: "\f03a"; }
 
 /* 工具栏 */
 #content .md-toolbar {
@@ -77,6 +78,7 @@ html[data-theme="light"] .md-preview {
 	padding: 10px 14px;
 	background: var(--footer-bg-color);
 	border-bottom: 1px solid var(--page-guide-border-color);
+	position: relative; /* 作为目录下拉的定位锚点 */
 }
 #content .md-title {
 	font-size: 15px;
@@ -125,6 +127,62 @@ html[data-theme="light"] .md-preview {
 	text-align: center;
 	font-size: 12px;
 	color: var(--content-text-color);
+}
+
+/* 目录（章节列表）下拉 */
+.md-toc {
+	position: absolute;
+	top: 100%;
+	right: 0;
+	margin-top: 4px;
+	z-index: 5;
+	width: 280px;
+	max-width: calc(100% - 16px);
+	max-height: 50vh;
+	overflow-y: auto;
+	background: var(--body-bg-color);
+	border: 1px solid var(--page-guide-border-color);
+	border-radius: 6px;
+	box-shadow: 0 8px 24px rgba(0, 0, 0, 0.18);
+	padding: 6px 0;
+	display: none;
+	scrollbar-width: thin;
+	scrollbar-color: var(--content-link-hover-color) transparent;
+}
+.md-toc.show { display: block; }
+.md-toc::-webkit-scrollbar { width: 8px; }
+.md-toc::-webkit-scrollbar-thumb {
+	background: var(--content-link-hover-color);
+	border-radius: 4px;
+}
+.md-toc-item {
+	display: block;
+	padding: 6px 14px;
+	font-size: 13px;
+	line-height: 1.5;
+	color: var(--content-text-color);
+	text-decoration: none;
+	cursor: pointer;
+	border-left: 2px solid transparent;
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+.md-toc-item:hover {
+	background: var(--content-code-bg-color);
+	border-left-color: var(--content-link-color);
+	color: var(--content-link-color);
+}
+.md-toc-l1 { font-weight: 600; }
+.md-toc-l2 { padding-left: 26px; }
+.md-toc-l3 { padding-left: 38px; }
+.md-toc-l4 { padding-left: 50px; }
+.md-toc-l5 { padding-left: 62px; }
+.md-toc-l6 { padding-left: 74px; }
+.md-toc-empty {
+	padding: 10px 14px;
+	font-size: 13px;
+	color: var(--footer-copyright-text-color);
 }
 
 /* 滚动进度条 */
@@ -387,9 +445,11 @@ html[data-theme="light"] .md-preview {
 			<button type="button" id="mdFontDec" title="缩小字号">A-</button>
 			<span id="mdFontSize">16px</span>
 			<button type="button" id="mdFontInc" title="放大字号">A+</button>
+			<button type="button" id="mdToc" title="目录"><i class="fa fa-list-ul"></i></button>
 			<button type="button" id="mdImmersive" title="沉浸模式"><i class="fa fa-bullseye"></i></button>
 			<button type="button" id="mdFullscreen" title="全屏"><i class="fa fa-expand"></i></button>
 		</div>
+		<div class="md-toc" id="mdTocPanel"></div>
 	</div>
 	<div class="md-progress"><div id="mdProgressBar"></div></div>
 	<div class="md-content" id="mdContent"></div>
@@ -414,6 +474,8 @@ html[data-theme="light"] .md-preview {
 	var progressBar = $('mdProgressBar');
 	var fullscreenBtn = $('mdFullscreen');
 	var immersiveBtn = $('mdImmersive');
+	var tocBtn = $('mdToc');
+	var tocEl = $('mdTocPanel');
 
 	// 沉浸模式遮罩（挂到 body 以覆盖整页，避免卡片 transform 影响其 fixed 定位）
 	var backdrop = document.createElement('div');
@@ -481,6 +543,7 @@ html[data-theme="light"] .md-preview {
 		}
 		updateCount();
 		updateProgress();
+		buildOutline();
 	}
 
 	function scheduleRender() {
@@ -589,6 +652,46 @@ html[data-theme="light"] .md-preview {
 		$('mdToggleInput').textContent = collapsed ? '展开' : '收起';
 	}
 
+	// 目录（章节列表）
+	function buildOutline() {
+		var headings = content.querySelectorAll('h1, h2, h3, h4, h5, h6');
+		tocEl.innerHTML = '';
+		if (!headings.length) {
+			tocEl.innerHTML = '<div class="md-toc-empty">暂无章节</div>';
+			return;
+		}
+		Array.prototype.forEach.call(headings, function (h) {
+			var level = parseInt(h.tagName.substring(1), 10);
+			var item = document.createElement('a');
+			item.className = 'md-toc-item md-toc-l' + level;
+			item.textContent = h.textContent;
+			item.setAttribute('href', 'javascript:void(0)');
+			item.addEventListener('click', function () {
+				jumpToHeading(h);
+				closeOutline();
+			});
+			tocEl.appendChild(item);
+		});
+	}
+	function jumpToHeading(h) {
+		var cr = content.getBoundingClientRect();
+		var er = h.getBoundingClientRect();
+		var padTop = parseFloat(getComputedStyle(content).paddingTop) || 0;
+		// 仅滚动预览容器自身（在普通/沉浸/全屏下都适用）
+		content.scrollTop += (er.top - cr.top) - padTop;
+	}
+	function openOutline() {
+		tocEl.classList.add('show');
+		tocBtn.classList.add('active');
+	}
+	function closeOutline() {
+		tocEl.classList.remove('show');
+		tocBtn.classList.remove('active');
+	}
+	function toggleOutline() {
+		if (tocEl.classList.contains('show')) { closeOutline(); } else { openOutline(); }
+	}
+
 	// 事件绑定
 	input.addEventListener('input', scheduleRender);
 	$('mdFontDec').addEventListener('click', function () { applyFont(currentFont - FONT_STEP); });
@@ -599,9 +702,18 @@ html[data-theme="light"] .md-preview {
 	immersiveBtn.addEventListener('click', toggleImmersive);
 	backdrop.addEventListener('click', exitImmersive);
 	document.addEventListener('keydown', function (e) {
-		if ((e.key === 'Escape' || e.keyCode === 27) && isImmersive()) {
-			e.preventDefault();
-			exitImmersive();
+		if (e.key === 'Escape' || e.keyCode === 27) {
+			if (tocEl.classList.contains('show')) { e.preventDefault(); closeOutline(); return; }
+			if (isImmersive()) { e.preventDefault(); exitImmersive(); }
+		}
+	});
+	tocBtn.addEventListener('click', function (e) {
+		e.stopPropagation();
+		toggleOutline();
+	});
+	document.addEventListener('click', function (e) {
+		if (tocEl.classList.contains('show') && !tocEl.contains(e.target) && !tocBtn.contains(e.target)) {
+			closeOutline();
 		}
 	});
 	$('mdSample').addEventListener('click', function () {
