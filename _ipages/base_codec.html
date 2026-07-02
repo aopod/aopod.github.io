@@ -1,0 +1,1111 @@
+---
+layout: icontainer
+title: Base 编解码
+permalink: /tools/base-codec
+header_quote: "纯前端 Base 系列编解码，数据不会离开浏览器"
+---
+
+<style type="text/css">
+/* === 主题变量（明暗 / 系统跟随） === */
+.bc-root {
+	--bc-accent: var(--content-link-color);
+	--bc-accent-hover: var(--content-link-hover-color);
+	--bc-border: var(--content-code-border-color);
+	--bc-muted: var(--footer-copyright-text-color);
+	--bc-card-bg: var(--page-guide-bg-color);
+	--bc-card-border: var(--page-guide-border-color);
+	--bc-pane-bg: var(--body-bg-color);
+	--bc-success-fg: #16a34a;
+	--bc-success-bg: #dcfce7;
+	--bc-success-border: #86efac;
+	--bc-warn-fg: #b45309;
+	--bc-warn-bg: #fef3c7;
+	--bc-warn-border: #fcd34d;
+	--bc-error-fg: #b91c1c;
+	--bc-error-bg: #fee2e2;
+	--bc-error-border: #fecaca;
+}
+@media (prefers-color-scheme: dark) {
+	:root:not([data-theme="light"]) .bc-root {
+		--bc-success-fg: #4ade80;
+		--bc-success-bg: rgba(22, 163, 74, 0.18);
+		--bc-success-border: rgba(134, 239, 172, 0.3);
+		--bc-warn-fg: #fbbf24;
+		--bc-warn-bg: rgba(180, 83, 9, 0.18);
+		--bc-warn-border: rgba(252, 211, 77, 0.3);
+		--bc-error-fg: #fca5a5;
+		--bc-error-bg: rgba(185, 28, 28, 0.18);
+		--bc-error-border: rgba(254, 202, 202, 0.25);
+	}
+}
+html[data-theme="dark"] .bc-root {
+	--bc-success-fg: #4ade80;
+	--bc-success-bg: rgba(22, 163, 74, 0.18);
+	--bc-success-border: rgba(134, 239, 172, 0.3);
+	--bc-warn-fg: #fbbf24;
+	--bc-warn-bg: rgba(180, 83, 9, 0.18);
+	--bc-warn-border: rgba(252, 211, 77, 0.3);
+	--bc-error-fg: #fca5a5;
+	--bc-error-bg: rgba(185, 28, 28, 0.18);
+	--bc-error-border: rgba(254, 202, 202, 0.25);
+}
+
+/* === 宽度覆盖（同 markdown_preview / torrent_parser，让工具页更宽） === */
+#content {
+	width: auto;
+	max-width: 912px;
+	min-width: 0;
+	margin-left: auto;
+	margin-right: auto;
+	padding-left: 16px;
+	padding-right: 16px;
+	box-sizing: border-box;
+}
+
+/* === 标题 === */
+.bc-title {
+	font-size: 20px;
+	font-weight: 600;
+	color: var(--content-text-color);
+	margin: 4px 0 16px;
+}
+
+/* === 卡片基 === */
+.bc-card {
+	background: var(--bc-card-bg);
+	border: 1px solid var(--bc-card-border);
+	border-radius: 10px;
+	box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+}
+
+/* === 工具栏 === */
+.bc-toolbar {
+	display: flex;
+	align-items: center;
+	gap: 10px;
+	padding: 10px 12px;
+	flex-wrap: wrap;
+}
+
+/* === 分段控件（编码 / 解码） === */
+.bc-segmented {
+	display: inline-flex;
+	background: var(--bc-pane-bg);
+	border: 1px solid var(--bc-border);
+	border-radius: 8px;
+	padding: 2px;
+}
+.bc-seg {
+	padding: 5px 14px;
+	font-size: 13px;
+	font-weight: 500;
+	color: var(--bc-muted);
+	background: transparent;
+	border: none;
+	border-radius: 6px;
+	cursor: pointer;
+	transition: background .15s, color .15s;
+}
+.bc-seg:hover { color: var(--content-text-color); }
+.bc-seg.active {
+	background: var(--bc-accent);
+	color: #fff;
+}
+
+/* === 算法下拉 === */
+.bc-select {
+	height: 30px;
+	padding: 0 28px 0 10px;
+	font-size: 13px;
+	color: var(--content-text-color);
+	background: var(--bc-pane-bg);
+	border: 1px solid var(--bc-border);
+	border-radius: 6px;
+	cursor: pointer;
+	appearance: none;
+	-webkit-appearance: none;
+	-moz-appearance: none;
+	background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%2371717a' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+	background-repeat: no-repeat;
+	background-position: right 8px center;
+}
+.bc-select:focus { outline: none; border-color: var(--bc-accent); }
+
+/* === 选项 chips === */
+.bc-options {
+	display: inline-flex;
+	gap: 6px;
+	flex-wrap: wrap;
+	margin-left: auto;
+}
+.bc-chk {
+	display: inline-flex;
+	align-items: center;
+	gap: 5px;
+	height: 28px;
+	padding: 0 10px;
+	font-size: 12px;
+	color: var(--content-text-color);
+	background: var(--bc-pane-bg);
+	border: 1px solid var(--bc-border);
+	border-radius: 999px;
+	cursor: pointer;
+	user-select: none;
+	white-space: nowrap;
+}
+.bc-chk input {
+	width: 13px;
+	height: 13px;
+	margin: 0;
+	accent-color: var(--bc-accent);
+	cursor: pointer;
+}
+.bc-chk:hover { border-color: var(--bc-accent-hover); }
+.bc-chk select {
+	border: none;
+	background: transparent;
+	color: inherit;
+	font-size: inherit;
+	cursor: pointer;
+	padding: 0 2px;
+}
+.bc-chk select:focus { outline: none; }
+.bc-hint {
+	font-size: 12px;
+	color: var(--bc-muted);
+	align-self: center;
+}
+
+/* === IO 区 === */
+.bc-io {
+	margin-top: 14px;
+	display: flex;
+	flex-direction: column;
+	gap: 10px;
+}
+
+.bc-pane {
+	padding: 12px 14px;
+	display: flex;
+	flex-direction: column;
+	gap: 8px;
+}
+.bc-pane-head {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 8px;
+}
+.bc-pane-head label {
+	font-size: 11px;
+	font-weight: 600;
+	text-transform: uppercase;
+	letter-spacing: .05em;
+	color: var(--bc-muted);
+}
+.bc-counter {
+	font-size: 11px;
+	color: var(--bc-muted);
+	font-variant-numeric: tabular-nums;
+	font-family: Consolas, Menlo, Monaco, monospace;
+}
+.bc-pane textarea {
+	width: 100%;
+	min-height: 180px;
+	max-height: 60vh;
+	padding: 10px 12px;
+	font-family: Consolas, Menlo, Monaco, "Lucida Console", monospace;
+	font-size: 13px;
+	line-height: 1.5;
+	color: var(--content-text-color);
+	background: var(--bc-pane-bg);
+	border: 1px solid var(--bc-border);
+	border-radius: 6px;
+	resize: vertical;
+	box-sizing: border-box;
+	word-break: break-all;
+	overflow-wrap: anywhere;
+}
+.bc-pane textarea:focus {
+	outline: none;
+	border-color: var(--bc-accent);
+}
+.bc-pane textarea[readonly] {
+	background: var(--bc-card-bg);
+	cursor: default;
+}
+.bc-pane textarea::placeholder {
+	color: var(--bc-muted);
+	opacity: 0.7;
+}
+
+.bc-pane-actions {
+	display: flex;
+	align-items: center;
+	gap: 6px;
+	flex-wrap: wrap;
+}
+.bc-spacer { flex: 1 1 auto; }
+
+/* === 按钮 === */
+.bc-btn {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	gap: 5px;
+	height: 28px;
+	padding: 0 10px;
+	font-size: 12px;
+	color: var(--content-text-color);
+	background: var(--bc-pane-bg);
+	border: 1px solid var(--bc-border);
+	border-radius: 6px;
+	cursor: pointer;
+	transition: background .15s, color .15s, border-color .15s;
+}
+.bc-btn:hover:not(:disabled) {
+	color: #fff;
+	background: var(--bc-accent);
+	border-color: var(--bc-accent);
+}
+.bc-btn:focus-visible {
+	outline: 2px solid var(--bc-accent);
+	outline-offset: 2px;
+}
+.bc-btn svg {
+	width: 13px;
+	height: 13px;
+}
+.bc-btn.primary {
+	color: #fff;
+	background: var(--bc-accent);
+	border-color: var(--bc-accent);
+}
+.bc-btn.primary:hover:not(:disabled) {
+	background: var(--bc-accent-hover);
+	border-color: var(--bc-accent-hover);
+}
+.bc-btn.copied {
+	color: #fff;
+	background: var(--bc-success-fg);
+	border-color: var(--bc-success-fg);
+}
+.bc-btn:disabled {
+	opacity: 0.5;
+	cursor: not-allowed;
+}
+
+/* === 提示横幅 === */
+.bc-banner {
+	margin-top: 12px;
+	padding: 9px 12px 9px 10px;
+	font-size: 12px;
+	color: var(--bc-warn-fg);
+	background: var(--bc-warn-bg);
+	border: 1px solid var(--bc-warn-border);
+	border-radius: 8px;
+	display: flex;
+	gap: 8px;
+	align-items: flex-start;
+	line-height: 1.5;
+}
+.bc-banner svg {
+	width: 14px;
+	height: 14px;
+	flex: 0 0 14px;
+	margin-top: 2px;
+}
+.bc-banner ul {
+	margin: 0;
+	padding-left: 16px;
+	flex: 1 1 auto;
+}
+.bc-banner li + li { margin-top: 2px; }
+.bc-banner code {
+	font-family: Consolas, Menlo, Monaco, monospace;
+	font-size: 11px;
+	background: rgba(0, 0, 0, 0.06);
+	padding: 0 4px;
+	border-radius: 3px;
+}
+.bc-banner-dismiss {
+	background: transparent;
+	border: none;
+	color: inherit;
+	cursor: pointer;
+	padding: 0 4px;
+	font-size: 16px;
+	line-height: 1;
+	opacity: 0.6;
+	flex: 0 0 auto;
+	align-self: flex-start;
+}
+.bc-banner-dismiss:hover { opacity: 1; }
+
+/* === 错误 === */
+.bc-error {
+	margin-top: 12px;
+	padding: 9px 12px;
+	font-size: 12px;
+	color: var(--bc-error-fg);
+	background: var(--bc-error-bg);
+	border: 1px solid var(--bc-error-border);
+	border-radius: 8px;
+	word-break: break-word;
+	line-height: 1.5;
+}
+
+/* === 响应式 === */
+@media (max-width: 600px) {
+	.bc-toolbar { padding: 8px; gap: 8px; }
+	.bc-options { margin-left: 0; width: 100%; }
+	.bc-pane { padding: 10px; }
+	.bc-pane textarea { min-height: 140px; }
+	.bc-btn span { display: inline; }
+}
+</style>
+
+<h2 class="bc-title">{{ page.title }}</h2>
+
+<div class="bc-root" id="bcRoot">
+	<div class="bc-card bc-toolbar">
+		<div class="bc-segmented" id="bcMode" role="tablist" aria-label="编码 / 解码">
+			<button class="bc-seg active" type="button" data-mode="encode" role="tab" aria-selected="true">编码</button>
+			<button class="bc-seg" type="button" data-mode="decode" role="tab" aria-selected="false">解码</button>
+		</div>
+		<select class="bc-select" id="bcAlgo" aria-label="算法">
+			<optgroup label="Base64 系列">
+				<option value="base64">Base64（标准）</option>
+				<option value="base64url">Base64（URL 安全）</option>
+			</optgroup>
+			<optgroup label="其他常见">
+				<option value="base32">Base32</option>
+				<option value="base16">Base16 / Hex</option>
+				<option value="base58btc">Base58（Bitcoin）</option>
+				<option value="base58flickr">Base58（Flickr）</option>
+				<option value="base62">Base62</option>
+				<option value="ascii85">Base85（Ascii85）</option>
+				<option value="z85">Base85（Z85）</option>
+			</optgroup>
+		</select>
+		<div class="bc-options" id="bcOptions"></div>
+	</div>
+
+	<div class="bc-io">
+		<div class="bc-card bc-pane">
+			<div class="bc-pane-head">
+				<label id="bcInputLabel">输入</label>
+				<span class="bc-counter" id="bcInputCounter"></span>
+			</div>
+			<textarea id="bcInput" spellcheck="false" autocomplete="off" autocapitalize="off" autocorrect="off" placeholder="在此输入文本…"></textarea>
+			<div class="bc-pane-actions">
+				<button class="bc-btn" type="button" id="bcSample" title="填入示例文本">示例</button>
+				<button class="bc-btn" type="button" id="bcSwap" title="把当前输出交换为输入，并切换到反向操作">
+					<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg>
+					<span>使用输出</span>
+				</button>
+				<div class="bc-spacer"></div>
+				<button class="bc-btn" type="button" id="bcClear">清空</button>
+			</div>
+		</div>
+
+		<div class="bc-card bc-pane">
+			<div class="bc-pane-head">
+				<label>输出</label>
+				<span class="bc-counter" id="bcOutputCounter"></span>
+			</div>
+			<textarea id="bcOutput" spellcheck="false" readonly placeholder="结果将在此显示…"></textarea>
+			<div class="bc-pane-actions">
+				<button class="bc-btn primary" type="button" id="bcCopy" disabled>
+					<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+					<span>复制</span>
+				</button>
+				<button class="bc-btn" type="button" id="bcDownload" disabled>
+					<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+					<span>下载</span>
+				</button>
+				<div class="bc-spacer"></div>
+				<span class="bc-counter" id="bcStatus">就绪</span>
+			</div>
+		</div>
+	</div>
+
+	<div class="bc-banner" id="bcBanner" hidden>
+		<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+		<ul id="bcBannerList"></ul>
+		<button class="bc-banner-dismiss" type="button" id="bcBannerDismiss" aria-label="关闭提示">×</button>
+	</div>
+	<div class="bc-error" id="bcError" hidden></div>
+</div>
+
+<script>
+(function () {
+	'use strict';
+
+	var $ = function (id) { return document.getElementById(id); };
+
+	// === UTF-8 字符串 ↔ 字节 ===
+	var utf8Enc = new TextEncoder();
+	function strToBytes(s) { return utf8Enc.encode(s); }
+	// 字节 → 字符串：优先严格 UTF-8；失败则按 Latin-1 逐字节映射（保证可见、可下载）
+	function bytesToStr(b) {
+		try {
+			return new TextDecoder('utf-8', { fatal: true }).decode(b);
+		} catch (e) {
+			var s = '';
+			for (var i = 0; i < b.length; i++) s += String.fromCharCode(b[i]);
+			return s;
+		}
+	}
+	function isValidUtf8(b) {
+		try {
+			new TextDecoder('utf-8', { fatal: true }).decode(b);
+			return true;
+		} catch (e) { return false; }
+	}
+
+	function stripWs(s) {
+		// 去掉所有 ASCII 空白与零宽字符（用户从其他工具粘贴时常带 BOM / ZWSP）
+		return s.replace(/\s+/g, '').replace(/[​-‍﻿]/g, '');
+	}
+	function escapeHtml(s) {
+		return String(s).replace(/[&<>"']/g, function (c) {
+			return ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c];
+		});
+	}
+
+	// === 大整数 base 转换（Base58 / Base62 共用） ===
+	// 字节序 big-endian；前导 0x00 字节映射为字母表首位字符。
+	function bigIntEncode(bytes, alphabet) {
+		if (bytes.length === 0) return '';
+		var base = BigInt(alphabet.length);
+		var zeros = 0;
+		for (var i = 0; i < bytes.length && bytes[i] === 0; i++) zeros++;
+		var num = 0n;
+		for (var j = zeros; j < bytes.length; j++) num = (num << 8n) | BigInt(bytes[j]);
+		var out = '';
+		while (num > 0n) {
+			var r = num % base;
+			num = num / base;
+			out = alphabet[Number(r)] + out;
+		}
+		return alphabet[0].repeat(zeros) + out;
+	}
+	function bigIntDecode(str, alphabet) {
+		if (str.length === 0) return new Uint8Array(0);
+		var base = BigInt(alphabet.length);
+		var idx = {};
+		for (var i = 0; i < alphabet.length; i++) idx[alphabet[i]] = BigInt(i);
+		var zeros = 0;
+		for (var k = 0; k < str.length && str[k] === alphabet[0]; k++) zeros++;
+		var num = 0n;
+		for (var n = zeros; n < str.length; n++) {
+			var v = idx[str[n]];
+			if (v === undefined) {
+				throw new Error('包含非法字符「' + str[n] + '」（不在该编码字符集中）');
+			}
+			num = num * base + v;
+		}
+		var bytes = [];
+		while (num > 0n) {
+			bytes.unshift(Number(num & 0xFFn));
+			num = num >> 8n;
+		}
+		var out = new Uint8Array(zeros + bytes.length);
+		out.set(bytes, zeros);
+		return out;
+	}
+
+	// === 位级通用编码（Base32 / Base64 共用） ===
+	// bitsPerChar: base32=5 / base64=6；blockChars: 输出每个块对应的字符数（含 padding 对齐）：base32=8 / base64=4
+	function encodeBaseX(bytes, alpha, bitsPerChar, padChar, usePadding, blockChars) {
+		var mask = (1 << bitsPerChar) - 1;
+		var bits = 0, value = 0, out = '';
+		for (var i = 0; i < bytes.length; i++) {
+			value = (value << 8) | bytes[i];
+			bits += 8;
+			while (bits >= bitsPerChar) {
+				bits -= bitsPerChar;
+				out += alpha[(value >>> bits) & mask];
+			}
+		}
+		if (bits > 0) {
+			out += alpha[(value << (bitsPerChar - bits)) & mask];
+		}
+		if (usePadding) {
+			while (out.length % blockChars !== 0) out += padChar;
+		}
+		return out;
+	}
+	function decodeBaseX(str, alpha, bitsPerChar, padChar) {
+		var mask = (1 << bitsPerChar) - 1;
+		var idx = {};
+		for (var i = 0; i < alpha.length; i++) idx[alpha[i]] = i;
+		var bits = 0, value = 0;
+		var out = [];
+		for (var k = 0; k < str.length; k++) {
+			var ch = str[k];
+			if (ch === padChar) continue;
+			var v = idx[ch];
+			if (v === undefined) {
+				throw new Error('包含非法字符「' + ch + '」（不在该编码字符集中）');
+			}
+			value = (value << bitsPerChar) | v;
+			bits += bitsPerChar;
+			if (bits >= 8) {
+				bits -= 8;
+				out.push((value >>> bits) & 0xFF);
+			}
+		}
+		return new Uint8Array(out);
+	}
+
+	// === 算法注册表 ===
+	var ALGOS = {
+		base64: {
+			label: 'Base64',
+			alpha: 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/',
+			pad: '=',
+			blockChars: 4,
+			bitsPerChar: 6,
+			encode: function (bytes, opts) {
+				return encodeBaseX(bytes, this.alpha, this.bitsPerChar, this.pad, opts.padding !== false, this.blockChars);
+			},
+			decode: function (str, ctx) {
+				// 自动兼容 URL-safe 字符（-、_），并自动补 padding
+				var cleaned = stripWs(str);
+				var usedUrlSafe = cleaned.indexOf('-') >= 0 || cleaned.indexOf('_') >= 0;
+				var padNeeded = (4 - (cleaned.length % 4)) % 4;
+				if (padNeeded > 0) {
+					ctx.warnings.push('输入缺少 <code>' + padNeeded + '</code> 个 padding「=」，已自动补齐');
+				}
+				if (usedUrlSafe) {
+					ctx.warnings.push('检测到 URL 安全字符（<code>-</code> 或 <code>_</code>），已自动按 Base64 URL-safe 字符集解码');
+				}
+				var normalized = cleaned.replace(/-/g, '+').replace(/_/g, '/') + '='.repeat(padNeeded);
+				return decodeBaseX(normalized, this.alpha, this.bitsPerChar, this.pad);
+			},
+			features: { padding: true }
+		},
+		base64url: {
+			label: 'Base64 URL-safe',
+			alpha: 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_',
+			pad: '=',
+			blockChars: 4,
+			bitsPerChar: 6,
+			encode: function (bytes, opts) {
+				return encodeBaseX(bytes, this.alpha, this.bitsPerChar, this.pad, opts.padding !== false, this.blockChars);
+			},
+			decode: function (str, ctx) {
+				// 自动兼容标准 Base64 字符（+、/），并自动补 padding
+				var cleaned = stripWs(str);
+				var usedStd = cleaned.indexOf('+') >= 0 || cleaned.indexOf('/') >= 0;
+				var padNeeded = (4 - (cleaned.length % 4)) % 4;
+				if (padNeeded > 0) {
+					ctx.warnings.push('输入缺少 <code>' + padNeeded + '</code> 个 padding「=」，已自动补齐');
+				}
+				if (usedStd) {
+					ctx.warnings.push('检测到标准字符（<code>+</code> 或 <code>/</code>），已自动按 Base64 标准字符集解码');
+				}
+				var normalized = cleaned.replace(/\+/g, '-').replace(/\//g, '_') + '='.repeat(padNeeded);
+				return decodeBaseX(normalized, this.alpha, this.bitsPerChar, this.pad);
+			},
+			features: { padding: true }
+		},
+		base32: {
+			label: 'Base32',
+			alpha: 'ABCDEFGHIJKLMNOPQRSTUVWXYZ234567',
+			pad: '=',
+			blockChars: 8,
+			bitsPerChar: 5,
+			encode: function (bytes, opts) {
+				var s = encodeBaseX(bytes, this.alpha, this.bitsPerChar, this.pad, opts.padding !== false, this.blockChars);
+				if (opts.case === 'lower') s = s.toLowerCase();
+				return s;
+			},
+			decode: function (str, ctx) {
+				// 自动转大写、自动补 padding
+				var cleaned = stripWs(str).toUpperCase();
+				if (/[a-z]/.test(stripWs(str))) {
+					ctx.warnings.push('检测到小写字母，已自动按大写字母表解码');
+				}
+				var noPad = cleaned.replace(/=+$/, '');
+				var mod = noPad.length % 8;
+				var padNeeded = mod === 0 ? 0 : 8 - mod;
+				if (padNeeded > 0) {
+					ctx.warnings.push('输入缺少 <code>' + padNeeded + '</code> 个 padding「=」，已自动补齐');
+				}
+				return decodeBaseX(noPad + '='.repeat(padNeeded), this.alpha, this.bitsPerChar, this.pad);
+			},
+			features: { padding: true, case: true }
+		},
+		base16: {
+			label: 'Base16 / Hex',
+			alphaUpper: '0123456789ABCDEF',
+			alphaLower: '0123456789abcdef',
+			encode: function (bytes, opts) {
+				var alpha = opts.case === 'lower' ? this.alphaLower : this.alphaUpper;
+				var s = '';
+				for (var i = 0; i < bytes.length; i++) {
+					s += alpha[bytes[i] >> 4] + alpha[bytes[i] & 0xF];
+				}
+				return s;
+			},
+			decode: function (str, ctx) {
+				var cleaned = stripWs(str).replace(/^0[xX]/, '').toUpperCase();
+				if (cleaned.length === 0) return new Uint8Array(0);
+				if (/[a-z]/.test(stripWs(str).replace(/^0[xX]/, ''))) {
+					ctx.warnings.push('检测到小写字母，已自动按大写字母表解码');
+				}
+				if (cleaned.length % 2 !== 0) {
+					throw new Error('Base16 输入长度必须为偶数（每两个十六进制字符对应一个字节）');
+				}
+				if (!/^[0-9A-F]*$/.test(cleaned)) {
+					var m = cleaned.match(/[^0-9A-F]/);
+					throw new Error('包含非法字符「' + (m ? m[0] : '?') + '」（仅允许 0-9、A-F）');
+				}
+				var out = new Uint8Array(cleaned.length / 2);
+				for (var i = 0; i < out.length; i++) {
+					out[i] = parseInt(cleaned.substr(i * 2, 2), 16);
+				}
+				return out;
+			},
+			features: { case: true }
+		},
+		base58btc: {
+			label: 'Base58 (Bitcoin)',
+			alpha: '123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz',
+			encode: function (bytes) { return bigIntEncode(bytes, this.alpha); },
+			decode: function (str) { return bigIntDecode(stripWs(str), this.alpha); },
+			features: {}
+		},
+		base58flickr: {
+			label: 'Base58 (Flickr)',
+			alpha: '123456789abcdefghijkmnopqrstuvwxyzABCDEFGHJKLMNPQRSTUVWXYZ',
+			encode: function (bytes) { return bigIntEncode(bytes, this.alpha); },
+			decode: function (str) { return bigIntDecode(stripWs(str), this.alpha); },
+			features: {}
+		},
+		base62: {
+			label: 'Base62',
+			alpha: '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz',
+			encode: function (bytes) { return bigIntEncode(bytes, this.alpha); },
+			decode: function (str) { return bigIntDecode(stripWs(str), this.alpha); },
+			features: {}
+		},
+		ascii85: {
+			label: 'Ascii85',
+			encode: function (bytes, opts) {
+				if (bytes.length === 0) return opts.ascii85Delim ? '<~~>' : '';
+				var out = opts.ascii85Delim ? '<~' : '';
+				var i = 0;
+				while (i < bytes.length) {
+					if (bytes.length - i < 4) {
+						// 末尾不足 4 字节，补 0 后正常编码，再截掉多余字符
+						var partial = bytes.length - i;
+						var b0 = bytes[i], b1 = i + 1 < bytes.length ? bytes[i + 1] : 0;
+						var b2 = i + 2 < bytes.length ? bytes[i + 2] : 0;
+						var b3 = i + 3 < bytes.length ? bytes[i + 3] : 0;
+						var n = b0 * 0x1000000 + b1 * 0x10000 + b2 * 0x100 + b3;
+						var chunk = '';
+						for (var k = 0; k < 5; k++) {
+							chunk = String.fromCharCode(33 + (n % 85)) + chunk;
+							n = Math.floor(n / 85);
+						}
+						out += chunk.slice(0, partial + 1);
+						break;
+					}
+					var full = bytes[i] * 0x1000000 + bytes[i + 1] * 0x10000 + bytes[i + 2] * 0x100 + bytes[i + 3];
+					if (full === 0) {
+						out += 'z'; // 4 个零字节快捷字符
+					} else {
+						var c = '';
+						var x = full;
+						for (var j = 0; j < 5; j++) {
+							c = String.fromCharCode(33 + (x % 85)) + c;
+							x = Math.floor(x / 85);
+						}
+						out += c;
+					}
+					i += 4;
+				}
+				if (opts.ascii85Delim) out += '~>';
+				return out;
+			},
+			decode: function (str, ctx) {
+				var cleaned = stripWs(str);
+				if (cleaned.indexOf('<~') === 0) cleaned = cleaned.slice(2);
+				if (cleaned.length >= 2 && cleaned.slice(-2) === '~>') cleaned = cleaned.slice(0, -2);
+				if (cleaned.length === 0) return new Uint8Array(0);
+				var out = [];
+				var i = 0;
+				while (i < cleaned.length) {
+					var ch = cleaned[i];
+					if (ch === 'z') {
+						if (out.length % 4 !== 0) {
+							// 'z' 必须对齐到 4 字节边界（即上一个完整块结束位置）
+							// 宽容处理：仅警告
+							ctx.warnings.push('「<code>z</code>」快捷字符未对齐到 4 字节边界，仍按 4 个零字节解码');
+						}
+						out.push(0, 0, 0, 0);
+						i++;
+						continue;
+					}
+					var block = cleaned.substr(i, 5);
+					var isLast = i + block.length >= cleaned.length;
+					var extra = 0;
+					var padded = block;
+					if (block.length < 5) {
+						if (!isLast) throw new Error('Ascii85 块长度异常');
+						extra = 5 - block.length;
+						padded = block + 'u'.repeat(extra); // 用 'u'(84) 凑齐
+					}
+					var n = 0;
+					for (var k = 0; k < 5; k++) {
+						var code = padded.charCodeAt(k);
+						if (code < 33 || code > 117) {
+							throw new Error('包含非法字符「' + padded[k] + '」（Ascii85 字符范围为 ! – u）');
+						}
+						n = n * 85 + (code - 33);
+					}
+					if (n > 0xFFFFFFFF) throw new Error('Ascii85 块值超过 32 位范围');
+					out.push((n >>> 24) & 0xFF, (n >>> 16) & 0xFF, (n >>> 8) & 0xFF, n & 0xFF);
+					i += 5;
+					if (extra > 0) {
+						// 末尾块的字节数 = 4 - extra（extra 是补齐的字符数）
+						out.length = out.length - extra;
+						break;
+					}
+				}
+				return new Uint8Array(out);
+			},
+			features: { ascii85Delim: true }
+		},
+		z85: {
+			label: 'Z85 (ZeroMQ)',
+			alpha: '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ.-:+=^!/*?&<>()[]{}@%$#',
+			encode: function (bytes) {
+				if (bytes.length === 0) return '';
+				if (bytes.length % 4 !== 0) {
+					throw new Error('Z85 编码要求输入字节数是 4 的倍数（当前 ' + bytes.length + ' 字节）');
+				}
+				var out = '';
+				for (var i = 0; i < bytes.length; i += 4) {
+					var n = bytes[i] * 0x1000000 + bytes[i + 1] * 0x10000 + bytes[i + 2] * 0x100 + bytes[i + 3];
+					var c = '';
+					for (var k = 0; k < 5; k++) {
+						c = this.alpha[n % 85] + c;
+						n = Math.floor(n / 85);
+					}
+					out += c;
+				}
+				return out;
+			},
+			decode: function (str) {
+				var cleaned = stripWs(str);
+				if (cleaned.length === 0) return new Uint8Array(0);
+				if (cleaned.length % 5 !== 0) {
+					throw new Error('Z85 解码要求输入字符数是 5 的倍数（当前 ' + cleaned.length + ' 字符）');
+				}
+				var idx = {};
+				for (var i = 0; i < this.alpha.length; i++) idx[this.alpha[i]] = i;
+				var out = new Uint8Array(cleaned.length / 5 * 4);
+				for (var j = 0, p = 0; j < cleaned.length; j += 5, p += 4) {
+					var n = 0;
+					for (var k = 0; k < 5; k++) {
+						var v = idx[cleaned[j + k]];
+						if (v === undefined) {
+							throw new Error('包含非法字符「' + cleaned[j + k] + '」（不在 Z85 字符集中）');
+						}
+						n = n * 85 + v;
+					}
+					if (n > 0xFFFFFFFF) throw new Error('Z85 块值超过 32 位范围');
+					out[p] = (n >>> 24) & 0xFF;
+					out[p + 1] = (n >>> 16) & 0xFF;
+					out[p + 2] = (n >>> 8) & 0xFF;
+					out[p + 3] = n & 0xFF;
+				}
+				return out;
+			},
+			features: {}
+		}
+	};
+
+	// === 状态 ===
+	var state = {
+		mode: 'encode',
+		algo: 'base64',
+		options: {
+			padding: true,
+			case: 'upper',
+			ascii85Delim: false
+		}
+	};
+
+	// === DOM 引用 ===
+	var root = $('bcRoot');
+	var modeEl = $('bcMode');
+	var algoEl = $('bcAlgo');
+	var optionsEl = $('bcOptions');
+	var inputEl = $('bcInput');
+	var outputEl = $('bcOutput');
+	var inputCounterEl = $('bcInputCounter');
+	var outputCounterEl = $('bcOutputCounter');
+	var inputLabelEl = $('bcInputLabel');
+	var bannerEl = $('bcBanner');
+	var bannerListEl = $('bcBannerList');
+	var errorEl = $('bcError');
+	var statusEl = $('bcStatus');
+	var copyBtn = $('bcCopy');
+	var downloadBtn = $('bcDownload');
+	var swapBtn = $('bcSwap');
+	var sampleBtn = $('bcSample');
+	var clearBtn = $('bcClear');
+
+	// === 渲染选项区（根据算法 + 模式动态显示） ===
+	function renderOptions() {
+		var algo = ALGOS[state.algo];
+		var feats = algo.features || {};
+		optionsEl.innerHTML = '';
+
+		if (state.mode === 'decode') {
+			// 解码时所有变体自动兼容，无可调项
+			var hint = document.createElement('span');
+			hint.className = 'bc-hint';
+			hint.textContent = '解码时自动兼容大小写 / padding / 字符集变体';
+			optionsEl.appendChild(hint);
+			return;
+		}
+
+		if (feats.padding) {
+			optionsEl.appendChild(makeCheckbox('bcOptPadding', '补齐 padding「=」', state.options.padding, function (checked) {
+				state.options.padding = checked;
+				run();
+			}));
+		}
+		if (feats.case) {
+			optionsEl.appendChild(makeCaseSelect(function (v) {
+				state.options.case = v;
+				run();
+			}));
+		}
+		if (feats.ascii85Delim) {
+			optionsEl.appendChild(makeCheckbox('bcOptDelim', '包裹 <~ ~>', state.options.ascii85Delim, function (checked) {
+				state.options.ascii85Delim = checked;
+				run();
+			}));
+		}
+	}
+
+	function makeCheckbox(id, label, checked, onChange) {
+		var lbl = document.createElement('label');
+		lbl.className = 'bc-chk';
+		lbl.htmlFor = id;
+		var inp = document.createElement('input');
+		inp.type = 'checkbox';
+		inp.id = id;
+		inp.checked = checked;
+		inp.addEventListener('change', function () { onChange(inp.checked); });
+		lbl.appendChild(inp);
+		lbl.appendChild(document.createTextNode(label));
+		return lbl;
+	}
+
+	function makeCaseSelect(onChange) {
+		var lbl = document.createElement('label');
+		lbl.className = 'bc-chk';
+		lbl.appendChild(document.createTextNode('大小写'));
+		var sel = document.createElement('select');
+		var optU = document.createElement('option');
+		optU.value = 'upper'; optU.textContent = '大写';
+		var optL = document.createElement('option');
+		optL.value = 'lower'; optL.textContent = '小写';
+		sel.appendChild(optU);
+		sel.appendChild(optL);
+		sel.value = state.options.case;
+		sel.addEventListener('change', function () { onChange(sel.value); });
+		lbl.appendChild(sel);
+		return lbl;
+	}
+
+	// === 主流程 ===
+	function run() {
+		var input = inputEl.value;
+		bannerEl.hidden = true;
+		errorEl.hidden = true;
+		bannerListEl.innerHTML = '';
+
+		if (!input) {
+			outputEl.value = '';
+			updateCounters();
+			statusEl.textContent = '就绪';
+			copyBtn.disabled = true;
+			downloadBtn.disabled = true;
+			return;
+		}
+
+		var algo = ALGOS[state.algo];
+		var ctx = { warnings: [] };
+		var outputBytes = null; // 解码模式下，输出是字节；编码模式下，输出是字符串
+
+		try {
+			if (state.mode === 'encode') {
+				var bytes = strToBytes(input);
+				var result = algo.encode(bytes, state.options);
+				outputEl.value = result;
+				outputBytes = strToBytes(result); // 用于下载
+			} else {
+				var decoded = algo.decode(input, ctx);
+				outputBytes = decoded;
+				var str;
+				if (isValidUtf8(decoded)) {
+					str = bytesToStr(decoded);
+				} else {
+					str = bytesToStr(decoded); // Latin-1 兜底显示
+					ctx.warnings.push('解码结果不是有效 UTF-8 文本，已按 Latin-1 兜底显示。建议直接下载以保留原始字节');
+				}
+				outputEl.value = str;
+			}
+			statusEl.textContent = '完成';
+			copyBtn.disabled = false;
+			downloadBtn.disabled = false;
+			if (ctx.warnings.length > 0) {
+				bannerListEl.innerHTML = ctx.warnings.map(function (w) { return '<li>' + w + '</li>'; }).join('');
+				bannerEl.hidden = false;
+			}
+		} catch (e) {
+			outputEl.value = '';
+			errorEl.textContent = e && e.message || String(e);
+			errorEl.hidden = false;
+			statusEl.textContent = '失败';
+			copyBtn.disabled = true;
+			downloadBtn.disabled = true;
+		}
+		updateCounters();
+	}
+
+	function updateCounters() {
+		var inputVal = inputEl.value;
+		var outputVal = outputEl.value;
+		inputCounterEl.textContent = inputVal ? (inputVal.length + ' 字符 · ' + strToBytes(inputVal).length + ' 字节') : '';
+		outputCounterEl.textContent = outputVal ? (outputVal.length + ' 字符 · ' + strToBytes(outputVal).length + ' 字节') : '';
+	}
+
+	// === 模式切换 ===
+	function setMode(mode) {
+		state.mode = mode;
+		var btns = modeEl.querySelectorAll('.bc-seg');
+		for (var i = 0; i < btns.length; i++) {
+			var active = btns[i].dataset.mode === mode;
+			btns[i].classList.toggle('active', active);
+			btns[i].setAttribute('aria-selected', active ? 'true' : 'false');
+		}
+		// 输入框 placeholder / 标签随模式切换
+		if (mode === 'encode') {
+			inputLabelEl.textContent = '输入（待编码文本）';
+			inputEl.placeholder = '在此输入待编码的文本…';
+			outputEl.placeholder = '编码结果将在此显示…';
+		} else {
+			inputLabelEl.textContent = '输入（待解码字符串）';
+			inputEl.placeholder = '在此输入待解码的字符串…';
+			outputEl.placeholder = '解码结果将在此显示…';
+		}
+		renderOptions();
+		run();
+	}
+
+	// === 复制 ===
+	async function copyOutput() {
+		var text = outputEl.value;
+		if (!text) return;
+		try {
+			await navigator.clipboard.writeText(text);
+		} catch (e) {
+			var ta = document.createElement('textarea');
+			ta.value = text;
+			ta.style.position = 'fixed';
+			ta.style.top = '-9999px';
+			document.body.appendChild(ta);
+			ta.select();
+			try { document.execCommand('copy'); } catch (e2) {}
+			document.body.removeChild(ta);
+		}
+		var span = copyBtn.querySelector('span');
+		var orig = span ? span.textContent : '';
+		copyBtn.classList.add('copied');
+		if (span) span.textContent = '已复制';
+		setTimeout(function () {
+			copyBtn.classList.remove('copied');
+			if (span) span.textContent = orig || '复制';
+		}, 1200);
+	}
+
+	// === 下载输出 ===
+	function downloadOutput() {
+		var text = outputEl.value;
+		if (!text) return;
+		var bytes = strToBytes(text);
+		// 编码模式下，输出本身是 ASCII 文本，用 .txt；解码模式下，输出可能是二进制，用 .bin
+		var ext = state.mode === 'decode' ? 'bin' : 'txt';
+		var blob = new Blob([bytes], { type: 'application/octet-stream' });
+		var url = URL.createObjectURL(blob);
+		var a = document.createElement('a');
+		a.href = url;
+		a.download = 'base-codec-output.' + ext;
+		document.body.appendChild(a);
+		a.click();
+		document.body.removeChild(a);
+		setTimeout(function () { URL.revokeObjectURL(url); }, 1000);
+	}
+
+	// === 交换：输出 → 输入，并切换到反向模式 ===
+	function swap() {
+		var out = outputEl.value;
+		if (!out) return;
+		inputEl.value = out;
+		setMode(state.mode === 'encode' ? 'decode' : 'encode');
+	}
+
+	// === 示例 ===
+	var SAMPLE = 'Hello, 世界！🌍';
+
+	function fillSample() {
+		inputEl.value = SAMPLE;
+		setMode('encode');
+		inputEl.focus();
+	}
+
+	// === 事件绑定 ===
+	modeEl.addEventListener('click', function (e) {
+		var btn = e.target.closest('.bc-seg');
+		if (!btn) return;
+		setMode(btn.dataset.mode);
+	});
+	algoEl.addEventListener('change', function () {
+		state.algo = algoEl.value;
+		renderOptions();
+		run();
+	});
+	inputEl.addEventListener('input', run);
+	$('bcBannerDismiss').addEventListener('click', function () { bannerEl.hidden = true; });
+	copyBtn.addEventListener('click', copyOutput);
+	downloadBtn.addEventListener('click', downloadOutput);
+	swapBtn.addEventListener('click', swap);
+	sampleBtn.addEventListener('click', fillSample);
+	clearBtn.addEventListener('click', function () {
+		inputEl.value = '';
+		outputEl.value = '';
+		bannerEl.hidden = true;
+		errorEl.hidden = true;
+		updateCounters();
+		statusEl.textContent = '就绪';
+		copyBtn.disabled = true;
+		downloadBtn.disabled = true;
+		inputEl.focus();
+	});
+
+	// === 初始化 ===
+	renderOptions();
+	run();
+})();
+</script>

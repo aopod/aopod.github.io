@@ -134,3 +134,6 @@ ao_tools:
   -
     name: "Torrent 文件解析"
     url: "/tools/torrent-parser"
+  -
+    name: "Base 编解码"
+    url: "/tools/base-codec"
