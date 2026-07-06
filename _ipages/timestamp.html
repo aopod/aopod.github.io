@@ -1,0 +1,990 @@
+---
+layout: icontainer
+title: 时间戳 / 时区转换
+permalink: /tools/timestamp
+header_quote: "纯前端 Unix 时间戳与时区互转，数据不会离开浏览器"
+---
+
+<style type="text/css">
+/* === 主题变量（明暗 / 系统跟随） === */
+.ts-root {
+	--ts-accent: var(--content-link-color);
+	--ts-accent-hover: var(--content-link-hover-color);
+	--ts-border: var(--content-code-border-color);
+	--ts-muted: var(--footer-copyright-text-color);
+	--ts-card-bg: var(--page-guide-bg-color);
+	--ts-card-border: var(--page-guide-border-color);
+	--ts-pane-bg: var(--body-bg-color);
+	--ts-success-fg: #16a34a;
+	--ts-success-bg: #dcfce7;
+	--ts-success-border: #86efac;
+	--ts-warn-fg: #b45309;
+	--ts-warn-bg: #fef3c7;
+	--ts-warn-border: #fcd34d;
+	--ts-error-fg: #b91c1c;
+	--ts-error-bg: #fee2e2;
+	--ts-error-border: #fecaca;
+}
+
+/* hidden 属性兜底：本工具多处用 display:flex / display:grid，
+   类选择器优先级高于 UA 默认的 [hidden]{display:none}，这里强制生效 */
+.ts-root [hidden] { display: none !important; }
+
+@media (prefers-color-scheme: dark) {
+	:root:not([data-theme="light"]) .ts-root {
+		--ts-success-fg: #4ade80;
+		--ts-success-bg: rgba(22, 163, 74, 0.18);
+		--ts-success-border: rgba(134, 239, 172, 0.3);
+		--ts-warn-fg: #fbbf24;
+		--ts-warn-bg: rgba(180, 83, 9, 0.18);
+		--ts-warn-border: rgba(252, 211, 77, 0.3);
+		--ts-error-fg: #fca5a5;
+		--ts-error-bg: rgba(185, 28, 28, 0.18);
+		--ts-error-border: rgba(254, 202, 202, 0.25);
+	}
+}
+html[data-theme="dark"] .ts-root {
+	--ts-success-fg: #4ade80;
+	--ts-success-bg: rgba(22, 163, 74, 0.18);
+	--ts-success-border: rgba(134, 239, 172, 0.3);
+	--ts-warn-fg: #fbbf24;
+	--ts-warn-bg: rgba(180, 83, 9, 0.18);
+	--ts-warn-border: rgba(252, 211, 77, 0.3);
+	--ts-error-fg: #fca5a5;
+	--ts-error-bg: rgba(185, 28, 28, 0.18);
+	--ts-error-border: rgba(254, 202, 202, 0.25);
+}
+
+/* === 宽度覆盖（同 base_codec / torrent_parser，让工具页更宽） === */
+#content {
+	width: auto;
+	max-width: 912px;
+	min-width: 0;
+	margin-left: auto;
+	margin-right: auto;
+	padding-left: 16px;
+	padding-right: 16px;
+	box-sizing: border-box;
+}
+
+/* === 标题 === */
+.ts-title {
+	font-size: 20px;
+	font-weight: 600;
+	color: var(--content-text-color);
+	margin: 4px 0 16px;
+}
+
+/* === 卡片基 === */
+.ts-card {
+	background: var(--ts-card-bg);
+	border: 1px solid var(--ts-card-border);
+	border-radius: 10px;
+	box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+}
+
+/* === 顶部「当前」实时条 === */
+.ts-now {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	flex-wrap: wrap;
+	padding: 8px 14px;
+	margin-bottom: 12px;
+	background: var(--ts-card-bg);
+	border: 1px solid var(--ts-card-border);
+	border-radius: 10px;
+	box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+	font-size: 13px;
+	color: var(--ts-muted);
+}
+.ts-now-label {
+	font-size: 11px;
+	font-weight: 600;
+	text-transform: uppercase;
+	letter-spacing: .05em;
+}
+.ts-now code {
+	font-family: Consolas, Menlo, Monaco, "Lucida Console", monospace;
+	font-variant-numeric: tabular-nums;
+	color: var(--ts-accent);
+	font-size: 14px;
+}
+.ts-now-sep { color: var(--ts-muted); opacity: .5; }
+.ts-now-tz {
+	font-family: Consolas, Menlo, Monaco, "Lucida Console", monospace;
+	font-variant-numeric: tabular-nums;
+	color: var(--content-text-color);
+}
+.ts-now .ts-spacer { flex: 1 1 auto; }
+
+/* === 工具栏 === */
+.ts-toolbar {
+	display: flex;
+	align-items: center;
+	gap: 10px;
+	padding: 10px 12px;
+	flex-wrap: wrap;
+}
+
+/* === 分段控件（方向 / 单位） === */
+.ts-segmented {
+	display: inline-flex;
+	background: var(--ts-pane-bg);
+	border: 1px solid var(--ts-border);
+	border-radius: 8px;
+	padding: 2px;
+}
+.ts-seg {
+	padding: 5px 14px;
+	font-size: 13px;
+	font-weight: 500;
+	color: var(--ts-muted);
+	background: transparent;
+	border: none;
+	border-radius: 6px;
+	cursor: pointer;
+	transition: background .15s, color .15s;
+}
+.ts-seg:hover { color: var(--content-text-color); }
+.ts-seg.active {
+	background: var(--ts-accent);
+	color: #fff;
+}
+
+/* === 时区下拉 === */
+.ts-select {
+	height: 30px;
+	padding: 0 28px 0 10px;
+	font-size: 13px;
+	color: var(--content-text-color);
+	background: var(--ts-pane-bg);
+	border: 1px solid var(--ts-border);
+	border-radius: 6px;
+	cursor: pointer;
+	appearance: none;
+	-webkit-appearance: none;
+	-moz-appearance: none;
+	background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%2371717a' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+	background-repeat: no-repeat;
+	background-position: right 8px center;
+}
+.ts-select:focus { outline: none; border-color: var(--ts-accent); }
+
+/* === IO 区 === */
+.ts-io {
+	margin-top: 14px;
+	display: flex;
+	flex-direction: column;
+	gap: 10px;
+}
+.ts-pane {
+	padding: 12px 14px;
+	display: flex;
+	flex-direction: column;
+	gap: 8px;
+}
+.ts-pane-head {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 8px;
+}
+.ts-pane-head label {
+	font-size: 11px;
+	font-weight: 600;
+	text-transform: uppercase;
+	letter-spacing: .05em;
+	color: var(--ts-muted);
+}
+.ts-counter {
+	font-size: 11px;
+	color: var(--ts-muted);
+	font-variant-numeric: tabular-nums;
+	font-family: Consolas, Menlo, Monaco, monospace;
+}
+
+/* === 输入行 === */
+.ts-input-row {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	flex-wrap: wrap;
+}
+.ts-input {
+	flex: 1 1 220px;
+	min-width: 0;
+	height: 32px;
+	padding: 0 10px;
+	font-family: Consolas, Menlo, Monaco, "Lucida Console", monospace;
+	font-size: 13px;
+	color: var(--content-text-color);
+	background: var(--ts-pane-bg);
+	border: 1px solid var(--ts-border);
+	border-radius: 6px;
+	box-sizing: border-box;
+	transition: border-color .15s;
+}
+.ts-input:focus { outline: none; border-color: var(--ts-accent); }
+.ts-input::placeholder { color: var(--ts-muted); opacity: .7; }
+.ts-picker {
+	height: 32px;
+	padding: 0 8px;
+	font-size: 13px;
+	color: var(--content-text-color);
+	background: var(--ts-pane-bg);
+	border: 1px solid var(--ts-border);
+	border-radius: 6px;
+	cursor: pointer;
+}
+.ts-picker:focus { outline: none; border-color: var(--ts-accent); }
+
+/* === 单位徽标 === */
+.ts-badge {
+	display: inline-flex;
+	align-items: center;
+	height: 22px;
+	padding: 0 8px;
+	font-size: 11px;
+	font-weight: 600;
+	color: var(--ts-accent);
+	background: rgba(178, 24, 39, 0.08);
+	border: 1px solid rgba(178, 24, 39, 0.2);
+	border-radius: 999px;
+	white-space: nowrap;
+}
+.ts-badge.ms {
+	color: var(--ts-success-fg);
+	background: var(--ts-success-bg);
+	border-color: var(--ts-success-border);
+}
+
+.ts-hint {
+	font-size: 12px;
+	color: var(--ts-muted);
+	line-height: 1.5;
+}
+
+.ts-pane-actions {
+	display: flex;
+	align-items: center;
+	gap: 6px;
+	flex-wrap: wrap;
+	margin-top: 2px;
+}
+.ts-spacer { flex: 1 1 auto; }
+
+/* === 按钮 === */
+.ts-btn {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	gap: 5px;
+	height: 28px;
+	padding: 0 10px;
+	font-size: 12px;
+	color: var(--content-text-color);
+	background: var(--ts-pane-bg);
+	border: 1px solid var(--ts-border);
+	border-radius: 6px;
+	cursor: pointer;
+	transition: background .15s, color .15s, border-color .15s;
+}
+.ts-btn:hover:not(:disabled) {
+	color: #fff;
+	background: var(--ts-accent);
+	border-color: var(--ts-accent);
+}
+.ts-btn:focus-visible {
+	outline: 2px solid var(--ts-accent);
+	outline-offset: 2px;
+}
+.ts-btn svg { width: 13px; height: 13px; }
+.ts-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+/* === 结果面板 === */
+.ts-results {
+	display: flex;
+	flex-direction: column;
+}
+.ts-empty {
+	padding: 18px 4px;
+	font-size: 13px;
+	color: var(--ts-muted);
+	text-align: center;
+}
+.ts-row {
+	display: grid;
+	grid-template-columns: 96px 1fr auto;
+	align-items: center;
+	gap: 10px;
+	padding: 9px 4px;
+	border-bottom: 1px solid var(--ts-card-border);
+}
+.ts-results .ts-row:last-child { border-bottom: none; }
+.ts-row-label {
+	font-size: 11px;
+	font-weight: 600;
+	text-transform: uppercase;
+	letter-spacing: .05em;
+	color: var(--ts-muted);
+}
+.ts-row-val {
+	font-family: Consolas, Menlo, Monaco, "Lucida Console", monospace;
+	font-size: 13px;
+	line-height: 1.5;
+	color: var(--content-text-color);
+	word-break: break-all;
+	overflow-wrap: anywhere;
+	font-variant-numeric: tabular-nums;
+}
+.ts-copy-mini {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	width: 28px;
+	height: 28px;
+	padding: 0;
+	color: var(--ts-muted);
+	background: transparent;
+	border: 1px solid transparent;
+	border-radius: 6px;
+	cursor: pointer;
+	transition: background .15s, color .15s, border-color .15s;
+}
+.ts-copy-mini:hover {
+	color: var(--ts-accent);
+	border-color: var(--ts-border);
+	background: var(--ts-pane-bg);
+}
+.ts-copy-mini:focus-visible {
+	outline: 2px solid var(--ts-accent);
+	outline-offset: 2px;
+}
+.ts-copy-mini svg { width: 14px; height: 14px; }
+.ts-copy-mini.copied {
+	color: #fff;
+	background: var(--ts-success-fg);
+	border-color: var(--ts-success-fg);
+}
+
+/* === 提示横幅 === */
+.ts-banner {
+	margin-top: 12px;
+	padding: 9px 12px 9px 10px;
+	font-size: 12px;
+	color: var(--ts-warn-fg);
+	background: var(--ts-warn-bg);
+	border: 1px solid var(--ts-warn-border);
+	border-radius: 8px;
+	display: flex;
+	gap: 8px;
+	align-items: flex-start;
+	line-height: 1.5;
+}
+.ts-banner svg {
+	width: 14px;
+	height: 14px;
+	flex: 0 0 14px;
+	margin-top: 2px;
+}
+.ts-banner ul {
+	margin: 0;
+	padding-left: 16px;
+	flex: 1 1 auto;
+}
+.ts-banner li + li { margin-top: 2px; }
+.ts-banner code {
+	font-family: Consolas, Menlo, Monaco, monospace;
+	font-size: 11px;
+	background: rgba(0, 0, 0, 0.06);
+	padding: 0 4px;
+	border-radius: 3px;
+}
+.ts-banner-dismiss {
+	background: transparent;
+	border: none;
+	color: inherit;
+	cursor: pointer;
+	padding: 0 4px;
+	font-size: 16px;
+	line-height: 1;
+	opacity: 0.6;
+	flex: 0 0 auto;
+	align-self: flex-start;
+}
+.ts-banner-dismiss:hover { opacity: 1; }
+
+/* === 错误 === */
+.ts-error {
+	margin-top: 12px;
+	padding: 9px 12px;
+	font-size: 12px;
+	color: var(--ts-error-fg);
+	background: var(--ts-error-bg);
+	border: 1px solid var(--ts-error-border);
+	border-radius: 8px;
+	word-break: break-word;
+	line-height: 1.5;
+}
+
+/* === 响应式 === */
+@media (max-width: 600px) {
+	.ts-toolbar { padding: 8px; gap: 8px; }
+	.ts-pane { padding: 10px; }
+	.ts-row { grid-template-columns: 80px 1fr auto; gap: 8px; }
+}
+</style>
+
+<h2 class="ts-title">{{ page.title }}</h2>
+
+<div class="ts-root" id="tsRoot">
+	<!-- 顶部「当前」实时条 -->
+	<div class="ts-now" id="tsNow">
+		<span class="ts-now-label">当前</span>
+		<code id="tsNowTs">—</code>
+		<span class="ts-now-sep">·</span>
+		<span class="ts-now-tz" id="tsNowTz">—</span>
+		<div class="ts-spacer"></div>
+		<button class="ts-btn" type="button" id="tsNowUse" title="把当前时间填入输入框">填入</button>
+	</div>
+
+	<!-- 工具栏 -->
+	<div class="ts-card ts-toolbar">
+		<div class="ts-segmented" id="tsMode" role="tablist" aria-label="转换方向">
+			<button class="ts-seg active" type="button" data-mode="ts2date" role="tab" aria-selected="true">时间戳 → 时间</button>
+			<button class="ts-seg" type="button" data-mode="date2ts" role="tab" aria-selected="false">时间 → 时间戳</button>
+		</div>
+		<select class="ts-select" id="tsTz" aria-label="时区">
+			<option value="local" id="tsTzLocal" selected>本地</option>
+			<option value="UTC">UTC</option>
+			<optgroup label="亚洲">
+				<option value="Asia/Shanghai">上海 (CST, UTC+8)</option>
+				<option value="Asia/Hong_Kong">香港 (HKT, UTC+8)</option>
+				<option value="Asia/Taipei">台北 (CST, UTC+8)</option>
+				<option value="Asia/Tokyo">东京 (JST, UTC+9)</option>
+				<option value="Asia/Seoul">首尔 (KST, UTC+9)</option>
+				<option value="Asia/Singapore">新加坡 (SGT, UTC+8)</option>
+				<option value="Asia/Bangkok">曼谷 (ICT, UTC+7)</option>
+				<option value="Asia/Kolkata">加尔各答 (IST, UTC+5:30)</option>
+				<option value="Asia/Dubai">迪拜 (GST, UTC+4)</option>
+			</optgroup>
+			<optgroup label="美洲">
+				<option value="America/Los_Angeles">洛杉矶 (PST/PDT)</option>
+				<option value="America/Denver">丹佛 (MST/MDT)</option>
+				<option value="America/Chicago">芝加哥 (CST/CDT)</option>
+				<option value="America/New_York">纽约 (EST/EDT)</option>
+				<option value="America/Toronto">多伦多 (EST/EDT)</option>
+				<option value="America/Mexico_City">墨西哥城 (CST)</option>
+				<option value="America/Sao_Paulo">圣保罗 (BRT)</option>
+			</optgroup>
+			<optgroup label="欧洲">
+				<option value="Europe/London">伦敦 (GMT/BST)</option>
+				<option value="Europe/Paris">巴黎 (CET/CEST)</option>
+				<option value="Europe/Berlin">柏林 (CET/CEST)</option>
+				<option value="Europe/Moscow">莫斯科 (MSK, UTC+3)</option>
+			</optgroup>
+			<optgroup label="大洋洲">
+				<option value="Australia/Sydney">悉尼 (AEST/AEDT)</option>
+				<option value="Pacific/Auckland">奥克兰 (NZST/NZDT)</option>
+				<option value="Pacific/Honolulu">檀香山 (HST, UTC-10)</option>
+			</optgroup>
+		</select>
+		<div class="ts-segmented" id="tsUnit" role="group" aria-label="时间戳单位">
+			<button class="ts-seg active" type="button" data-unit="auto">自动</button>
+			<button class="ts-seg" type="button" data-unit="s">秒</button>
+			<button class="ts-seg" type="button" data-unit="ms">毫秒</button>
+		</div>
+	</div>
+
+	<div class="ts-io">
+		<!-- 输入卡 -->
+		<div class="ts-card ts-pane">
+			<div class="ts-pane-head">
+				<label id="tsInputLabel">时间戳</label>
+				<span class="ts-counter" id="tsInputCounter"></span>
+			</div>
+
+			<!-- ts2date 模式：数字输入 + 单位徽标 -->
+			<div class="ts-input-row" id="tsTsRow">
+				<input class="ts-input" id="tsTsInput" type="text" inputmode="numeric"
+					spellcheck="false" autocomplete="off" autocapitalize="off"
+					placeholder="如 1705272645（秒）或 1705272645000（毫秒）">
+				<span class="ts-badge" id="tsUnitBadge" hidden></span>
+			</div>
+			<div class="ts-hint" id="tsTsHint">自动识别秒 / 毫秒（≥ 13 位按毫秒）；可用右侧分段强制指定单位。</div>
+
+			<!-- date2ts 模式：自由文本 / ISO 串 + 原生日期时间选择器 -->
+			<div class="ts-input-row" id="tsDateRow" hidden>
+				<input class="ts-input" id="tsDateInput" type="text"
+					spellcheck="false" autocomplete="off" autocapitalize="off"
+					placeholder="如 2024-01-15 10:30:45 或 ISO 串">
+				<input class="ts-picker" id="tsPicker" type="datetime-local" step="1" aria-label="选择日期时间">
+			</div>
+			<div class="ts-hint" id="tsDateHint" hidden>按所选时区解释墙上时间；含 <code>Z</code> / <code>+08:00</code> 偏移的 ISO 串按绝对时间解析。</div>
+
+			<div class="ts-pane-actions">
+				<button class="ts-btn" type="button" id="tsSample">示例</button>
+				<div class="ts-spacer"></div>
+				<button class="ts-btn" type="button" id="tsClear">清空</button>
+			</div>
+		</div>
+
+		<!-- 输出卡 -->
+		<div class="ts-card ts-pane">
+			<div class="ts-pane-head">
+				<label>输出</label>
+				<span class="ts-counter" id="tsStatus">就绪</span>
+			</div>
+			<div class="ts-results" id="tsResults">
+				<div class="ts-empty">结果将在此显示…</div>
+			</div>
+		</div>
+	</div>
+
+	<div class="ts-banner" id="tsBanner" hidden>
+		<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+		<ul id="tsBannerList"></ul>
+		<button class="ts-banner-dismiss" type="button" id="tsBannerDismiss" aria-label="关闭提示">×</button>
+	</div>
+	<div class="ts-error" id="tsError" hidden></div>
+</div>
+
+<script>
+(function () {
+	'use strict';
+
+	var $ = function (id) { return document.getElementById(id); };
+
+	var COPY_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>';
+	var CHECK_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>';
+
+	// 浏览器本地时区（IANA id），失败兜底 UTC
+	var LOCAL_TZ = (function () {
+		try { return Intl.DateTimeFormat().resolvedOptions().timeZone || 'UTC'; }
+		catch (e) { return 'UTC'; }
+	})();
+
+	var state = { mode: 'ts2date', unit: 'auto', tz: 'local' };
+
+	// DOM 引用
+	var modeEl = $('tsMode'), unitEl = $('tsUnit'), tzEl = $('tsTz'), tzLocalEl = $('tsTzLocal');
+	var tsRowEl = $('tsTsRow'), dateRowEl = $('tsDateRow');
+	var tsInputEl = $('tsTsInput'), dateInputEl = $('tsDateInput'), pickerEl = $('tsPicker');
+	var unitBadgeEl = $('tsUnitBadge'), inputLabelEl = $('tsInputLabel');
+	var inputCounterEl = $('tsInputCounter');
+	var tsHintEl = $('tsTsHint'), dateHintEl = $('tsDateHint');
+	var sampleBtn = $('tsSample'), clearBtn = $('tsClear');
+	var resultsEl = $('tsResults'), statusEl = $('tsStatus');
+	var bannerEl = $('tsBanner'), bannerListEl = $('tsBannerList');
+	var errorEl = $('tsError');
+	var nowTsEl = $('tsNowTs'), nowTzEl = $('tsNowTz'), nowUseBtn = $('tsNowUse');
+
+	// 用于每秒刷新「相对时间」行
+	var liveRow = null;
+
+	function effTz() { return state.tz === 'local' ? LOCAL_TZ : state.tz; }
+
+	function escapeHtml(s) {
+		return String(s).replace(/[&<>"']/g, function (c) {
+			return ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c];
+		});
+	}
+
+	// === 时区核心：偏移 / 分量 / 墙上时间→epoch（Intl 自动处理 DST） ===
+
+	// tz 在 epochMs 这一瞬间的偏移（分钟）
+	function tzOffsetMin(tz, epochMs) {
+		var f = new Intl.DateTimeFormat('en-US', {
+			timeZone: tz, year: 'numeric', month: '2-digit', day: '2-digit',
+			hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false
+		});
+		var o = {};
+		f.formatToParts(new Date(epochMs)).forEach(function (p) { o[p.type] = p.value; });
+		var hh = o.hour === '24' ? 0 : +o.hour; // 个别引擎午夜返回 '24'
+		var asUTC = Date.UTC(+o.year, +o.month - 1, +o.day, hh, +o.minute, +o.second);
+		return Math.round((asUTC - epochMs) / 60000);
+	}
+
+	// tz 下的各分量（字符串，已补零）
+	function partsInTz(epochMs, tz) {
+		var f = new Intl.DateTimeFormat('en-CA', {
+			timeZone: tz, year: 'numeric', month: '2-digit', day: '2-digit',
+			hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false
+		});
+		var o = {};
+		f.formatToParts(new Date(epochMs)).forEach(function (p) { o[p.type] = p.value; });
+		var hh = o.hour === '24' ? '00' : o.hour;
+		return { y: o.year, mo: o.month, d: o.day, h: hh, mi: o.minute, s: o.second };
+	}
+
+	// 「墙上时间」(按 tz 解释) → epoch 毫秒
+	function wallTimeToEpochMs(y, mo, d, h, mi, s, tz) {
+		var asIfUTC = Date.UTC(y, mo - 1, d, h, mi, s); // 把墙上时间当作 UTC
+		return asIfUTC - tzOffsetMin(tz, asIfUTC) * 60000; // 减去 tz 偏移得到真实 epoch
+	}
+
+	// ISO 8601 带偏移：YYYY-MM-DDTHH:mm:ss±HH:MM
+	function isoWithOffset(epochMs, tz) {
+		var p = partsInTz(epochMs, tz);
+		var off = tzOffsetMin(tz, epochMs);
+		var sign = off < 0 ? '-' : '+';
+		var ao = Math.abs(off);
+		var oh = String(Math.floor(ao / 60)).padStart(2, '0');
+		var om = String(ao % 60).padStart(2, '0');
+		return p.y + '-' + p.mo + '-' + p.d + 'T' + p.h + ':' + p.mi + ':' + p.s + sign + oh + ':' + om;
+	}
+
+	// 完整可读时间（中文，按 tz）
+	function fullZh(epochMs, tz) {
+		return new Intl.DateTimeFormat('zh-CN', {
+			timeZone: tz, weekday: 'long', year: 'numeric', month: 'long', day: 'numeric',
+			hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false
+		}).format(new Date(epochMs));
+	}
+
+	// 紧凑时间（用于顶部「当前」条）
+	function timeShort(epochMs, tz) {
+		return new Intl.DateTimeFormat('zh-CN', {
+			timeZone: tz, year: 'numeric', month: '2-digit', day: '2-digit',
+			hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false
+		}).format(new Date(epochMs));
+	}
+
+	// 相对时间
+	function relative(epochMs, now) {
+		var diff = epochMs - now;
+		var past = diff < 0;
+		var sec = Math.abs(diff) / 1000;
+		var label;
+		if (sec < 45) return '刚刚';
+		else if (sec < 90) label = '1 分钟';
+		else if (sec < 3600) label = Math.round(sec / 60) + ' 分钟';
+		else if (sec < 7200) label = '1 小时';
+		else if (sec < 86400) label = Math.round(sec / 3600) + ' 小时';
+		else if (sec < 172800) label = '1 天';
+		else if (sec < 2592000) label = Math.round(sec / 86400) + ' 天';
+		else if (sec < 5184000) label = '1 个月';
+		else if (sec < 31536000) label = Math.round(sec / 2592000) + ' 个月';
+		else { var yr = sec / 31536000; label = yr < 2 ? '1 年' : Math.round(yr) + ' 年'; }
+		return past ? label + '前' : label + '后';
+	}
+
+	// 星期（中文）+ 当年第几天
+	function weekdayAndDoy(epochMs, tz) {
+		var wd = new Intl.DateTimeFormat('zh-CN', { timeZone: tz, weekday: 'long' }).format(new Date(epochMs));
+		var p = partsInTz(epochMs, tz);
+		var start = Date.UTC(+p.y, 0, 1);
+		var cur = Date.UTC(+p.y, +p.mo - 1, +p.d);
+		var doy = Math.floor((cur - start) / 86400000) + 1;
+		return wd + ' · 当年第 ' + doy + ' 天';
+	}
+
+	// === 解析：时间戳 ===
+	function parseTs(raw) {
+		var s = raw.trim();
+		if (!s) return null;
+		if (!/^[+-]?\d+(\.\d+)?$/.test(s)) {
+			throw new Error('时间戳应为纯数字（可选负号 / 小数）');
+		}
+		var n = Number(s);
+		if (!isFinite(n)) throw new Error('数值无效');
+		var unit = state.unit;
+		if (unit === 'auto') unit = Math.abs(n) >= 1e12 ? 'ms' : 's';
+		var ms = unit === 's' ? n * 1000 : n;
+		if (Math.abs(ms) > 8.64e15) throw new Error('时间戳超出可表示范围（约 ±2.7 亿年）');
+		var d = new Date(ms);
+		if (isNaN(d.getTime())) throw new Error('无法解析该时间戳');
+		return { ms: ms, unit: unit, unsafe: Math.abs(n) > Number.MAX_SAFE_INTEGER };
+	}
+
+	// === 解析：日期时间串 ===
+	function parseDate(raw, tz) {
+		var s = raw.trim();
+		if (!s) return null;
+		var ms;
+		// 1) 带显式偏移 / Z 的串 → 绝对时间
+		if (/(?:[Zz]|[+-]\d{2}:?\d{2})\s*$/.test(s)) {
+			var dAbs = new Date(s);
+			if (!isNaN(dAbs.getTime())) ms = dAbs.getTime();
+		}
+		// 2) naive 串 → 按所选时区解释墙上时间
+		if (ms === undefined) {
+			var m = s.match(/^(\d{4})[-/年](\d{1,2})[-/月](\d{1,2})(?:[日\sT]+(\d{1,2}):(\d{1,2})(?::(\d{1,2}))?)?/);
+			if (m) {
+				var y = +m[1], mo = +m[2], dd = +m[3];
+				var h = m[4] ? +m[4] : 0, mi = m[5] ? +m[5] : 0, se = m[6] ? +m[6] : 0;
+				if (mo >= 1 && mo <= 12 && dd >= 1 && dd <= 31 && h <= 23 && mi <= 59 && se <= 59) {
+					var cand = wallTimeToEpochMs(y, mo, dd, h, mi, se, tz);
+					if (!isNaN(new Date(cand).getTime())) ms = cand;
+				}
+			}
+		}
+		if (ms === undefined) throw new Error('无法识别的时间格式，试试 2024-01-15 10:30:45 或 ISO 串');
+		return ms;
+	}
+
+	// === 结果面板渲染 ===
+	function clearResults() {
+		liveRow = null;
+		resultsEl.innerHTML = '<div class="ts-empty">结果将在此显示…</div>';
+	}
+
+	function renderResults(rows) {
+		liveRow = null;
+		resultsEl.innerHTML = '';
+		rows.forEach(function (r) {
+			var row = document.createElement('div');
+			row.className = 'ts-row';
+
+			var lab = document.createElement('span');
+			lab.className = 'ts-row-label';
+			lab.textContent = r.label;
+
+			var val = document.createElement('code');
+			val.className = 'ts-row-val';
+			val.textContent = r.value;
+
+			var btn = document.createElement('button');
+			btn.className = 'ts-copy-mini';
+			btn.type = 'button';
+			btn.title = '复制';
+			btn.setAttribute('aria-label', '复制 ' + r.label);
+			btn.innerHTML = COPY_SVG;
+			btn.addEventListener('click', function () { copyText(r.value, btn); });
+
+			row.appendChild(lab);
+			row.appendChild(val);
+			row.appendChild(btn);
+			resultsEl.appendChild(row);
+
+			if (r.live) liveRow = { el: val, ms: r.ms };
+		});
+	}
+
+	function showBanner(msgs) {
+		bannerListEl.innerHTML = msgs.map(function (w) { return '<li>' + w + '</li>'; }).join('');
+		bannerEl.hidden = false;
+	}
+
+	// === 主流程 ===
+	function run() {
+		bannerEl.hidden = true;
+		errorEl.hidden = true;
+		bannerListEl.innerHTML = '';
+
+		if (state.mode === 'ts2date') {
+			var raw = tsInputEl.value;
+			if (!raw.trim()) {
+				clearResults();
+				unitBadgeEl.hidden = true;
+				inputCounterEl.textContent = '';
+				statusEl.textContent = '就绪';
+				return;
+			}
+			try {
+				var r = parseTs(raw);
+				unitBadgeEl.hidden = false;
+				unitBadgeEl.textContent = r.unit === 's' ? '秒' : '毫秒';
+				unitBadgeEl.className = 'ts-badge' + (r.unit === 'ms' ? ' ms' : '');
+				inputCounterEl.textContent = '= ' + Math.trunc(r.ms) + ' ms';
+				renderResults([
+					{ label: '完整时间', value: fullZh(r.ms, effTz()) },
+					{ label: 'ISO 8601', value: isoWithOffset(r.ms, effTz()) },
+					{ label: 'UTC', value: new Date(r.ms).toISOString() },
+					{ label: 'RFC 1123', value: new Date(r.ms).toUTCString() },
+					{ label: '相对时间', value: relative(r.ms, Date.now()), live: true, ms: r.ms },
+					{ label: '星期 · 第几天', value: weekdayAndDoy(r.ms, effTz()) }
+				]);
+				statusEl.textContent = '完成';
+				if (r.unsafe) showBanner(['数值超出安全整数范围（2<sup>53</sup>-1），结果可能存在精度损失']);
+			} catch (e) {
+				clearResults();
+				unitBadgeEl.hidden = true;
+				inputCounterEl.textContent = '';
+				errorEl.textContent = e && e.message || String(e);
+				errorEl.hidden = false;
+				statusEl.textContent = '失败';
+			}
+		} else {
+			var raw2 = dateInputEl.value;
+			if (!raw2.trim()) {
+				clearResults();
+				statusEl.textContent = '就绪';
+				return;
+			}
+			try {
+				var ms2 = parseDate(raw2, effTz());
+				renderResults([
+					{ label: 'Unix 秒', value: String(Math.trunc(ms2 / 1000)) },
+					{ label: 'Unix 毫秒', value: String(Math.trunc(ms2)) },
+					{ label: 'ISO 8601', value: isoWithOffset(ms2, effTz()) },
+					{ label: 'UTC', value: new Date(ms2).toISOString() },
+					{ label: '完整时间', value: fullZh(ms2, effTz()) }
+				]);
+				statusEl.textContent = '完成';
+			} catch (e) {
+				clearResults();
+				errorEl.textContent = e && e.message || String(e);
+				errorEl.hidden = false;
+				statusEl.textContent = '失败';
+			}
+		}
+	}
+
+	// === 模式切换 ===
+	function setMode(mode) {
+		state.mode = mode;
+		var btns = modeEl.querySelectorAll('.ts-seg');
+		for (var i = 0; i < btns.length; i++) {
+			var active = btns[i].dataset.mode === mode;
+			btns[i].classList.toggle('active', active);
+			btns[i].setAttribute('aria-selected', active ? 'true' : 'false');
+		}
+		var isTs = mode === 'ts2date';
+		tsRowEl.hidden = !isTs;
+		dateRowEl.hidden = isTs;
+		tsHintEl.hidden = !isTs;
+		dateHintEl.hidden = isTs;
+		unitEl.hidden = !isTs; // 单位分段仅时间戳方向可见
+		if (isTs) {
+			inputLabelEl.textContent = '时间戳';
+			tsInputEl.placeholder = '如 1705272645（秒）或 1705272645000（毫秒）';
+		} else {
+			inputLabelEl.textContent = '日期时间';
+			dateInputEl.placeholder = '如 2024-01-15 10:30:45 或 ISO 串';
+		}
+		run();
+	}
+
+	// === 单位切换 ===
+	function setUnit(unit) {
+		state.unit = unit;
+		var btns = unitEl.querySelectorAll('.ts-seg');
+		for (var i = 0; i < btns.length; i++) {
+			btns[i].classList.toggle('active', btns[i].dataset.unit === unit);
+		}
+		run();
+	}
+
+	// === 复制（带 execCommand 兜底 + 绿色反馈） ===
+	function doCopy(text) {
+		if (navigator.clipboard && navigator.clipboard.writeText) {
+			return navigator.clipboard.writeText(text);
+		}
+		return new Promise(function (resolve) {
+			var ta = document.createElement('textarea');
+			ta.value = text;
+			ta.style.position = 'fixed';
+			ta.style.top = '-9999px';
+			document.body.appendChild(ta);
+			ta.select();
+			try { document.execCommand('copy'); } catch (e) {}
+			document.body.removeChild(ta);
+			resolve();
+		});
+	}
+
+	function copyText(text, btn) {
+		if (!text) return;
+		var orig = btn.innerHTML;
+		doCopy(text).then(function () {
+			btn.classList.add('copied');
+			btn.innerHTML = CHECK_SVG;
+			btn.title = '已复制';
+			setTimeout(function () {
+				btn.classList.remove('copied');
+				btn.innerHTML = orig;
+				btn.title = '复制';
+			}, 1200);
+		});
+	}
+
+	// === 顶部「当前」实时条 ===
+	function tick() {
+		var now = Date.now();
+		nowTsEl.textContent = String(Math.trunc(now / 1000));
+		nowTzEl.textContent = timeShort(now, effTz());
+		if (liveRow) liveRow.el.textContent = relative(liveRow.ms, now);
+	}
+
+	function fillNow() {
+		if (state.mode === 'ts2date') {
+			tsInputEl.value = String(Math.trunc(Date.now() / 1000));
+		} else {
+			var p = partsInTz(Date.now(), effTz());
+			dateInputEl.value = p.y + '-' + p.mo + '-' + p.d + ' ' + p.h + ':' + p.mi + ':' + p.s;
+		}
+		run();
+		focusInput();
+	}
+
+	function fillSample() {
+		if (state.mode === 'ts2date') {
+			tsInputEl.value = '1705272645';
+		} else {
+			dateInputEl.value = '2024-01-15 10:30:00';
+		}
+		run();
+		focusInput();
+	}
+
+	function focusInput() {
+		(state.mode === 'ts2date' ? tsInputEl : dateInputEl).focus();
+	}
+
+	// === 事件绑定 ===
+	modeEl.addEventListener('click', function (e) {
+		var btn = e.target.closest('.ts-seg');
+		if (btn) setMode(btn.dataset.mode);
+	});
+	unitEl.addEventListener('click', function (e) {
+		var btn = e.target.closest('.ts-seg');
+		if (btn) setUnit(btn.dataset.unit);
+	});
+	tzEl.addEventListener('change', function () {
+		state.tz = tzEl.value;
+		run();
+		tick();
+	});
+	tsInputEl.addEventListener('input', run);
+	dateInputEl.addEventListener('input', run);
+	pickerEl.addEventListener('change', function () {
+		if (pickerEl.value) {
+			// datetime-local 的值形如 YYYY-MM-DDTHH:mm:ss，按所选时区解释
+			dateInputEl.value = pickerEl.value.replace('T', ' ');
+			run();
+		}
+	});
+	nowUseBtn.addEventListener('click', fillNow);
+	sampleBtn.addEventListener('click', fillSample);
+	$('tsBannerDismiss').addEventListener('click', function () { bannerEl.hidden = true; });
+	clearBtn.addEventListener('click', function () {
+		tsInputEl.value = '';
+		dateInputEl.value = '';
+		pickerEl.value = '';
+		clearResults();
+		unitBadgeEl.hidden = true;
+		inputCounterEl.textContent = '';
+		bannerEl.hidden = true;
+		errorEl.hidden = true;
+		statusEl.textContent = '就绪';
+		focusInput();
+	});
+
+	// === 初始化 ===
+	tzLocalEl.textContent = '本地 · ' + LOCAL_TZ;
+	// 深链：#date2ts 切到反向模式；?ts= 或 ?dt= 预填输入（便于分享一次转换）
+	try {
+		var params = new URLSearchParams(location.search);
+		if (location.hash.indexOf('date2ts') > -1) setMode('date2ts');
+		var tsQ = params.get('ts');
+		var dtQ = params.get('dt');
+		if (state.mode === 'ts2date' && tsQ) tsInputEl.value = tsQ;
+		if (state.mode === 'date2ts' && dtQ) dateInputEl.value = dtQ;
+	} catch (e) {}
+	tick();
+	setInterval(tick, 1000);
+	run();
+})();
+</script>
