@@ -864,6 +864,7 @@ html[data-theme="dark"] .ts-root {
 		for (var i = 0; i < btns.length; i++) {
 			btns[i].classList.toggle('active', btns[i].dataset.unit === unit);
 		}
+		tick(); // 切换单位后立即刷新顶部「当前」条
 		run();
 	}
 
@@ -901,16 +902,21 @@ html[data-theme="dark"] .ts-root {
 	}
 
 	// === 顶部「当前」实时条 ===
+	// 按所选单位渲染时间戳串：秒 / 毫秒；「自动」按秒显示
+	function nowTsStr(now) {
+		return state.unit === 'ms' ? String(Math.trunc(now)) : String(Math.trunc(now / 1000));
+	}
+
 	function tick() {
 		var now = Date.now();
-		nowTsEl.textContent = String(Math.trunc(now / 1000));
+		nowTsEl.textContent = nowTsStr(now);
 		nowTzEl.textContent = timeShort(now, effTz());
 		if (liveRow) liveRow.el.textContent = relative(liveRow.ms, now);
 	}
 
 	function fillNow() {
 		if (state.mode === 'ts2date') {
-			tsInputEl.value = String(Math.trunc(Date.now() / 1000));
+			tsInputEl.value = nowTsStr(Date.now());
 		} else {
 			var p = partsInTz(Date.now(), effTz());
 			dateInputEl.value = p.y + '-' + p.mo + '-' + p.d + ' ' + p.h + ':' + p.mi + ':' + p.s;
