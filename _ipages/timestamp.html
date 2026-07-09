@@ -491,8 +491,7 @@ html[data-theme="dark"] .ts-root {
 			</optgroup>
 		</select>
 		<div class="ts-segmented" id="tsUnit" role="group" aria-label="时间戳单位">
-			<button class="ts-seg active" type="button" data-unit="auto">自动</button>
-			<button class="ts-seg" type="button" data-unit="s">秒</button>
+			<button class="ts-seg active" type="button" data-unit="s">秒</button>
 			<button class="ts-seg" type="button" data-unit="ms">毫秒</button>
 		</div>
 	</div>
@@ -512,7 +511,7 @@ html[data-theme="dark"] .ts-root {
 					placeholder="如 1705272645（秒）或 1705272645000（毫秒）">
 				<span class="ts-badge" id="tsUnitBadge" hidden></span>
 			</div>
-			<div class="ts-hint" id="tsTsHint">自动识别秒 / 毫秒（≥ 13 位按毫秒）；可用右侧分段强制指定单位。</div>
+			<div class="ts-hint" id="tsTsHint">右侧分段选择秒 / 毫秒单位；毫秒模式下可用「对齐到秒」抹零末三位。</div>
 
 			<!-- date2ts 模式：自由文本 / ISO 串 + 原生日期时间选择器 -->
 			<div class="ts-input-row" id="tsDateRow" hidden>
@@ -525,6 +524,7 @@ html[data-theme="dark"] .ts-root {
 
 			<div class="ts-pane-actions">
 				<button class="ts-btn" type="button" id="tsSample">示例</button>
+				<button class="ts-btn" type="button" id="tsAlignSec" hidden>对齐到秒</button>
 				<div class="ts-spacer"></div>
 				<button class="ts-btn" type="button" id="tsClear">清空</button>
 			</div>
@@ -565,7 +565,7 @@ html[data-theme="dark"] .ts-root {
 		catch (e) { return 'UTC'; }
 	})();
 
-	var state = { mode: 'ts2date', unit: 'auto', tz: 'local' };
+	var state = { mode: 'ts2date', unit: 's', tz: 'local' };
 
 	// DOM 引用
 	var modeEl = $('tsMode'), unitEl = $('tsUnit'), tzEl = $('tsTz'), tzLocalEl = $('tsTzLocal');
@@ -574,7 +574,7 @@ html[data-theme="dark"] .ts-root {
 	var unitBadgeEl = $('tsUnitBadge'), inputLabelEl = $('tsInputLabel');
 	var inputCounterEl = $('tsInputCounter');
 	var tsHintEl = $('tsTsHint'), dateHintEl = $('tsDateHint');
-	var sampleBtn = $('tsSample'), clearBtn = $('tsClear');
+	var sampleBtn = $('tsSample'), clearBtn = $('tsClear'), alignBtn = $('tsAlignSec');
 	var resultsEl = $('tsResults'), statusEl = $('tsStatus');
 	var bannerEl = $('tsBanner'), bannerListEl = $('tsBannerList');
 	var errorEl = $('tsError');
@@ -689,8 +689,7 @@ html[data-theme="dark"] .ts-root {
 		}
 		var n = Number(s);
 		if (!isFinite(n)) throw new Error('数值无效');
-		var unit = state.unit;
-		if (unit === 'auto') unit = Math.abs(n) >= 1e12 ? 'ms' : 's';
+		var unit = state.unit; // 's' 或 'ms'，不再自动判定
 		var ms = unit === 's' ? n * 1000 : n;
 		if (Math.abs(ms) > 8.64e15) throw new Error('时间戳超出可表示范围（约 ±2.7 亿年）');
 		var d = new Date(ms);
@@ -847,6 +846,7 @@ html[data-theme="dark"] .ts-root {
 		tsHintEl.hidden = !isTs;
 		dateHintEl.hidden = isTs;
 		unitEl.hidden = !isTs; // 单位分段仅时间戳方向可见
+		alignBtn.hidden = !isTs || state.unit !== 'ms'; // 「对齐到秒」仅在时间戳·毫秒下出现
 		if (isTs) {
 			inputLabelEl.textContent = '时间戳';
 			tsInputEl.placeholder = '如 1705272645（秒）或 1705272645000（毫秒）';
@@ -864,6 +864,7 @@ html[data-theme="dark"] .ts-root {
 		for (var i = 0; i < btns.length; i++) {
 			btns[i].classList.toggle('active', btns[i].dataset.unit === unit);
 		}
+		alignBtn.hidden = state.mode !== 'ts2date' || unit !== 'ms';
 		tick(); // 切换单位后立即刷新顶部「当前」条
 		run();
 	}
@@ -927,12 +928,23 @@ html[data-theme="dark"] .ts-root {
 
 	function fillSample() {
 		if (state.mode === 'ts2date') {
-			tsInputEl.value = '1705272645';
+			tsInputEl.value = state.unit === 'ms' ? '1705272645000' : '1705272645';
 		} else {
 			dateInputEl.value = '2024-01-15 10:30:00';
 		}
 		run();
 		focusInput();
+	}
+
+	// 毫秒模式下：把输入抹零到整秒（末三位 → 000）
+	function alignToSecond() {
+		var raw = tsInputEl.value.trim();
+		if (!raw) return;
+		if (!/^[+-]?\d+(\.\d+)?$/.test(raw)) return;
+		var n = Number(raw);
+		var aligned = Math.trunc(n / 1000) * 1000;
+		tsInputEl.value = String(aligned);
+		run();
 	}
 
 	function focusInput() {
@@ -964,6 +976,7 @@ html[data-theme="dark"] .ts-root {
 	});
 	nowUseBtn.addEventListener('click', fillNow);
 	sampleBtn.addEventListener('click', fillSample);
+	alignBtn.addEventListener('click', alignToSecond);
 	$('tsBannerDismiss').addEventListener('click', function () { bannerEl.hidden = true; });
 	clearBtn.addEventListener('click', function () {
 		tsInputEl.value = '';
