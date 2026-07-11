@@ -140,3 +140,6 @@ ao_tools:
   -
     name: "时间戳 / 时区转换"
     url: "/tools/timestamp"
+  -
+    name: "公历 / 农历日历"
+    url: "/tools/lunisolar-calendar"

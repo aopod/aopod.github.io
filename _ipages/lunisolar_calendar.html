@@ -1,0 +1,533 @@
+---
+layout: icontainer
+title: 公历 / 农历日历
+permalink: /tools/lunisolar-calendar
+header_quote: "公历与农历对照、查询和日期跳转，所有计算均在浏览器本地完成"
+---
+
+<style type="text/css">
+#content {
+	width: auto;
+	max-width: 980px;
+	min-width: 0;
+	margin-left: auto;
+	margin-right: auto;
+	padding: 0 16px;
+	box-sizing: border-box;
+}
+.lc-root {
+	--lc-accent: var(--content-link-color);
+	--lc-accent-hover: var(--content-link-hover-color);
+	--lc-border: var(--content-code-border-color);
+	--lc-card: var(--page-guide-bg-color);
+	--lc-card-border: var(--page-guide-border-color);
+	--lc-pane: var(--body-bg-color);
+	--lc-text: var(--content-text-color);
+	--lc-muted: var(--footer-copyright-text-color);
+	--lc-weekend: #dc5b5b;
+	--lc-today: rgba(41, 128, 185, .12);
+	--lc-selected: rgba(41, 128, 185, .2);
+	color: var(--lc-text);
+}
+.lc-root [hidden] { display: none !important; }
+.lc-title-row, .lc-calendar-nav, .lc-converter-row, .lc-detail-head {
+	display: flex;
+	align-items: center;
+}
+.lc-title-row { justify-content: space-between; gap: 12px; margin: 4px 0 16px; }
+.lc-title { margin: 0; font-size: 20px; font-weight: 600; }
+.lc-range { color: var(--lc-muted); font-size: 12px; }
+.lc-layout { display: grid; grid-template-columns: minmax(0, 1fr) 270px; gap: 14px; }
+.lc-card {
+	background: var(--lc-card);
+	border: 1px solid var(--lc-card-border);
+	border-radius: 12px;
+	box-shadow: 0 1px 3px rgba(0, 0, 0, .04);
+}
+.lc-calendar-nav {
+	justify-content: space-between;
+	gap: 10px;
+	padding: 12px;
+	border-bottom: 1px solid var(--lc-card-border);
+}
+.lc-nav-group { display: flex; align-items: center; gap: 7px; }
+.lc-button, .lc-select, .lc-number {
+	box-sizing: border-box;
+	height: 34px;
+	color: var(--lc-text);
+	background: var(--lc-pane);
+	border: 1px solid var(--lc-border);
+	border-radius: 7px;
+	font: inherit;
+}
+.lc-button {
+	padding: 0 11px;
+	cursor: pointer;
+	font-size: 13px;
+	transition: border-color .15s, color .15s, background .15s;
+}
+.lc-button:hover, .lc-button:focus, .lc-select:focus, .lc-number:focus {
+	outline: none;
+	border-color: var(--lc-accent);
+}
+.lc-button:hover { color: var(--lc-accent); }
+.lc-button-primary { color: #fff; background: var(--lc-accent); border-color: var(--lc-accent); }
+.lc-button-primary:hover { color: #fff; background: var(--lc-accent-hover); }
+.lc-icon-button { width: 34px; padding: 0; font-size: 18px; line-height: 1; }
+.lc-select { padding: 0 8px; font-size: 13px; }
+.lc-year-select { width: 84px; }
+.lc-month-select { width: 72px; }
+.lc-weekdays, .lc-days { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); }
+.lc-weekdays { padding: 8px 10px 4px; }
+.lc-weekday { text-align: center; color: var(--lc-muted); font-size: 12px; }
+.lc-weekday:first-child, .lc-weekday:last-child { color: var(--lc-weekend); }
+.lc-days { padding: 4px 10px 10px; }
+.lc-day {
+	position: relative;
+	min-width: 0;
+	height: 78px;
+	padding: 8px 7px;
+	text-align: left;
+	color: var(--lc-text);
+	background: transparent;
+	border: 1px solid transparent;
+	border-radius: 9px;
+	cursor: pointer;
+	font: inherit;
+	box-sizing: border-box;
+	transition: background .12s, border-color .12s;
+}
+.lc-day:hover, .lc-day:focus { outline: none; background: var(--lc-today); }
+.lc-day.is-outside { opacity: .38; }
+.lc-day.is-today { background: var(--lc-today); border-color: var(--lc-accent); }
+.lc-day.is-selected { background: var(--lc-selected); border-color: var(--lc-accent); }
+.lc-day-solar { display: block; font-size: 16px; font-weight: 600; font-variant-numeric: tabular-nums; }
+.lc-day:nth-child(7n + 1) .lc-day-solar, .lc-day:nth-child(7n) .lc-day-solar { color: var(--lc-weekend); }
+.lc-day-lunar {
+	display: block;
+	margin-top: 6px;
+	overflow: hidden;
+	color: var(--lc-muted);
+	font-size: 11px;
+	line-height: 1.25;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+.lc-day-lunar.is-festival { color: var(--lc-accent); font-weight: 600; }
+.lc-side { display: flex; flex-direction: column; gap: 14px; }
+.lc-detail { padding: 16px; }
+.lc-detail-head { justify-content: space-between; gap: 8px; }
+.lc-detail-date { font-size: 28px; font-weight: 600; font-variant-numeric: tabular-nums; }
+.lc-detail-week { color: var(--lc-muted); font-size: 13px; }
+.lc-detail-lunar { margin-top: 10px; font-size: 16px; }
+.lc-detail-meta { margin-top: 6px; color: var(--lc-muted); font-size: 12px; }
+.lc-tags { display: flex; flex-wrap: wrap; gap: 6px; min-height: 24px; margin-top: 12px; }
+.lc-tag { padding: 3px 8px; color: var(--lc-accent); background: var(--lc-today); border-radius: 999px; font-size: 11px; }
+.lc-converter { padding: 14px; }
+.lc-section-title { margin: 0 0 10px; font-size: 14px; font-weight: 600; }
+.lc-help { margin: 0 0 10px; color: var(--lc-muted); font-size: 11px; line-height: 1.6; }
+.lc-converter-row { gap: 6px; flex-wrap: wrap; }
+.lc-converter .lc-select { flex: 1 1 62px; min-width: 0; }
+.lc-converter .lc-lunar-year { flex-basis: 84px; }
+.lc-converter .lc-button { width: 100%; margin-top: 3px; }
+.lc-message { margin-top: 8px; color: var(--lc-muted); font-size: 11px; line-height: 1.5; }
+.lc-message.is-error { color: #c0392b; }
+.lc-unsupported { padding: 20px; color: #c0392b; line-height: 1.7; }
+.lc-shortcuts { padding: 12px 14px; color: var(--lc-muted); font-size: 11px; line-height: 1.7; }
+kbd { padding: 1px 5px; color: var(--lc-text); background: var(--lc-pane); border: 1px solid var(--lc-border); border-radius: 4px; font: 11px Consolas, monospace; }
+@media (max-width: 760px) {
+	.lc-layout { grid-template-columns: 1fr; }
+	.lc-side { display: grid; grid-template-columns: 1fr 1fr; }
+	.lc-shortcuts { display: none; }
+}
+@media (max-width: 540px) {
+	.lc-title-row { align-items: flex-start; flex-direction: column; }
+	.lc-calendar-nav { align-items: stretch; flex-direction: column; }
+	.lc-calendar-nav .lc-nav-group { justify-content: space-between; }
+	.lc-side { display: flex; }
+	.lc-day { height: 64px; padding: 6px 4px; }
+	.lc-day-solar { font-size: 14px; }
+	.lc-day-lunar { margin-top: 4px; font-size: 10px; }
+}
+</style>
+
+<div class="lc-root" id="lunisolar-calendar">
+	<div class="lc-title-row">
+		<h2 class="lc-title">公历 / 农历日历</h2>
+		<span class="lc-range" id="lc-range"></span>
+	</div>
+	<div class="lc-unsupported" id="lc-unsupported" hidden>
+		当前浏览器不支持中国农历日历。请使用较新版本的 Chrome、Safari、Edge 或 Firefox。
+	</div>
+	<div class="lc-layout" id="lc-app" hidden>
+		<section class="lc-card" aria-label="公历和农历日历">
+			<div class="lc-calendar-nav">
+				<div class="lc-nav-group">
+					<button class="lc-button lc-icon-button" id="lc-prev" type="button" aria-label="上个月">‹</button>
+					<select class="lc-select lc-year-select" id="lc-year" aria-label="公历年份"></select>
+					<select class="lc-select lc-month-select" id="lc-month" aria-label="公历月份"></select>
+					<button class="lc-button lc-icon-button" id="lc-next" type="button" aria-label="下个月">›</button>
+				</div>
+				<button class="lc-button" id="lc-today" type="button">回到今天</button>
+			</div>
+			<div class="lc-weekdays" aria-hidden="true">
+				<span class="lc-weekday">日</span><span class="lc-weekday">一</span><span class="lc-weekday">二</span>
+				<span class="lc-weekday">三</span><span class="lc-weekday">四</span><span class="lc-weekday">五</span><span class="lc-weekday">六</span>
+			</div>
+			<div class="lc-days" id="lc-days" role="grid"></div>
+		</section>
+
+		<aside class="lc-side">
+			<section class="lc-card lc-detail" aria-live="polite">
+				<div class="lc-detail-head">
+					<span class="lc-detail-date" id="lc-detail-date"></span>
+					<span class="lc-detail-week" id="lc-detail-week"></span>
+				</div>
+				<div class="lc-detail-lunar" id="lc-detail-lunar"></div>
+				<div class="lc-detail-meta" id="lc-detail-meta"></div>
+				<div class="lc-tags" id="lc-tags"></div>
+			</section>
+
+			<section class="lc-card lc-converter">
+				<h3 class="lc-section-title">按农历跳转</h3>
+				<p class="lc-help">选择农历年月日；闰月会单独标出。</p>
+				<div class="lc-converter-row">
+					<select class="lc-select lc-lunar-year" id="lc-lunar-year" aria-label="农历年份"></select>
+					<select class="lc-select" id="lc-lunar-month" aria-label="农历月份"></select>
+					<select class="lc-select" id="lc-lunar-day" aria-label="农历日期"></select>
+					<button class="lc-button lc-button-primary" id="lc-jump" type="button">跳转到对应公历日期</button>
+				</div>
+				<div class="lc-message" id="lc-message" aria-live="polite"></div>
+			</section>
+
+			<section class="lc-card lc-shortcuts">
+				<kbd>←</kbd> <kbd>→</kbd> 前后一天　<kbd>↑</kbd> <kbd>↓</kbd> 前后七天<br>
+				点击任一日期可查看完整的公历、农历和节日信息。
+			</section>
+		</aside>
+	</div>
+</div>
+
+<script type="text/javascript">
+(function () {
+	'use strict';
+
+	var root = document.getElementById('lunisolar-calendar');
+	var app = document.getElementById('lc-app');
+	var unsupported = document.getElementById('lc-unsupported');
+	var today = startOfDay(new Date());
+	var minYear = today.getFullYear() - 100;
+	var maxYear = today.getFullYear() + 100;
+	var minDate = makeDate(minYear, 0, 1);
+	var maxDate = makeDate(maxYear, 11, 31);
+	var selected = today;
+	var viewYear = today.getFullYear();
+	var viewMonth = today.getMonth();
+	var lunarFormatter;
+	var lunarCache = new Map();
+	var lunarYearCache = new Map();
+
+	var monthNames = ['正月', '二月', '三月', '四月', '五月', '六月', '七月', '八月', '九月', '十月', '冬月', '腊月'];
+	var monthNumbers = {
+		'正月': 1, '一月': 1, '二月': 2, '三月': 3, '四月': 4, '五月': 5, '六月': 6,
+		'七月': 7, '八月': 8, '九月': 9, '十月': 10, '冬月': 11, '十一月': 11,
+		'腊月': 12, '十二月': 12
+	};
+	var dayNames = ['初一', '初二', '初三', '初四', '初五', '初六', '初七', '初八', '初九', '初十',
+		'十一', '十二', '十三', '十四', '十五', '十六', '十七', '十八', '十九', '二十',
+		'廿一', '廿二', '廿三', '廿四', '廿五', '廿六', '廿七', '廿八', '廿九', '三十'];
+	var zodiac = ['猴', '鸡', '狗', '猪', '鼠', '牛', '虎', '兔', '龙', '蛇', '马', '羊'];
+	var solarFestivals = {
+		'1-1': '元旦', '2-14': '情人节', '3-8': '妇女节', '3-12': '植树节', '5-1': '劳动节',
+		'5-4': '青年节', '6-1': '儿童节', '9-10': '教师节', '10-1': '国庆节', '12-25': '圣诞节'
+	};
+	var lunarFestivals = {
+		'1-1': '春节', '1-15': '元宵节', '2-2': '龙抬头', '5-5': '端午节',
+		'7-7': '七夕', '7-15': '中元节', '8-15': '中秋节', '9-9': '重阳节', '12-8': '腊八节', '12-23': '北方小年', '12-24': '南方小年'
+	};
+
+	try {
+		lunarFormatter = new Intl.DateTimeFormat('zh-CN-u-ca-chinese', {
+			year: 'numeric', month: 'long', day: 'numeric'
+		});
+		var probe = lunarFormatter.formatToParts(makeDate(2024, 1, 10));
+		if (!partValue(probe, 'relatedYear') || !partValue(probe, 'month')) throw new Error('unsupported');
+	} catch (error) {
+		unsupported.hidden = false;
+		return;
+	}
+
+	app.hidden = false;
+	document.getElementById('lc-range').textContent = '可查询 ' + minYear + '—' + maxYear + ' 年';
+	fillSolarSelectors();
+	fillLunarYears();
+	bindEvents();
+	render();
+	syncLunarInputs(selected);
+
+	function makeDate(year, month, day) {
+		var date = new Date(0);
+		date.setHours(12, 0, 0, 0);
+		date.setFullYear(year, month, day);
+		return date;
+	}
+
+	function startOfDay(date) { return makeDate(date.getFullYear(), date.getMonth(), date.getDate()); }
+	function dateKey(date) {
+		return date.getFullYear() + '-' + pad(date.getMonth() + 1) + '-' + pad(date.getDate());
+	}
+	function pad(value) { return String(value).padStart(2, '0'); }
+	function sameDate(a, b) { return dateKey(a) === dateKey(b); }
+	function addDays(date, amount) {
+		var next = makeDate(date.getFullYear(), date.getMonth(), date.getDate());
+		next.setDate(next.getDate() + amount);
+		return next;
+	}
+	function clampDate(date) { return date < minDate ? minDate : (date > maxDate ? maxDate : date); }
+	function partValue(parts, type) {
+		var item = parts.find(function (part) { return part.type === type; });
+		return item ? item.value : '';
+	}
+
+	function lunarInfo(date) {
+		var key = dateKey(date);
+		if (lunarCache.has(key)) return lunarCache.get(key);
+		var parts = lunarFormatter.formatToParts(date);
+		var rawMonth = partValue(parts, 'month');
+		var leap = rawMonth.indexOf('闰') === 0;
+		var cleanMonth = rawMonth.replace('闰', '');
+		var month = monthNumbers[cleanMonth];
+		if (!month) throw new Error('无法识别农历月份：' + rawMonth);
+		var info = {
+			year: Number(partValue(parts, 'relatedYear')),
+			yearName: partValue(parts, 'yearName'),
+			month: month,
+			monthName: cleanMonth,
+			rawMonth: rawMonth,
+			day: Number(partValue(parts, 'day')),
+			leap: leap
+		};
+		lunarCache.set(key, info);
+		return info;
+	}
+
+	function festivals(date, lunar) {
+		var result = [];
+		var solar = solarFestivals[(date.getMonth() + 1) + '-' + date.getDate()];
+		if (solar) result.push(solar);
+		if (!lunar.leap) {
+			var lunarFestival = lunarFestivals[lunar.month + '-' + lunar.day];
+			if (lunarFestival) result.push(lunarFestival);
+		}
+		var next = lunarInfo(addDays(date, 1));
+		if (lunar.month === 12 && next.month === 1 && next.day === 1) result.push('除夕');
+		return result;
+	}
+
+	function fillSolarSelectors() {
+		var yearSelect = document.getElementById('lc-year');
+		for (var y = minYear; y <= maxYear; y += 1) yearSelect.add(new Option(y + '年', y));
+		var monthSelect = document.getElementById('lc-month');
+		for (var m = 1; m <= 12; m += 1) monthSelect.add(new Option(m + '月', m - 1));
+	}
+
+	function fillLunarYears() {
+		var select = document.getElementById('lc-lunar-year');
+		// 公历范围起始年的一、二月通常仍属于上一个农历年。
+		for (var y = minYear - 1; y <= maxYear; y += 1) select.add(new Option(y + '年', y));
+	}
+
+	function render() {
+		document.getElementById('lc-year').value = viewYear;
+		document.getElementById('lc-month').value = viewMonth;
+		var days = document.getElementById('lc-days');
+		days.innerHTML = '';
+		var first = makeDate(viewYear, viewMonth, 1);
+		var cursor = addDays(first, -first.getDay());
+		for (var i = 0; i < 42; i += 1) {
+			var date = addDays(cursor, i);
+			var lunar = lunarInfo(date);
+			var labels = festivals(date, lunar);
+			var button = document.createElement('button');
+			button.type = 'button';
+			button.className = 'lc-day';
+			button.setAttribute('role', 'gridcell');
+			button.dataset.date = dateKey(date);
+			if (date < minDate || date > maxDate) {
+				button.disabled = true;
+				button.removeAttribute('data-date');
+			}
+			if (date.getMonth() !== viewMonth) button.classList.add('is-outside');
+			if (sameDate(date, today)) button.classList.add('is-today');
+			if (sameDate(date, selected)) button.classList.add('is-selected');
+			var lunarLabel = labels[0] || (lunar.day === 1 ? lunar.rawMonth : dayNames[lunar.day - 1]);
+			button.innerHTML = '<span class="lc-day-solar">' + date.getDate() + '</span>' +
+				'<span class="lc-day-lunar' + (labels.length ? ' is-festival' : '') + '">' + lunarLabel + '</span>';
+			button.setAttribute('aria-label', date.getFullYear() + '年' + (date.getMonth() + 1) + '月' + date.getDate() + '日，农历' + lunar.rawMonth + dayNames[lunar.day - 1] + (labels.length ? '，' + labels.join('、') : ''));
+			days.appendChild(button);
+		}
+		renderDetail();
+		setNavState();
+	}
+
+	function renderDetail() {
+		var lunar = lunarInfo(selected);
+		var labels = festivals(selected, lunar);
+		var weekdays = ['星期日', '星期一', '星期二', '星期三', '星期四', '星期五', '星期六'];
+		document.getElementById('lc-detail-date').textContent = pad(selected.getMonth() + 1) + '月' + pad(selected.getDate()) + '日';
+		document.getElementById('lc-detail-week').textContent = weekdays[selected.getDay()];
+		document.getElementById('lc-detail-lunar').textContent = '农历 ' + lunar.rawMonth + dayNames[lunar.day - 1];
+		document.getElementById('lc-detail-meta').textContent = selected.getFullYear() + '年 · ' + (lunar.yearName || '') + zodiac[lunar.year % 12] + '年';
+		var tags = document.getElementById('lc-tags');
+		tags.innerHTML = '';
+		labels.forEach(function (label) {
+			var span = document.createElement('span');
+			span.className = 'lc-tag';
+			span.textContent = label;
+			tags.appendChild(span);
+		});
+	}
+
+	function setNavState() {
+		document.getElementById('lc-prev').disabled = viewYear === minYear && viewMonth === 0;
+		document.getElementById('lc-next').disabled = viewYear === maxYear && viewMonth === 11;
+	}
+
+	function moveMonth(amount) {
+		var target = makeDate(viewYear, viewMonth + amount, 1);
+		if (target < minDate || target > maxDate) return;
+		viewYear = target.getFullYear();
+		viewMonth = target.getMonth();
+		render();
+	}
+
+	function selectDate(date, syncInputs) {
+		selected = clampDate(date);
+		viewYear = selected.getFullYear();
+		viewMonth = selected.getMonth();
+		render();
+		if (syncInputs !== false) syncLunarInputs(selected);
+	}
+
+	function lunarMonthsForYear(year) {
+		if (lunarYearCache.has(year)) return lunarYearCache.get(year);
+		var found = [];
+		var seen = {};
+		var cursor = makeDate(year, 0, 1);
+		var end = makeDate(year + 1, 2, 15);
+		while (cursor <= end) {
+			var info = lunarInfo(cursor);
+			if (info.year === year) {
+				var key = info.month + (info.leap ? '-leap' : '');
+				if (!seen[key]) {
+					seen[key] = true;
+					found.push({ month: info.month, leap: info.leap, label: info.rawMonth });
+				}
+			}
+			cursor = addDays(cursor, 1);
+		}
+		lunarYearCache.set(year, found);
+		return found;
+	}
+
+	function updateLunarMonths(preferredMonth, preferredLeap) {
+		var year = Number(document.getElementById('lc-lunar-year').value);
+		var select = document.getElementById('lc-lunar-month');
+		select.innerHTML = '';
+		lunarMonthsForYear(year).forEach(function (item) {
+			var value = item.month + (item.leap ? '-leap' : '');
+			select.add(new Option(item.label, value));
+		});
+		var preferred = preferredMonth + (preferredLeap ? '-leap' : '');
+		if (preferredMonth && Array.from(select.options).some(function (option) { return option.value === preferred; })) select.value = preferred;
+		updateLunarDays();
+	}
+
+	function updateLunarDays(preferredDay) {
+		var year = Number(document.getElementById('lc-lunar-year').value);
+		var monthValue = document.getElementById('lc-lunar-month').value;
+		var bits = monthValue.split('-');
+		var month = Number(bits[0]);
+		var leap = bits[1] === 'leap';
+		var length = lunarMonthLength(year, month, leap);
+		var select = document.getElementById('lc-lunar-day');
+		select.innerHTML = '';
+		for (var d = 1; d <= length; d += 1) select.add(new Option(dayNames[d - 1], d));
+		if (preferredDay && preferredDay <= length) select.value = preferredDay;
+	}
+
+	function lunarMonthLength(year, month, leap) {
+		var date = findLunarDate(year, month, 1, leap);
+		if (!date) return 29;
+		var count = 1;
+		while (count < 30) {
+			var info = lunarInfo(addDays(date, count));
+			if (info.year !== year || info.month !== month || info.leap !== leap) break;
+			count += 1;
+		}
+		return count;
+	}
+
+	function findLunarDate(year, month, day, leap) {
+		var cursor = makeDate(year, 0, 1);
+		var end = makeDate(year + 1, 2, 15);
+		while (cursor <= end) {
+			var info = lunarInfo(cursor);
+			if (info.year === year && info.month === month && info.day === day && info.leap === leap) return cursor;
+			cursor = addDays(cursor, 1);
+		}
+		return null;
+	}
+
+	function syncLunarInputs(date) {
+		var lunar = lunarInfo(date);
+		document.getElementById('lc-lunar-year').value = lunar.year;
+		updateLunarMonths(lunar.month, lunar.leap);
+		updateLunarDays(lunar.day);
+	}
+
+	function bindEvents() {
+		document.getElementById('lc-prev').addEventListener('click', function () { moveMonth(-1); });
+		document.getElementById('lc-next').addEventListener('click', function () { moveMonth(1); });
+		document.getElementById('lc-today').addEventListener('click', function () { selectDate(today); });
+		document.getElementById('lc-year').addEventListener('change', function (event) {
+			viewYear = Number(event.target.value); render();
+		});
+		document.getElementById('lc-month').addEventListener('change', function (event) {
+			viewMonth = Number(event.target.value); render();
+		});
+		document.getElementById('lc-days').addEventListener('click', function (event) {
+			var button = event.target.closest('.lc-day');
+			if (!button) return;
+			var parts = button.dataset.date.split('-').map(Number);
+			selectDate(makeDate(parts[0], parts[1] - 1, parts[2]));
+		});
+		document.getElementById('lc-lunar-year').addEventListener('change', function () { updateLunarMonths(); });
+		document.getElementById('lc-lunar-month').addEventListener('change', function () { updateLunarDays(); });
+		document.getElementById('lc-jump').addEventListener('click', function () {
+			var year = Number(document.getElementById('lc-lunar-year').value);
+			var bits = document.getElementById('lc-lunar-month').value.split('-');
+			var day = Number(document.getElementById('lc-lunar-day').value);
+			var match = findLunarDate(year, Number(bits[0]), day, bits[1] === 'leap');
+			var message = document.getElementById('lc-message');
+			if (!match || match < minDate || match > maxDate) {
+				message.className = 'lc-message is-error';
+				message.textContent = '没有在可查询范围内找到这个农历日期。';
+				return;
+			}
+			message.className = 'lc-message';
+			message.textContent = '对应公历：' + match.getFullYear() + '年' + (match.getMonth() + 1) + '月' + match.getDate() + '日';
+			selectDate(match, false);
+		});
+		root.addEventListener('keydown', function (event) {
+			if (event.target.matches('select, button') && !event.target.classList.contains('lc-day')) return;
+			var amount = { ArrowLeft: -1, ArrowRight: 1, ArrowUp: -7, ArrowDown: 7 }[event.key];
+			if (!amount) return;
+			event.preventDefault();
+			selectDate(addDays(selected, amount));
+			var selectedButton = document.querySelector('.lc-day.is-selected');
+			if (selectedButton) selectedButton.focus();
+		});
+	}
+})();
+</script>
