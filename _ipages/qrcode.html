@@ -20,6 +20,11 @@ permalink: /tools/qrcode
 	height: auto;
 	display: block;
 }
+#qr_display svg {
+	display: block;
+	width: 100%;
+	height: auto;
+}
 #qr_input {
 	margin-top: 30px;
 }
@@ -28,6 +33,20 @@ permalink: /tools/qrcode
 	min-height: 60px;
 	font-size: 1.4em;
 	padding: 0.6em;
+}
+#qr_message {
+	margin-top: 12px;
+	padding: 10px;
+	border-radius: 4px;
+	font-size: 14px;
+}
+#qr_message.qr_info {
+	color: #555;
+	background: #f5f5f5;
+}
+#qr_message.qr_error {
+	color: #d32f2f;
+	background: #ffebee;
 }
 
 /* Responsive design */
@@ -50,138 +69,99 @@ permalink: /tools/qrcode
 	</div>
 	<div id="qr_input">
 		<textarea placeholder="{{site.url}}"></textarea>
+		<div id="qr_message" role="status" aria-live="polite" hidden></div>
 	</div>
 </div>
+<script type="text/javascript" src="{{ "/js/qrcode-generator.js" | prepend: site.asset_path }}"></script>
 <script type='text/javascript'>
 (function () {
 	const displayElement = document.querySelector('#qr_display');
 	const inputElement = document.querySelector('#qr_input > textarea');
+	const messageElement = document.querySelector('#qr_message');
 
-	// QR Code 版本 40 的最大容量（字节数）
-	// 注意：这些值需要在 QRCode 库加载后使用
+	// QR Code 40 版、8-bit byte mode 在各容错等级下的最大容量。
 	const MAX_CAPACITIES = {
-		L: 2953,  // 7% 容错
-		M: 2331,  // 15% 容错
-		Q: 1663,  // 25% 容错
-		H: 1273   // 30% 容错
+		L: 2953,
+		M: 2331,
+		Q: 1663,
+		H: 1273
 	};
+	const CORRECT_LEVELS = ['H', 'Q', 'M', 'L'];
 
-	// 清除错误提示
-	function clearErrorMessage() {
-		const errorElement = document.querySelector('#qr_error');
-		if (errorElement) {
-			errorElement.remove();
+	function showMessage(message, isError) {
+		messageElement.textContent = message;
+		messageElement.className = isError ? 'qr_error' : 'qr_info';
+		messageElement.hidden = false;
+	}
+
+	// 用 U+FFFD 替换无效的孤立代理项，避免粘贴的异常 Unicode 导致编码器报错。
+	function toWellFormed(text) {
+		if (typeof text.toWellFormed === 'function') {
+			return text.toWellFormed();
 		}
-	}
 
-	// 显示错误提示
-	function showErrorMessage(message) {
-		clearErrorMessage();
-		const errorDiv = document.createElement('div');
-		errorDiv.id = 'qr_error';
-		errorDiv.style.cssText = 'color: #d32f2f; margin-top: 15px; padding: 10px; background: #ffebee; border-radius: 4px; font-size: 14px;';
-		errorDiv.textContent = message;
-		displayElement.after(errorDiv);
-	}
-
-	// 检查二维码生成是否成功
-	function checkQRGenerated() {
-		const canvas = displayElement.querySelector('canvas');
-		const img = displayElement.querySelector('img');
-		return canvas !== null || img !== null;
-	}
-
-	// 根据文本长度计算最优容错级别
-	function getOptimalCorrectLevel(byteSize) {
-		// 数据越短，使用越高的容错级别
-		if (byteSize <= 150) return 'H'; // 30%
-		if (byteSize <= 500) return 'Q'; // 25%
-		if (byteSize <= 1000) return 'M'; // 15%
-		return 'L'; // 7%
-	}
-
-	// 将容错级别字符串转换为 QRCode 常量
-	function getQRCodeLevel(levelStr) {
-		switch (levelStr) {
-			case 'L': return QRCode.CorrectLevel.L;
-			case 'M': return QRCode.CorrectLevel.M;
-			case 'Q': return QRCode.CorrectLevel.Q;
-			case 'H': return QRCode.CorrectLevel.H;
-			default: return QRCode.CorrectLevel.L;
+		let result = '';
+		for (let i = 0; i < text.length; i += 1) {
+			const code = text.charCodeAt(i);
+			if (code >= 0xD800 && code <= 0xDBFF) {
+				const next = text.charCodeAt(i + 1);
+				if (next >= 0xDC00 && next <= 0xDFFF) {
+					result += text[i] + text[i + 1];
+					i += 1;
+				} else {
+					result += '\uFFFD';
+				}
+			} else if (code >= 0xDC00 && code <= 0xDFFF) {
+				result += '\uFFFD';
+			} else {
+				result += text[i];
+			}
 		}
-	}
-
-	// 计算文本的 UTF-8 字节数
-	function getByteSize(text) {
-		return new Blob([text]).size;
+		return result;
 	}
 
 	function updateQRCode(text) {
 		displayElement.innerHTML = '';
-		clearErrorMessage();
 
-		if (text == null || text.length == 0) {
+		if (text == null || text.length === 0) {
 			text = '{{site.url}}';
 		}
+		text = toWellFormed(text);
 
-		const byteSize = getByteSize(text);
-
-		// 检查是否超过最大容量
-		if (byteSize > MAX_CAPACITIES.L) {
-			showErrorMessage(`文本过长 (${byteSize} 字节)，超过了二维码最大容量 (${MAX_CAPACITIES.L} 字节)。请缩短文本内容。`);
+		if (typeof qrcode === 'undefined') {
+			showMessage('二维码组件加载失败，请刷新页面后重试。', true);
 			return;
 		}
 
-		// 确定初始容错级别
-		const optimalLevel = getOptimalCorrectLevel(byteSize);
-		// 确保选择的容错级别能容纳数据
-		const initialLevel = (byteSize <= MAX_CAPACITIES[optimalLevel]) ? optimalLevel : 'L';
-
-		// 尝试按优先级顺序生成二维码：最优级别 -> M -> Q -> L
-		const levelsToTry = [initialLevel, 'M', 'Q', 'L'];
-		const uniqueLevels = [...new Set(levelsToTry)]; // 去重
-
-		let success = false;
-		let lastError = null;
-
-		for (const levelStr of uniqueLevels) {
-			// 跳过无法容纳数据的容错级别
-			if (byteSize > MAX_CAPACITIES[levelStr]) continue;
-
-			// 尝试不同尺寸
-			for (let size = 512; size <= 2048; size += 128) {
-				try {
-					displayElement.innerHTML = '';
-					new QRCode(displayElement, {
-						text: text,
-						width: size,
-						height: size,
-						colorDark: "#000000",
-						colorLight: "#ffffff",
-						correctLevel: getQRCodeLevel(levelStr)
-					});
-					success = true;
-					break;
-				} catch (error) {
-					lastError = error.message;
-					// 如果是数据溢出错误，说明当前容错级别不够，尝试更低级别
-					if (error.message.includes("code length overflow") || error.message.includes("Too long data")) {
-						break;
-					}
-					// 其他错误继续尝试更大的尺寸
-				}
-			}
-
-			if (success) break;
+		const byteSize = new Blob([text]).size;
+		if (byteSize > MAX_CAPACITIES.L) {
+			showMessage(`内容经 UTF-8 编码后为 ${byteSize} 字节，超过单个二维码 ${MAX_CAPACITIES.L} 字节的最大容量。请缩短内容后重试（中文通常占 3 字节，emoji 通常占 4 字节）。`, true);
+			return;
 		}
 
-		// 延迟检查最终结果（因为 QRCode 库可能异步渲染）
-		setTimeout(() => {
-			if (!checkQRGenerated()) {
-				const errorMsg = lastError || "未知错误";
-				showErrorMessage(`二维码生成失败 (${errorMsg})。文本长度为 ${byteSize} 字节，可能超过了容量限制。请尝试缩短文本内容。`);
+		let lastError = null;
+		for (const levelStr of CORRECT_LEVELS) {
+			if (byteSize > MAX_CAPACITIES[levelStr]) continue;
+
+			try {
+				const qr = qrcode(0, levelStr);
+				qr.addData(text, 'Byte');
+				qr.make();
+				displayElement.innerHTML = qr.createSvgTag({
+					cellSize: 4,
+					margin: 16,
+					scalable: true,
+					title: '生成的二维码'
+				});
+				showMessage(`已生成 · UTF-8 ${byteSize} 字节 · ${levelStr} 级容错`, false);
+				return;
+			} catch (error) {
+				lastError = error;
 			}
-		}, 100);
+		}
+
+		console.error('QR code generation failed:', lastError);
+		showMessage(`无法生成二维码。内容经 UTF-8 编码后为 ${byteSize} 字节，请缩短内容或移除部分复杂字符后重试。`, true);
 	}
 
 	let timeoutToken = null;
@@ -196,16 +176,6 @@ permalink: /tools/qrcode
 		}, 500);
 	});
 
-	// 确保 QRCode 库已加载后再初始化
-	function initQRCode() {
-		if (typeof QRCode !== 'undefined') {
-			updateQRCode();
-		} else {
-			// QRCode 库还没加载，等待后重试
-			setTimeout(initQRCode, 100);
-		}
-	}
-
-	window.addEventListener('load', initQRCode);
+	updateQRCode();
 })();
 </script>
