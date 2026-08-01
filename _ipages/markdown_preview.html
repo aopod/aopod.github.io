@@ -205,6 +205,7 @@ html[data-theme="light"] .md-preview {
 	max-height: 60vh;
 	overflow-y: auto;
 	overflow-x: hidden;
+	overscroll-behavior: contain; /* 滚动到边界时不链式传递给已锁定的 body，避免背后页面/背景图抖动 */
 	padding: 18px 22px;
 	font-size: var(--md-font-size, 16px);
 	line-height: 1.75;
@@ -389,14 +390,20 @@ html[data-theme="light"] .md-preview {
 }
 #content .md-preview.is-immersive {
 	position: fixed;
-	top: 50%;
-	left: 50%;
+	/* 四向内缩 + margin:auto 居中，给卡片一个确定的高度。
+	   原先用 max-height:calc(100vh-48px) 且高度由内容撑开，render() 重新
+	   innerHTML 时会有一个内容极短的中间帧，卡片高度随之 长→短→长 塌缩，
+	   期间露出背后的遮罩/背景图，表现为下滑时背景一闪而过。
+	   改用 top/bottom 锁定高度后，重渲染不再引起卡片尺寸变化；
+	   同时不再依赖 100vh / top:50% / transform，移动端工具栏伸缩时也更稳。 */
+	top: 24px;
+	right: 24px;
+	bottom: 24px;
+	left: 24px;
 	z-index: 9999;
-	width: min(960px, calc(100vw - 48px));
-	max-width: none;
-	max-height: calc(100vh - 48px);
-	margin: 0;
-	transform: translate(-50%, -50%);
+	width: auto;
+	max-width: min(960px, calc(100vw - 48px));
+	margin: 0 auto;
 	box-shadow: 0 24px 70px rgba(0, 0, 0, 0.5);
 }
 #content .md-preview.is-immersive .md-input-wrap {
