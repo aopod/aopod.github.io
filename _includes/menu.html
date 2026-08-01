@@ -19,22 +19,26 @@
 			</ul>
 		</div>
 	</div>
-	<div class="category">
-		<ul>
-		{% for category in site.ao_categories %}
-			<a href="/categories/#tag_{{ category }}"><li>{{ category }}</li></a>
-		{% endfor %}
-		{% for item in site.ao_menu_items %}
-			<a href="{{ item.url }}"{% if item.target %} target="{{ item.target }}"{% endif %}><li>{{ item.name }}</a></li></a>
-		{% endfor %}
-		</ul>
-	</div>
-	<div class="tools">
-		<ul>
-		{% for tool_info in site.ao_tools %}
-			<li><a href="{{ tool_info.url }}" target="_blank">{{ tool_info.name }}</a></li>
-		{% endfor %}
-		</ul>
+	<div class="menu-scroll-region">
+		<div class="menu-scroll-content">
+			<div class="category">
+				<ul>
+				{% for category in site.ao_categories %}
+					<a href="/categories/#tag_{{ category }}"><li>{{ category }}</li></a>
+				{% endfor %}
+				{% for item in site.ao_menu_items %}
+					<a href="{{ item.url }}"{% if item.target %} target="{{ item.target }}"{% endif %}><li>{{ item.name }}</a></li></a>
+				{% endfor %}
+				</ul>
+			</div>
+			<div class="tools">
+				<ul>
+				{% for tool_info in site.ao_tools %}
+					<li><a href="{{ tool_info.url }}" target="_blank">{{ tool_info.name }}</a></li>
+				{% endfor %}
+				</ul>
+			</div>
+		</div>
 	</div>
 	<div class="theme-toggle">
 		<a href="javascript:void(0);" id="theme-toggle-btn">

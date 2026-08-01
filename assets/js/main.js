@@ -118,13 +118,33 @@
 
 				this.menu = {
 					'init' : function() {
+						var scrollContent = document.querySelector('#menu .menu-scroll-content');
+						var scrollRegion = document.querySelector('#menu .menu-scroll-region');
+						var updateScrollIndicators = function() {
+							if (!scrollContent || !scrollRegion) return;
+							var maxScrollTop = scrollContent.scrollHeight - scrollContent.clientHeight;
+							scrollRegion.classList.toggle('can-scroll-up', scrollContent.scrollTop > 1);
+							scrollRegion.classList.toggle('can-scroll-down', scrollContent.scrollTop < maxScrollTop - 1);
+						};
+
+						if (scrollContent) {
+							scrollContent.addEventListener('scroll', updateScrollIndicators);
+							$(window).on('resize', updateScrollIndicators);
+							if (window.ResizeObserver) {
+								new ResizeObserver(updateScrollIndicators).observe(scrollContent);
+							}
+							updateScrollIndicators();
+						}
+
 						$('#menu .apps-trigger').click(function(e) {
 							e.preventDefault();
 							$(this).closest('.apps-entry').toggleClass('open');
+							setTimeout(updateScrollIndicators, 320);
 						});
 						$('#menu .ctl, #fade').click(function() {
 							var opening = !$('body').hasClass('menu');
 							$('body').toggleClass('menu');
+							updateScrollIndicators();
 							if (!opening) {
 								$('.apps-entry').removeClass('open');
 							}

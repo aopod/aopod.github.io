@@ -346,6 +346,9 @@ body.menu {
 	width: 280px;
 	position: fixed;
 	height: 100%;
+	height: 100dvh;
+	display: flex;
+	flex-direction: column;
 	background-color: var(--menu-bg-color);
 	top: 0;
 	left: -284px;
@@ -582,6 +585,7 @@ body.menu #menu .ctl:after {
 }
 
 #menu .apps-entry {
+	flex: 0 0 auto;
 	text-align: center;
 	margin: 14px 0;
 }
@@ -690,6 +694,72 @@ body.menu #menu .ctl:after {
 	font-size: 1.6em;
 }
 
+#menu .menu-scroll-region {
+	position: relative;
+	min-height: 0;
+	flex: 1 1 auto;
+}
+
+#menu .menu-scroll-content {
+	height: 100%;
+	box-sizing: border-box;
+	overflow-x: hidden;
+	overflow-y: auto;
+	overscroll-behavior: contain;
+	scrollbar-width: thin;
+	scrollbar-color: rgba(170, 170, 170, .65) transparent;
+	-webkit-overflow-scrolling: touch;
+}
+
+#menu .menu-scroll-content::-webkit-scrollbar {
+	width: 6px;
+}
+
+#menu .menu-scroll-content::-webkit-scrollbar-thumb {
+	background-color: rgba(170, 170, 170, .65);
+	border-radius: 3px;
+}
+
+#menu .menu-scroll-region::before,
+#menu .menu-scroll-region::after {
+	position: absolute;
+	z-index: 1;
+	left: 0;
+	width: 100%;
+	height: 42px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	pointer-events: none;
+	font: normal normal normal 16px/1 FontAwesome;
+	color: var(--menu-category-link-color);
+	opacity: 0;
+	transition: opacity .2s ease;
+}
+
+#menu .menu-scroll-region::before {
+	content: '\f077';
+	top: 0;
+	align-items: flex-start;
+	padding-top: 7px;
+	box-sizing: border-box;
+	background: linear-gradient(to bottom, var(--menu-bg-color) 15%, transparent);
+}
+
+#menu .menu-scroll-region::after {
+	content: '\f078';
+	bottom: 0;
+	align-items: flex-end;
+	padding-bottom: 7px;
+	box-sizing: border-box;
+	background: linear-gradient(to top, var(--menu-bg-color) 15%, transparent);
+}
+
+#menu .menu-scroll-region.can-scroll-up::before,
+#menu .menu-scroll-region.can-scroll-down::after {
+	opacity: 1;
+}
+
 #menu .category ul {
 	padding-left: 0;
 	text-align: center;
@@ -742,9 +812,7 @@ body.menu #menu .ctl:after {
 }
 
 #menu .theme-toggle {
-	position: absolute;
-	bottom: 0;
-	left: 0;
+	flex: 0 0 auto;
 	width: 100%;
 	padding: 15px 0;
 	border-top: 1px solid rgba(62, 62, 62, 200);
