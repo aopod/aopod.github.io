@@ -377,9 +377,10 @@ html[data-theme="light"] .md-preview {
 	position: fixed;
 	top: 0; right: 0; bottom: 0; left: 0;
 	z-index: 9998;
-	background: rgba(0, 0, 0, 0.55);
-	-webkit-backdrop-filter: blur(3px);
-	backdrop-filter: blur(3px);
+	/* 深色冷调遮罩配合亮度压低，让背景退后，同时保留少量环境层次。 */
+	background: rgba(4, 7, 12, 0.74);
+	-webkit-backdrop-filter: blur(4px) brightness(0.55) saturate(0.75);
+	backdrop-filter: blur(4px) brightness(0.55) saturate(0.75);
 	opacity: 0;
 	visibility: hidden;
 	transition: opacity .25s ease, visibility .25s ease;
@@ -404,7 +405,7 @@ html[data-theme="light"] .md-preview {
 	width: auto;
 	max-width: min(960px, calc(100vw - 48px));
 	margin: 0 auto;
-	box-shadow: 0 24px 70px rgba(0, 0, 0, 0.5);
+	box-shadow: 0 24px 72px rgba(0, 0, 0, 0.68);
 }
 #content .md-preview.is-immersive .md-input-wrap {
 	display: none;
